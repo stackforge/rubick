@@ -1,0 +1,7 @@
+# Python stuff
+*.pyc
+
+# Vim stuff
+.*.swp
+.*.swo
+
