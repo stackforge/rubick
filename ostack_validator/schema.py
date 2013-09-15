@@ -10,6 +10,30 @@ class Version:
     else:
       self.parts = [int(major), int(minor), int(maintenance)]
 
+  @property
+  def major(self):
+    return self.parts[0]
+
+  @major.setter
+  def major(self, value):
+    self.parts[0] = int(value)
+
+  @property
+  def minor(self):
+    return self.parts[1]
+
+  @minor.setter
+  def minor(self, value):
+    self.parts[1] = int(value)
+
+  @property
+  def maintenance(self):
+    return self.parts[2]
+
+  @maintenance.setter
+  def maintenance(self, value):
+    self.parts[2] = value
+
   def __str__(self):
     return '.'.join([str(p) for p in self.parts])
 
