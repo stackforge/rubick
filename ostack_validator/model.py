@@ -5,9 +5,10 @@ class Openstack(object):
     self.components = components
 
 class OpenstackComponent(object):
-  def __init__(self, name, configs=[]):
+  def __init__(self, name, version, configs=[]):
     super(OpenstackComponent, self).__init__()
     self.name = name
+    self.version = version
 
 class ComponentConfig(object):
   def __init__(self, name, sections=[]):
