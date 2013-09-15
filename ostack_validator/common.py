@@ -3,6 +3,14 @@ def find(l, predicate):
   results = [x for x in l if predicate(x)]
   return results[0] if len(results) > 0 else None
 
+def index(l, predicate):
+  i = 0
+  while i<len(l):
+    if predicate(l[i]):
+      return i
+    i += 1
+  return -1
+
 class Mark(object):
   def __init__(self, source, line, column):
     self.source = source
