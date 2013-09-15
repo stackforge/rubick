@@ -26,22 +26,25 @@ class Element(object):
   def __ne__(self, other):
     return not self == other
 
+class TextElement(Element):
+  def __init__(self, start_mark, end_mark, text):
+    super(TextElement, self).__init__(start_mark, end_mark)
+    self.text = text
+
 class ConfigSection(Element):
   def __init__(self, start_mark, end_mark, name, parameters):
     super(ConfigSection, self).__init__(start_mark, end_mark)
     self.name = name
     self.parameters = parameters
 
-class ConfigSectionName(Element):
-  def __init__(self, start_mark, end_mark, text):
-    super(ConfigSectionName, self).__init__(start_mark, end_mark)
-    self.text = text
+class ConfigSectionName(TextElement): pass
 
 class ConfigParameter(Element):
-  def __init__(self, start_mark, end_mark, name, value):
+  def __init__(self, start_mark, end_mark, name, value, delimiter):
     super(ConfigParameter, self).__init__(start_mark, end_mark)
     self.name = name
     self.value = value
+    self.delimiter = delimiter
 
   def __eq__(self, other):
     return (self.name.text == other.name.text) and (self.value.text == other.value.text)
@@ -50,17 +53,14 @@ class ConfigParameter(Element):
     return not self == other
     
   def __repr__(self):
-    return "<ConfigParameter %s=%s>" % (self.name.text, self.value.text)
+    return "<ConfigParameter %s=%s delimiter=%s>" % (self.name.text, self.value.text, self.delimiter.text)
 
 
-class ConfigParameterName(Element):
-  def __init__(self, start_mark, end_mark, text):
-    super(ConfigParameterName, self).__init__(start_mark, end_mark)
-    self.text = text
+class ConfigParameterName(TextElement): pass
 
-class ConfigParameterValue(Element):
-  def __init__(self, start_mark, end_mark, text):
-    super(ConfigParameterValue, self).__init__(start_mark, end_mark)
-    self.text = text
+class ConfigParameterValue(TextElement):
+  def __init__(self, start_mark, end_mark, text, quotechar=None):
+    super(ConfigParameterValue, self).__init__(start_mark, end_mark, text)
+    self.quotechar = quotechar
 
 

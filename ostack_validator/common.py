@@ -15,17 +15,29 @@ class Mark(object):
   def __ne__(self, other):
     return not self == other
 
+  def merge(self, other):
+    return Mark(self.source, self.line + other.line - 1, self.column + other.column - 1)
+
+  def __repr__(self):
+    return '%s line %d column %d' % (self.source, self.line, self.column)
+
 class Error(object):
   def __init__(self, message):
     self.message = message
 
   def __repr__(self):
-    return '<%s "%s">' % (str(self.__class__).split('.')[-1], self.message)
+    return '<%s "%s">' % (str(self.__class__).split('.')[-1][:-2], self.message)
+
+  def __str__(self):
+    return 'Error: %s' % self.message
 
 class MarkedError(Error):
   def __init__(self, message, mark):
     super(MarkedError, self).__init__(message)
     self.mark = mark
+
+  def __repr__(self):
+    return '<%s "%s" at %s>' % (str(self.__class__).split('.')[-1][:-2], self.message, self.mark)
 
   def __str__(self):
     return self.message + (" (source '%s' line %d column %d)" % (self.mark.source, self.mark.line, self.mark.column))

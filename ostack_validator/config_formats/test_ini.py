@@ -6,7 +6,22 @@ class IniConfigParserTests(unittest.TestCase):
   def setUp(self):
     self.parser = IniConfigParser()
 
-  def parse(self, content):
+  def _strip_margin(self, content):
+    lines = content.split("\n")
+    if lines[0] == '' and lines[-1].strip() == '':
+      lines = lines[1:-1]
+    first_line = lines[0]
+    margin_size = 0
+    while margin_size < len(first_line) and first_line[margin_size].isspace(): margin_size += 1
+
+    stripped_lines = [line[margin_size:] for line in lines]
+
+    return "\n".join(stripped_lines)
+
+  def parse(self, content, margin=False):
+    if margin:
+      content = self._strip_margin(content)
+
     return self.parser.parse('test.conf', content)
 
   def test_parsing(self):
@@ -17,6 +32,48 @@ class IniConfigParserTests(unittest.TestCase):
     config = result.value
     self.assertParameter('param1', 'value1', config.sections[0].parameters[0])
     self.assertEqual(1, len(config.sections[0].parameters))
+
+  def test_colon_as_delimiter(self):
+    r = self.parse('param1 : value1')
+
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'value1', r.value.sections[0].parameters[0])
+
+  def test_use_colon_delimiter_if_it_comes_before_equals_sign(self):
+    r = self.parse('param1: value=123')
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'value=123', r.value.sections[0].parameters[0])
+
+  def test_use_equals_delimiter_if_it_comes_before_colon(self):
+    r = self.parse('param1=value:123')
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'value:123', r.value.sections[0].parameters[0])
+
+  def test_wrapping_value_with_single_quotes(self):
+    r = self.parse("param = 'foo bar'")
+
+    self.assertTrue(r.success)
+    self.assertParameter('param', 'foo bar', r.value.sections[0].parameters[0])
+    self.assertEqual("'", r.value.sections[0].parameters[0].value.quotechar)
+
+  def test_wrapping_value_with_single_quotes_and_trailing_whitespace(self):
+    r = self.parse("param = 'foo bar'   ")
+
+    self.assertTrue(r.success)
+    self.assertParameter('param', 'foo bar', r.value.sections[0].parameters[0])
+
+  def test_wrapping_value_with_double_quotes(self):
+    r = self.parse("param = \"foo bar\"")
+
+    self.assertTrue(r.success)
+    self.assertParameter('param', 'foo bar', r.value.sections[0].parameters[0])
+    self.assertEqual('"', r.value.sections[0].parameters[0].value.quotechar)
+
+  def test_wrapping_value_with_double_quotes_and_trailing_whitespace(self):
+    r = self.parse("param = \"foo bar\"   ")
+
+    self.assertTrue(r.success)
+    self.assertParameter('param', 'foo bar', r.value.sections[0].parameters[0])
 
   def test_parsing_iolike_source(self):
     r = self.parse(StringIO("param1 = value1"))
@@ -36,8 +93,9 @@ class IniConfigParserTests(unittest.TestCase):
     r = self.parse("""
       [section1]
       param1 = value1
-    """)
+    """, margin=True)
 
+    self.assertTrue(r.success)
     self.assertEqual('section1', r.value.sections[0].name.text)
     self.assertEqual(1, len(r.value.sections[0].parameters))
 
@@ -46,8 +104,9 @@ class IniConfigParserTests(unittest.TestCase):
       [section1]
       param1 = value1
       param2 = value2
-    """)
+    """, margin=True)
 
+    self.assertTrue(r.success)
     self.assertEqual(2, len(r.value.sections[0].parameters))
 
   def test_parsing_with_different_sections(self):
@@ -56,8 +115,9 @@ class IniConfigParserTests(unittest.TestCase):
       param1 = value1
       [section2]
       param2 = value2
-    """)
+    """, margin=True)
 
+    self.assertTrue(r.success)
     c = r.value
 
     self.assertEqual('section1', c.sections[0].name.text)
@@ -67,13 +127,50 @@ class IniConfigParserTests(unittest.TestCase):
     self.assertParameter('param2', 'value2', c.sections[1].parameters[0])
     self.assertEqual(1, len(c.sections[1].parameters))
 
-  def test_whole_line_comments(self):
+  def test_whole_line_comments_starting_with_hash(self):
     r = self.parse("#param=value")
+    self.assertTrue(r.success)
+    self.assertEqual(0, len(r.value.sections))
+
+  def test_whole_line_comments_starting_with_semicolon(self):
+    r = self.parse(";param=value")
+    self.assertTrue(r.success)
     self.assertEqual(0, len(r.value.sections))
 
   def test_hash_in_value_is_part_of_the_value(self):
     r = self.parse("param=value#123")
+    self.assertTrue(r.success)
     self.assertParameter("param", "value#123", r.value.sections[0].parameters[0])
+
+  def test_multiline_value(self):
+    r = self.parse("""
+      param1 = line1
+        line2
+    """, margin=True)
+
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'line1line2', r.value.sections[0].parameters[0])
+
+  def test_multiline_value_finished_by_other_parameter(self):
+    r = self.parse("""
+      param1 = foo
+        bar
+      param2 = baz
+    """, margin=True)
+
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'foobar', r.value.sections[0].parameters[0])
+
+  def test_multiline_value_finished_by_empty_line(self):
+    r = self.parse("""
+      param1 = foo
+        bar
+
+      param2 = baz
+    """, margin=True)
+
+    self.assertTrue(r.success)
+    self.assertParameter('param1', 'foobar', r.value.sections[0].parameters[0])
 
   def test_unclosed_section_causes_error(self):
     r = self.parse("[section1\nparam1=123")
