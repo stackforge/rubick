@@ -113,13 +113,7 @@ class IniConfigParser:
       sections.append(section)
       parameters = []
 
-    if len(errors) > 0:
-      return ParseResult(False, errors)
-    
-    if len(sections) > 0:
-      config = ComponentConfig(name, sections)
-    else:
-      config = ComponentConfig(name, [])
+    config = ComponentConfig(name, sections, errors)
 
-    return ParseResult(True, config)
+    return config
 

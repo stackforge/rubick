@@ -11,10 +11,11 @@ class OpenstackComponent(object):
     self.version = version
 
 class ComponentConfig(object):
-  def __init__(self, name, sections=[]):
+  def __init__(self, name, sections=[], errors=[]):
     super(ComponentConfig, self).__init__()
     self.name = name
     self.sections = sections
+    self.errors = errors
 
 class Element(object):
   def __init__(self, start_mark, end_mark):
