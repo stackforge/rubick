@@ -1,0 +1,5 @@
+10.20.0.1 - - [16/Sep/2013:10:50:57 +0000] "GET / HTTP/1.1" 301 314 "http://localhost:8000/" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"
+10.20.0.1 - - [16/Sep/2013:10:50:57 +0000] "GET /dashboard/ HTTP/1.1" 200 736 "http://localhost:8000/" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"
+10.20.0.1 - - [16/Sep/2013:10:51:03 +0000] "GET /static/dashboard/css/f7d819ea8542.css HTTP/1.1" 200 20525 "http://10.20.0.129/dashboard/" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"
+10.20.0.1 - - [16/Sep/2013:10:51:03 +0000] "GET /static/dashboard/img/logo-splash.png?bd0a834bae0e HTTP/1.1" 200 4852 "http://10.20.0.129/dashboard/" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"
+10.20.0.1 - - [16/Sep/2013:10:51:03 +0000] "GET /static/dashboard/img/favicon.ico HTTP/1.1" 200 635 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"

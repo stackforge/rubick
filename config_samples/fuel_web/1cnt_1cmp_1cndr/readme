@@ -1,0 +1,5 @@
+Configuration:
+1. One controller
+2. One compute
+3. One cinder
+4. Flat DHCP mode - nova-network

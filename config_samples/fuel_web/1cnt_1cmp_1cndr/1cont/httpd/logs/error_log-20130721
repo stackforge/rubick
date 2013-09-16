@@ -1,0 +1,4 @@
+[Sun Jul 14 04:02:05 2013] [notice] Digest: generating secret for digest authentication ...
+[Sun Jul 14 04:02:05 2013] [notice] Digest: done
+[Sun Jul 14 04:02:05 2013] [notice] Apache/2.2.15 (Unix) DAV/2 mod_wsgi/3.2 Python/2.6.6 configured -- resuming normal operations
+[Sun Jul 21 04:02:06 2013] [notice] SIGHUP received.  Attempting to restart

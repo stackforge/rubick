@@ -1,0 +1,13 @@
+[Sun Jul 28 04:02:03 2013] [notice] Digest: generating secret for digest authentication ...
+[Sun Jul 28 04:02:03 2013] [notice] Digest: done
+[Sun Jul 28 04:02:03 2013] [notice] Apache/2.2.15 (Unix) DAV/2 mod_wsgi/3.2 Python/2.6.6 configured -- resuming normal operations
+[Mon Sep 16 10:18:13 2013] [notice] suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Mon Sep 16 10:18:13 2013] [notice] Digest: generating secret for digest authentication ...
+[Mon Sep 16 10:18:13 2013] [notice] Digest: done
+[Mon Sep 16 10:18:13 2013] [notice] Apache/2.2.15 (Unix) DAV/2 mod_wsgi/3.2 Python/2.6.6 configured -- resuming normal operations
+[Mon Sep 16 10:29:59 2013] [notice] suEXEC mechanism enabled (wrapper: /usr/sbin/suexec)
+[Mon Sep 16 10:29:59 2013] [notice] Digest: generating secret for digest authentication ...
+[Mon Sep 16 10:29:59 2013] [notice] Digest: done
+[Mon Sep 16 10:29:59 2013] [notice] Apache/2.2.15 (Unix) DAV/2 mod_wsgi/3.2 Python/2.6.6 configured -- resuming normal operations
+[Mon Sep 16 10:50:57 2013] [warn] [client 10.20.0.1] incomplete redirection target of '/dashboard/' for URI '/' modified to 'http://10.20.0.129/dashboard/', referer: http://localhost:8000/
+[Mon Sep 16 10:50:57 2013] [warn] [client 10.20.0.1] incomplete redirection target of '/dashboard/' for URI '/' modified to 'http://10.20.0.129/dashboard/', referer: http://localhost:8000/

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# NOTE: This script is intended to run in conjunction with qemu-ifup
+#       which uses the same logic to find your bridge/switch
+
+nic=$1
+
+if [ -f /etc/default/qemu-kvm ]; then
+    . /etc/default/qemu-kvm
+fi
+
+if [ -z "$TAPBR" ]; then
+    switch=$(ip route list | awk '/^default / { print $5 }')
+    if [ ! -d "/sys/class/net/${switch}/bridge" ]; then
+        switch=virbr0
+    fi
+else
+    switch=$TAPBR
+fi
+
+brctl delif $switch $nic
+ifconfig $nic 0.0.0.0 down
