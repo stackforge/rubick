@@ -1,20 +1,59 @@
 
 class Openstack(object):
-  def __init__(self, components):
+  def __init__(self, hosts, resource_locator, config_parser):
     super(Openstack, self).__init__()
+    self.hosts = hosts
+    self.resource_locator = resource_locator
+    self.config_parser = config_parser
+    for host in self.hosts:
+      host.parent = self
+
+class Host(object):
+  def __init__(self, name, metadata, components):
+    super(Host, self).__init__()
+    self.name = name
+    self.metadata = metadata
     self.components = components
+    for component in self.components:
+      component.parent = self
 
 class OpenstackComponent(object):
-  def __init__(self, name, version, configs=[]):
+  def __init__(self, name, version):
     super(OpenstackComponent, self).__init__()
     self.name = name
     self.version = version
+    self.configs = {}
+
+  @property
+  def host(self):
+    return self.parent
+
+  @property
+  def openstack(self):
+    return self.host.parent
+
+  def get_config(self, config_name=None):
+    if config_name is None:
+      config_name = '%s.conf' % self.name
+
+    if not config_name in self.configs:
+      resource = self.openstack.resource_locator.find_resource(self.host.name, self.name, config_name)
+      if resource:
+        config = self.openstack.config_parser.parse(config_name, resource.get_contents())
+        self.configs[config_name] = config
+      else:
+        self.configs[config_name] = None
+
+    return self.configs[config_name]
 
 class ComponentConfig(object):
   def __init__(self, name, sections=[], errors=[]):
     super(ComponentConfig, self).__init__()
     self.name = name
     self.sections = sections
+    for section in self.sections:
+      section.parent = self
+
     self.errors = errors
 
 class Element(object):
@@ -38,6 +77,8 @@ class ConfigSection(Element):
     super(ConfigSection, self).__init__(start_mark, end_mark)
     self.name = name
     self.parameters = parameters
+    for parameter in self.parameters:
+      parameter.parent = self
 
 class ConfigSectionName(TextElement): pass
 
@@ -45,8 +86,13 @@ class ConfigParameter(Element):
   def __init__(self, start_mark, end_mark, name, value, delimiter):
     super(ConfigParameter, self).__init__(start_mark, end_mark)
     self.name = name
+    self.name.parent = self
+
     self.value = value
+    self.value.parent = self
+
     self.delimiter = delimiter
+    self.delimiter.parent = self
 
   def __eq__(self, other):
     return (self.name.text == other.name.text) and (self.value.text == other.value.text)

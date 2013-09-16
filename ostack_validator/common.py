@@ -11,6 +11,55 @@ def index(l, predicate):
     i += 1
   return -1
 
+class Version:
+  def __init__(self, major, minor=0, maintenance=0):
+    "Create Version object by either passing 3 integers, one string or an another Version object"
+    if isinstance(major, str):
+      self.parts = [int(x) for x in major.split('.', 3)]
+    elif isinstance(major, Version):
+      self.parts = major.parts
+    else:
+      self.parts = [int(major), int(minor), int(maintenance)]
+
+  @property
+  def major(self):
+    return self.parts[0]
+
+  @major.setter
+  def major(self, value):
+    self.parts[0] = int(value)
+
+  @property
+  def minor(self):
+    return self.parts[1]
+
+  @minor.setter
+  def minor(self, value):
+    self.parts[1] = int(value)
+
+  @property
+  def maintenance(self):
+    return self.parts[2]
+
+  @maintenance.setter
+  def maintenance(self, value):
+    self.parts[2] = value
+
+  def __str__(self):
+    return '.'.join([str(p) for p in self.parts])
+
+  def __repr__(self):
+    return '<Version %s>' % str(self)
+
+  def __cmp__(self, other):
+    for i in xrange(0, 3):
+      x = self.parts[i] - other.parts[i]
+      if x != 0:
+        return -1 if x < 0 else 1
+
+    return 0
+
+
 class Mark(object):
   def __init__(self, source, line, column):
     self.source = source
