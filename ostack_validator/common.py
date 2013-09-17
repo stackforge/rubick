@@ -104,7 +104,7 @@ class Issue(object):
     return '<%s type=%s message=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message)
 
   def __str__(self):
-    return 'Error: %s' % self.message
+    return '%s: %s' % (self.type, self.message)
 
 class MarkedIssue(Issue):
   def __init__(self, type, message, mark):
