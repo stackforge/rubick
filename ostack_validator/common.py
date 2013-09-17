@@ -16,6 +16,9 @@ class Version:
     "Create Version object by either passing 3 integers, one string or an another Version object"
     if isinstance(major, str):
       self.parts = [int(x) for x in major.split('.', 3)]
+      while len(self.parts) < 3:
+        self.parts.append(0)
+
     elif isinstance(major, Version):
       self.parts = major.parts
     else:
@@ -61,7 +64,7 @@ class Version:
 
 
 class Mark(object):
-  def __init__(self, source, line, column):
+  def __init__(self, source, line=0, column=0):
     self.source = source
     self.line = line
     self.column = column
@@ -78,7 +81,7 @@ class Mark(object):
   def __repr__(self):
     return '%s line %d column %d' % (self.source, self.line, self.column)
 
-class Error(object):
+class Error:
   def __init__(self, message):
     self.message = message
 
@@ -86,18 +89,33 @@ class Error(object):
     return '<%s "%s">' % (str(self.__class__).split('.')[-1][:-2], self.message)
 
   def __str__(self):
+    return self.message
+
+ERROR = 'ERROR'
+WARNING = 'WARNING'
+INFO = 'INFO'
+
+class Issue(object):
+  def __init__(self, type, message):
+    self.type = type
+    self.message = message
+
+  def __repr__(self):
+    return '<%s type=%s message=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message)
+
+  def __str__(self):
     return 'Error: %s' % self.message
 
-class MarkedError(Error):
-  def __init__(self, message, mark):
-    super(MarkedError, self).__init__(message)
+class MarkedIssue(Issue):
+  def __init__(self, type, message, mark):
+    super(MarkedIssue, self).__init__(type, message)
     self.mark = mark
 
   def __repr__(self):
-    return '<%s "%s" at %s>' % (str(self.__class__).split('.')[-1][:-2], self.message, self.mark)
+    return '<%s type=%s message=%s mark=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message, self.mark)
 
   def __str__(self):
-    return self.message + (" (source '%s' line %d column %d)" % (self.mark.source, self.mark.line, self.mark.column))
+    return super(MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' % (self.mark.source, self.mark.line, self.mark.column))
 
 
 class Inspection(object):

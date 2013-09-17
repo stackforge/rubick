@@ -16,6 +16,17 @@ class VersionTests(unittest.TestCase):
     self.assertEqual(2, v.minor)
     self.assertEqual(12, v.maintenance)
 
+  def test_creation_from_string_with_less_parts(self):
+    v = Version('1.2')
+    self.assertEqual(1, v.major)
+    self.assertEqual(2, v.minor)
+    self.assertEqual(0, v.maintenance)
+
+    v = Version('12')
+    self.assertEqual(12, v.major)
+    self.assertEqual(0, v.minor)
+    self.assertEqual(0, v.maintenance)
+
   def test_creation_from_other_version(self):
     v = Version('1.2.3')
     v2 = Version(v)

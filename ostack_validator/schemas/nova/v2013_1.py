@@ -1376,9 +1376,11 @@ nova.param('use_ipv6', type='boolean')
 # Print more verbose output (set logging level to INFO instead
 # of default WARNING level). (boolean value)
 #verbose=false
+nova.param('verbose', type='boolean', default=False, description='Print more verbose output (set logging level to INFO instead of default WARNING level)')
 
 # Log output to standard error (boolean value)
 #use_stderr=true
+nova.param('use_stderr', type='boolean', default=True, description='Log output to standard error')
 
 # format string to use for log messages with context (string
 # value)
@@ -3387,4 +3389,5 @@ nova.section('spice')
 # keymap for spice (string value)
 #keymap=en-us
 
+nova.commit()
 

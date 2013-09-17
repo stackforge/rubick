@@ -1,4 +1,4 @@
-from ostack_validator.common import Error, MarkedError
+from ostack_validator.common import Issue, MarkedIssue
 from ostack_validator.schema import TypeValidatorRegistry
 
 import unittest
@@ -9,10 +9,10 @@ class TypeValidatorTestHelper(object):
     self.validator = TypeValidatorRegistry.get_validator(self.type_name)
 
   def assertValid(self, value):
-    self.assertIsNone(self.validator.validate(value))
+    self.assertNotIsInstance(self.validator.validate(value), Issue)
 
   def assertInvalid(self, value):
-    self.assertIsInstance(self.validator.validate(value), Error)
+    self.assertIsInstance(self.validator.validate(value), Issue)
 
 class StringTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   type_name = 'string'
@@ -23,14 +23,20 @@ class StringTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   def test_validation_always_passes(self):
     self.assertValid('foo bar')
 
+  def test_should_return_same_string_if_valid(self):
+    s = 'foo bar'
+    self.assertEqual(s, self.validator.validate(s))
+
 class BooleanTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   type_name = 'boolean'
 
   def test_True(self):
-    self.assertValid('True')
+    v = self.validator.validate('True')
+    self.assertEqual(True, v)
 
   def test_False(self):
-    self.assertValid('False')
+    v = self.validator.validate('False')
+    self.assertEqual(False, v)
 
   def test_other_values_produce_error(self):
     self.assertInvalid('foo')
@@ -58,13 +64,17 @@ class IntegerTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
 
   def test_invalid_char_error_contains_proper_column_in_mark(self):
     error = self.validator.validate('12a45')
-    self.assertIsInstance(error, MarkedError)
+    self.assertIsInstance(error, MarkedIssue)
     self.assertEqual(3, error.mark.column)
 
   def test_invalid_char_error_contains_proper_column_if_leading_whitespaces(self):
     error = self.validator.validate('  12a45')
-    self.assertIsInstance(error, MarkedError)
+    self.assertIsInstance(error, MarkedIssue)
     self.assertEqual(5, error.mark.column)
+
+  def test_returns_integer_if_valid(self):
+    v = self.validator.validate('123')
+    self.assertEqual(123, v)
 
 class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   type_name = 'port'
@@ -94,6 +104,10 @@ class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
     self.assertValid('  123')
     self.assertValid('456  ')
     self.assertValid('  123  ')
+
+  def test_returns_integer_if_valid(self):
+    v = self.validator.validate('123')
+    self.assertEqual(123, v)
 
 if __name__ == '__main__':
   unittest.main()

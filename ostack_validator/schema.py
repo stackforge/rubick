@@ -1,4 +1,6 @@
-from ostack_validator.common import Inspection, MarkedError, Mark, Version, find, index
+import sys
+
+from ostack_validator.common import Inspection, MarkedIssue, ERROR, Mark, Version, find, index
 
 class SchemaUpdateRecord(object):
   # checkpoint's data is version number
@@ -11,15 +13,23 @@ class SchemaUpdateRecord(object):
     self.operation = operation
     self.data = data
 
+  def __repr__(self):
+    return '<SchemaUpdateRecord %s %s %s' % (self.version, self.operation, self.data)
+
 class SchemaBuilder(object):
-  def __init__(self, data):
+  def __init__(self, name, data):
     super(SchemaBuilder, self).__init__()
+    self.name = name
     self.data = data
 
     self.current_version = None
     self.current_section = None
     self.adds = []
     self.removals = []
+
+  def __del__(self):
+    if len(self.adds) > 0 or len(self.removals) > 0:
+      sys.stderr.write("WARNING: Uncommitted config schema \"%s\" version %s\n" % (self.name, self.current_version))
 
   def version(self, version, checkpoint=False):
     version = Version(version)
@@ -36,22 +46,32 @@ class SchemaBuilder(object):
     self.current_section = name
 
   def param(self, *args, **kwargs):
+    self._ensure_version()
+
     if not 'section' in kwargs and self.current_section:
       kwargs['section'] = self.current_section
 
     self.adds.append(ConfigParameterSchema(*args, **kwargs))
 
   def remove_param(self, name):
+    self._ensure_version()
+
     self.removals.append(name)
 
   def commit(self):
     "Finalize schema building"
+    self._ensure_version()
+
     if len(self.removals) > 0:
       self.data.append(SchemaUpdateRecord(self.current_version, 'remove', self.removals))
       self.removals = []
     if len(self.adds) > 0:
       self.data.append(SchemaUpdateRecord(self.current_version, 'add', self.adds))
       self.adds = []
+
+  def _ensure_version(self):
+    if not self.current_version:
+      raise Error, 'Schema version is not specified. Please call version() method first'
 
 class ConfigSchemaRegistry:
   __schemas = {}
@@ -61,7 +81,7 @@ class ConfigSchemaRegistry:
       configname = '%s.conf' % project
     fullname = '%s/%s' % (project, configname)
     self.__schemas[fullname] = []
-    return SchemaBuilder(self.__schemas[fullname])
+    return SchemaBuilder(fullname, self.__schemas[fullname])
 
   @classmethod
   def get_schema(self, project, version, configname=None):
@@ -114,7 +134,7 @@ class ConfigSchema:
     self.format = format
     self.parameters = parameters
 
-  def get_parameter(name, section=None):
+  def get_parameter(self, name, section=None):
     # TODO: optimize this
     return find(self.parameters, lambda p: p.name == name and p.section == section)
 
@@ -145,9 +165,9 @@ class TypeValidatorRegistry:
     return self.__validators[name]
 
 
-class InvalidValueError(MarkedError):
+class InvalidValueError(MarkedIssue):
   def __init__(self, message, mark=Mark('', 1, 1)):
-    super(InvalidValueError, self).__init__(message, mark)
+    super(InvalidValueError, self).__init__(ERROR, message, mark)
 
 class TypeValidator(object):
   def __init__(self, f):
@@ -167,17 +187,32 @@ def type_validator(name, **kwargs):
     return fn
   return wrap
 
-@type_validator('boolean', values=['True', 'False'])
+@type_validator('boolean')
+def validate_boolean(s):
+  s = s.lower()
+  if s == 'true':
+    return True
+  elif s == 'false':
+    return False
+  else:
+    return InvalidValueError('Invalid value: value should be "true" or "false"')
+
 def validate_enum(s, values=[]):
   if s in values:
     return None
-  return InvalidValueError('Invalid value: valid values are: %s' % ', '.join(values))
+  if len(values) == 0:
+    message = 'there should be no value'
+  elif len(values) == 1:
+    message = 'the only valid value is %s' % values[0]
+  else:
+    message = 'valid values are %s and %s' % (', '.join(values[:-1]), values[-1])
+  return InvalidValueError('Invalid value: %s' % message)
 
 @type_validator('host')
 @type_validator('string')
 @type_validator('stringlist')
 def validate_string(s):
-  return None
+  return s
 
 @type_validator('integer')
 @type_validator('port', min=1, max=65535)
@@ -196,6 +231,6 @@ def validate_integer(s, min=None, max=None):
   if max and v > max:
     return InvalidValueError('Invalid value: should be less than or equal to %d' % max, Mark('', 1, leading_whitespace_len))
 
-  return None
+  return v
 
 

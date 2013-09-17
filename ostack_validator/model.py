@@ -1,3 +1,4 @@
+from ostack_validator.common import Mark
 
 class Openstack(object):
   def __init__(self, hosts, resource_locator, config_parser):
@@ -40,6 +41,7 @@ class OpenstackComponent(object):
       resource = self.openstack.resource_locator.find_resource(self.host.name, self.name, config_name)
       if resource:
         config = self.openstack.config_parser.parse(config_name, resource.get_contents())
+        config.mark = Mark(resource.name)
         self.configs[config_name] = config
       else:
         self.configs[config_name] = None
@@ -47,9 +49,10 @@ class OpenstackComponent(object):
     return self.configs[config_name]
 
 class ComponentConfig(object):
-  def __init__(self, name, sections=[], errors=[]):
+  def __init__(self, name, mark, sections=[], errors=[]):
     super(ComponentConfig, self).__init__()
     self.name = name
+    self.mark = mark
     self.sections = sections
     for section in self.sections:
       section.parent = self

@@ -1,25 +1,40 @@
 import sys
+import logging
+import argparse
 
 from ostack_validator.model_parser import ModelParser
 from ostack_validator.inspection import MainConfigValidationInspection
 
 def main(args):
-  if len(args) < 1:
-    print("Usage: validator <config-snapshot-path>")
-    sys.exit(1)
+  parser = argparse.ArgumentParser()
+  parser.add_argument('-d', '--debug', help='set debug log level', action='store_true')
+  parser.add_argument('path', help='Path to config snapshot')
+
+  args = parser.parse_args(args)
+
+  if args.debug:
+    logging.basicConfig(level=logging.DEBUG)
+  else:
+    logging.basicConfig(level=logging.WARN)
 
   model_parser = ModelParser()
 
-  model = model_parser.parse(args[0])
+  print('Analyzing configs in "%s"' % args.path)
+
+  model = model_parser.parse(args.path)
 
   inspections = [MainConfigValidationInspection()]
 
-  results = []
+  issues = []
   for inspection in inspections:
-    results.extend(inspection.inspect(model))
+    issues.extend(inspection.inspect(model))
 
-  for result in results:
-    print(result)
+  if len(issues) == 0:
+    print('No issues found')
+  else:
+    for issue in issues:
+      print(issue)
+  
 
 if __name__ == '__main__':
   main(sys.argv[1:])

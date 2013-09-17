@@ -113,7 +113,7 @@ class IniConfigParser:
       sections.append(section)
       parameters = []
 
-    config = ComponentConfig(name, sections, errors)
+    config = ComponentConfig(name, Mark(name), sections, errors)
 
     return config
 

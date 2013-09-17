@@ -6,7 +6,7 @@ class ModelParserTests(unittest.TestCase):
   def test_sample(self):
     parser = ModelParser()
 
-    model = parser.parse('config')
+    model = parser.parse('config_samples/config')
 
     for host in model.hosts:
       print('Host %s' % host.name)

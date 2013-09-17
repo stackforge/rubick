@@ -1,6 +1,8 @@
 import glob
 import os.path
 
+from ostack_validator.common import Error
+
 class Resource(object):
   def __init__(self, name):
     super(Resource, self).__init__()
@@ -52,5 +54,7 @@ class ConfigSnapshotResourceLocator(object):
     if not os.path.exists(path):
       return None
 
-    return FileResource(name, path)
+    fullname = '%s/%s/%s' % (host, component, name)
+
+    return FileResource(fullname, path)
 
