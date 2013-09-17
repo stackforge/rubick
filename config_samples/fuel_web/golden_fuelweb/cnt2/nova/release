@@ -1,0 +1,4 @@
+[Nova]
+vendor = Red Hat Inc.
+product = OpenStack Nova
+package = mira.2
