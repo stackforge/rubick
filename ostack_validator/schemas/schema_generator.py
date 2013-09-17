@@ -1,9 +1,9 @@
 import argparse
+import re
 import sys
 
 
 class SchemaParser(object):
-
     def parse_args(self, argv):
         parser = argparse.ArgumentParser()
         parser.add_argument('--conf', dest='conf_file', default=None,
@@ -51,9 +51,19 @@ nova.version('%s')
                     for comment in comments:
                         f.write(comment)
                     wrk_str = str(line).strip('#[]\n')
+                    print ''.join(comments).strip('#\n')
+                    regex = re.search('\((.+?) value',
+                                      ''.join(comments).replace('#',
+                                                                '').replace(
+                                          '\n', ''))
+                    if regex:
+                        var_type = regex.group(1)
+                    else:
+                        var_type = 'string'
                     f.write(
-                        "nova.param('%s', type='string', default='%s')\n\n" % (
-                            wrk_str.split('=')[0], wrk_str.split('=')[1]))
+                        "nova.param('%s', type='%s', default='%s')\n\n" % (
+                            wrk_str.split('=')[0], var_type,
+                            wrk_str.split('=')[1]))
                     continue
 
     def run(self, argv):
