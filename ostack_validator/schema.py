@@ -1,6 +1,6 @@
 import sys
 
-from ostack_validator.common import Inspection, MarkedIssue, ERROR, Mark, Version, find, index
+from ostack_validator.common import Inspection, Issue, MarkedIssue, Mark, Version, find, index
 
 class SchemaUpdateRecord(object):
   # checkpoint's data is version number
@@ -167,7 +167,7 @@ class TypeValidatorRegistry:
 
 class InvalidValueError(MarkedIssue):
   def __init__(self, message, mark=Mark('', 1, 1)):
-    super(InvalidValueError, self).__init__(ERROR, message, mark)
+    super(InvalidValueError, self).__init__(Issue.ERROR, message, mark)
 
 class TypeValidator(object):
   def __init__(self, f):

@@ -91,11 +91,11 @@ class Error:
   def __str__(self):
     return self.message
 
-ERROR = 'ERROR'
-WARNING = 'WARNING'
-INFO = 'INFO'
-
 class Issue(object):
+  ERROR = 'ERROR'
+  WARNING = 'WARNING'
+  INFO = 'INFO'
+
   def __init__(self, type, message):
     self.type = type
     self.message = message

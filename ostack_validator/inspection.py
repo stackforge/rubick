@@ -1,6 +1,6 @@
 import logging
 
-from ostack_validator.common import Error, Mark, Issue, Inspection
+from ostack_validator.common import Error, Mark, Issue, MarkedIssue, Inspection
 from ostack_validator.schema import ConfigSchemaRegistry, TypeValidatorRegistry
 import ostack_validator.schemas
 
