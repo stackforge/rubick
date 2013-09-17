@@ -41,11 +41,11 @@ class MainConfigValidationInspection(Inspection):
             for parameter in section.parameters:
               parameter_schema = schema.get_parameter(name=parameter.name.text, section=section.name.text)
               if not parameter_schema:
-                results.append(MarkedIssue(Issue.WARNING, 'Unknown parameter "%s"' % parameter.name.text, main_config.mark.merge(parameter.start_mark)))
+                results.append(MarkedIssue(Issue.WARNING, 'Unknown parameter "%s"' % parameter.name.text, parameter.start_mark))
                 continue
 
               if parameter.name.text in seen_parameters:
-                results.append(MarkedIssue(Issue.WARNING, 'Parameter "%s" in section "%s" redeclared' % (parameter.name.text, section_name), main_config.mark.merge(parameter.start_mark)))
+                results.append(MarkedIssue(Issue.WARNING, 'Parameter "%s" in section "%s" redeclared' % (parameter.name.text, section_name), parameter.start_mark))
               else:
                 seen_parameters.add(parameter.name.text)
 
@@ -53,13 +53,13 @@ class MainConfigValidationInspection(Inspection):
               type_validation_result = type_validator.validate(parameter.value.text)
               if isinstance(type_validation_result, Issue):
                 self.logger.debug('Got issue for parameter "%s" with value "%s"' % (parameter.name.text, parameter.value.text))
-                type_validation_result.mark = main_config.mark.merge(parameter.value.start_mark.merge(type_validation_result.mark))
+                type_validation_result.mark = parameter.value.start_mark.merge(type_validation_result.mark)
                 results.append(type_validation_result)
 
               else:
                 value = type_validation_result
                 if value == parameter_schema.default:
-                  results.append(MarkedIssue(Issue.INFO, 'Parameter "%s" value equals default' % parameter.name.text, main_config.mark.merge(parameter.start_mark)))
+                  results.append(MarkedIssue(Issue.INFO, 'Parameter "%s" value equals default' % parameter.name.text, parameter.start_mark))
 
     return results
 

@@ -7,12 +7,15 @@ from ostack_validator.config_formats.common import *
 class IniConfigParser:
   key_value_re = re.compile("^(\w+)\s*([:=])\s*('.*'|\".*\"|.*)\s*$")
 
-  def parse(self, name, io):
+  def parse(self, name, base_mark, io):
     if not hasattr(io, 'readlines'):
       io = StringIO(io)
 
+    def mark(line, column=0):
+      return base_mark.merge(Mark('', line, column))
+
     errors = []
-    current_section_name = ConfigSectionName(Mark(name, 0, 0), Mark(name, 0, 0), '')
+    current_section_name = ConfigSectionName(mark(0), mark(0), '')
     current_param_name = None
     current_param_value = None
     current_param_delimiter = None
@@ -37,52 +40,52 @@ class IniConfigParser:
 
       if line[0].isspace():
         if current_param_name:
-          current_param_value.end_mark = Mark(name, line_number, len(line))
+          current_param_value.end_mark = mark(line_number, len(line))
           current_param_value.text += line.lstrip()
           continue
         else:
-          errors.append(ParseError('Unexpected multiline value continuation', Mark(name, line_number, 0)))
+          errors.append(ParseError('Unexpected multiline value continuation', mark(line_number)))
           continue
 
       if line[0] == '[':
         end_index = line.find(']')
         if end_index == -1:
-          errors.append(ParseError('Unclosed section', Mark(name, line_number, len(line))))
+          errors.append(ParseError('Unclosed section', mark(line_number, len(line))))
 
           end_index = len(line)
           while line[end_index-1].isspace(): end_index -= 1
           if end_index <= 1:
-            errors.append(ParseError('Missing section name', Mark(name, line_number, 0)))
+            errors.append(ParseError('Missing section name', mark(line_number)))
             continue
         else:
           i = end_index+1
           while i < len(line):
             if not line[i].isspace():
-              errors.append(ParseError('Extra chars after section name', Mark(name, line_number, i)))
+              errors.append(ParseError('Extra chars after section name', mark(line_number, i)))
               break
             i += 1
 
         if current_section_name.text != '' or len(parameters) > 0:
-          section = ConfigSection(current_section_name.start_mark, Mark(name, line_number, 0), current_section_name, parameters)
+          section = ConfigSection(current_section_name.start_mark, mark(line_number), current_section_name, parameters)
           sections.append(section)
           parameters = []
 
         current_section_name = ConfigSectionName(
-          Mark(name, line_number, 0),
-          Mark(name, line_number, end_index),
+          mark(line_number, 0),
+          mark(line_number, end_index),
           line[1:end_index]
         )
       else:
         m = self.key_value_re.match(line)
         if m:
           current_param_name = ConfigParameterName(
-            Mark(name, line_number, m.start(1)),
-            Mark(name, line_number, m.end(1)),
+            mark(line_number, m.start(1)),
+            mark(line_number, m.end(1)),
             m.group(1)
           )
           current_param_delimiter = TextElement(
-            Mark(name, line_number, m.start(2)),
-            Mark(name, line_number, m.end(2)),
+            mark(line_number, m.start(2)),
+            mark(line_number, m.end(2)),
             m.group(2)
           )
 
@@ -94,13 +97,13 @@ class IniConfigParser:
             value = value[1:-1]
 
           current_param_value = ConfigParameterValue(
-            Mark(name, line_number, m.start(3)),
-            Mark(name, line_number, m.end(3)),
+            mark(line_number, m.start(3)),
+            mark(line_number, m.end(3)),
             value,
             quotechar
           )
         else:
-          errors.append(ParseError('Syntax error', Mark(name, line_number, 0)))
+          errors.append(ParseError('Syntax error', mark(line_number)))
 
       line_number += 1
 
@@ -109,11 +112,15 @@ class IniConfigParser:
       parameters.append(param)
 
     if current_section_name.text != '' or len(parameters) > 0:
-      section = ConfigSection(current_section_name.start_mark, Mark(name, line_number, 0), current_section_name, parameters)
+      section = ConfigSection(current_section_name.start_mark, mark(line_number), current_section_name, parameters)
       sections.append(section)
       parameters = []
 
-    config = ComponentConfig(name, Mark(name), sections, errors)
+    end_mark = base_mark
+    if len(sections) > 0:
+      end_mark = base_mark.merge(sections[-1].end_mark)
+
+    config = ComponentConfig(base_mark, end_mark, name, sections, errors)
 
     return config
 

@@ -40,24 +40,12 @@ class OpenstackComponent(object):
     if not config_name in self.configs:
       resource = self.openstack.resource_locator.find_resource(self.host.name, self.name, config_name)
       if resource:
-        config = self.openstack.config_parser.parse(config_name, resource.get_contents())
-        config.mark = Mark(resource.name)
+        config = self.openstack.config_parser.parse(config_name, Mark(resource.name), resource.get_contents())
         self.configs[config_name] = config
       else:
         self.configs[config_name] = None
 
     return self.configs[config_name]
-
-class ComponentConfig(object):
-  def __init__(self, name, mark, sections=[], errors=[]):
-    super(ComponentConfig, self).__init__()
-    self.name = name
-    self.mark = mark
-    self.sections = sections
-    for section in self.sections:
-      section.parent = self
-
-    self.errors = errors
 
 class Element(object):
   def __init__(self, start_mark, end_mark):
@@ -69,6 +57,16 @@ class Element(object):
 
   def __ne__(self, other):
     return not self == other
+
+class ComponentConfig(Element):
+  def __init__(self, start_mark, end_mark, name, sections=[], errors=[]):
+    super(ComponentConfig, self).__init__(start_mark, end_mark)
+    self.name = name
+    self.sections = sections
+    for section in self.sections:
+      section.parent = self
+
+    self.errors = errors
 
 class TextElement(Element):
   def __init__(self, start_mark, end_mark, text):

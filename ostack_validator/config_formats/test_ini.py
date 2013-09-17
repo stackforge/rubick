@@ -22,7 +22,7 @@ class IniConfigParserTests(unittest.TestCase):
     if margin:
       content = self._strip_margin(content)
 
-    return self.parser.parse('test.conf', content)
+    return self.parser.parse('test.conf', Mark(''), content)
 
   def test_parsing(self):
     config = self.parse("param1 = value1")
