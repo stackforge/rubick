@@ -2,7 +2,7 @@ from ostack_validator.schema import ConfigSchemaRegistry
 
 nova = ConfigSchemaRegistry.register_schema(project='nova')
 
-nova.version('2013.1')
+nova.version('2013.1.3')
 
 nova.section('DEFAULT')
 

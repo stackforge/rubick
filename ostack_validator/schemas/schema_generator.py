@@ -11,7 +11,7 @@ class SchemaParser(object):
         parser.add_argument('--project_name', dest='prj_name', default='nova',
                             help='Name of the configurations project')
         parser.add_argument('--config_version', dest='conf_ver',
-                            default='2013.1', help='Version of the package')
+                            default='2013.1.3', help='Version of the package')
         args = parser.parse_args(argv[1:])
         return args
 
@@ -24,16 +24,16 @@ class SchemaParser(object):
         with open(file_to_generate, 'w') as f:
             f.write("""from ostack_validator.schema import ConfigSchemaRegistry
 
-nova = ConfigSchemaRegistry.register_schema(project='%s')
+%s = ConfigSchemaRegistry.register_schema(project='%s')
 
-nova.version('%s')
+%s.version('%s')
 
-""" % (self.prj_name, self.conf_ver)
+""" % (self.prj_name, self.prj_name, self.prj_name, self.conf_ver)
             )
             for index, line in enumerate(content):
-                #print line
                 if str(line).startswith('['):
-                    f.write("nova.section('%s')\n\n" % str(line).strip('[]\n'))
+                    f.write("%s.section('%s')\n\n" % (
+                        self.prj_name, str(line).strip('[]\n')))
                     continue
                 if str(line).startswith('# ') or str(line).startswith(
                         '\n') or str(line).startswith('#\n'):
@@ -61,7 +61,8 @@ nova.version('%s')
                     else:
                         var_type = 'string'
                     f.write(
-                        "nova.param('%s', type='%s', default='%s')\n\n" % (
+                        "%s.param('%s', type='%s', default='%s')\n\n" % (
+                            self.prj_name,
                             wrk_str.split('=')[0], var_type,
                             ''.join(wrk_str.split('=')[1:])))
                     continue
