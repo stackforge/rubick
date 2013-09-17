@@ -16,6 +16,6 @@ class MarkTests(unittest.TestCase):
     m = m1.merge(m2)
 
     self.assertEqual(m1.source, m.source)
-    self.assertEqual(m1.line + m2.line - 1, m.line)
-    self.assertEqual(m1.column + m2.column - 1, m.column)
+    self.assertEqual(m1.line + m2.line, m.line)
+    self.assertEqual(m1.column + m2.column, m.column)
 

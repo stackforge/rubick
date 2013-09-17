@@ -76,7 +76,7 @@ class Mark(object):
     return not self == other
 
   def merge(self, other):
-    return Mark(self.source, self.line + other.line - 1, self.column + other.column - 1)
+    return Mark(self.source, self.line + other.line, self.column + other.column)
 
   def __repr__(self):
     return '%s line %d column %d' % (self.source, self.line, self.column)
