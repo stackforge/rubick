@@ -115,7 +115,7 @@ class MarkedIssue(Issue):
     return '<%s type=%s message=%s mark=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message, self.mark)
 
   def __str__(self):
-    return super(MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' % (self.mark.source, self.mark.line, self.mark.column))
+    return super(MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' % (self.mark.source, self.mark.line+1, self.mark.column+1))
 
 
 class Inspection(object):
