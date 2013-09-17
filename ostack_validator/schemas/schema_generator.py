@@ -31,7 +31,7 @@ nova.version('%s')
 """ % (self.prj_name, self.conf_ver)
             )
             for index, line in enumerate(content):
-                print line
+                #print line
                 if str(line).startswith('['):
                     f.write("nova.section('%s')\n\n" % str(line).strip('[]\n'))
                     continue
@@ -51,8 +51,8 @@ nova.version('%s')
                     for comment in comments:
                         f.write(comment)
                     wrk_str = str(line).strip('#[]\n')
-                    print ''.join(comments).strip('#\n')
-                    regex = re.search('\((.+?) value',
+                    print ''.join(comments).replace('#', '').replace('\n', '')
+                    regex = re.search('^.*\((.*?) value.*$',
                                       ''.join(comments).replace('#',
                                                                 '').replace(
                                           '\n', ''))
@@ -63,7 +63,7 @@ nova.version('%s')
                     f.write(
                         "nova.param('%s', type='%s', default='%s')\n\n" % (
                             wrk_str.split('=')[0], var_type,
-                            wrk_str.split('=')[1]))
+                            ''.join(wrk_str.split('=')[1:])))
                     continue
 
     def run(self, argv):
