@@ -32,6 +32,7 @@ def main(args):
   if len(issues) == 0:
     print('No issues found')
   else:
+    print('Found issues:')
     for issue in issues:
       print(issue)
   
