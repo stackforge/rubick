@@ -93,6 +93,39 @@ class HostAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   def test_ipv4_like_string_with_numbers_greater_than_255(self):
     self.assertInvalid('10.0.256.1')
 
+  def test_host_name(self):
+    self.assertValid('foo.bar.baz')
+
+  def test_host_with_empty_parts(self):
+    self.assertInvalid('.foo.bar')
+    self.assertInvalid('foo..bar')
+    self.assertInvalid('foo.bar.')
+
+  def test_host_parts_with_invalid_chars(self):
+    self.assertInvalid('foo.ba r.baz')
+    self.assertInvalid('foo.x_y.bar')
+
+  def test_host_with_single_host_label(self):
+    self.assertValid('foo')
+
+  def test_host_part_starting_with_non_letter(self):
+    self.assertInvalid('123foo')
+
+  def test_host_that_ends_with_a_hyphen(self):
+    self.assertInvalid('foo-')
+
+  def test_mark_should_point_to_incorrect_symbol(self):
+    e = self.validator.validate('')
+    self.assertEqual(0, e.mark.column)
+
+    e = self.validator.validate('123foo')
+    self.assertEqual(0, e.mark.column)
+
+    e = self.validator.validate('foo-')
+    self.assertEqual(3, e.mark.column)
+
+    e = self.validator.validate('foo.bar.-baz')
+    self.assertEqual(8, e.mark.column)
 
 class NetworkAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   type_name = 'network_address'

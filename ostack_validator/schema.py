@@ -251,10 +251,51 @@ def validate_ipv4_network(s):
 
   return '%s/%d' % (address, prefix)
 
+def validate_host_label(s):
+  if len(s) == 0:
+    return InvalidValueError('Host label should have at least one character')
+
+  if not s[0].isalpha():
+    return InvalidValueError('Host label should start with a letter, but it starts with "%s"' % s[0])
+
+  if len(s) == 1: return s
+
+  if not (s[-1].isdigit() or s[-1].isalpha()):
+    return InvalidValueError('Host label should end with letter or digit, but it ends with "%s"' % s[-1], Mark('', 0, len(s)-1))
+
+  if len(s) == 2: return s
+
+  for i, c in enumerate(s[1:-1]):
+    if not (c.isalpha() or c.isdigit() or c == '-'):
+      return InvalidValueError('Host label should contain only letters, digits or hypens, but it contains "%s"' % c, Mark('', 0, i+1))
+
+  return s
+
+
+
+@type_validator('host')
 @type_validator('host_address')
 def validate_host_address(s):
-  return validate_ipv4_address(s)
+  result = validate_ipv4_address(s)
+  if not isissue(result):
+    return result
 
+  offset = len(s) - len(s.lstrip())
+
+  parts = s.strip().split('.')
+  part_offset = offset
+  labels = []
+  for part in parts:
+    host_label = validate_host_label(part)
+    if isissue(host_label):
+      return host_label.offset_by(Mark('', 0, part_offset))
+
+    part_offset += len(part)+1
+    labels.append(host_label)
+
+  return '.'.join(labels)
+
+@type_validator('network')
 @type_validator('network_address')
 def validate_network_address(s):
   return validate_ipv4_network(s)
