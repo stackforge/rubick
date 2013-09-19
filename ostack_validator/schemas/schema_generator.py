@@ -48,23 +48,27 @@ class SchemaParser(object):
                         else:
                             break
                     comments.reverse()
-                    for comment in comments:
-                        f.write(comment)
-                    wrk_str = str(line).strip('#[]\n')
-                    print ''.join(comments).replace('#', '').replace('\n', '')
-                    regex = re.search('^.*\((.*?) value.*$',
-                                      ''.join(comments).replace('#',
-                                                                '').replace(
-                                          '\n', ''))
+
+                    comment_str = ''.join(comments).replace('#', '').replace(
+                        '\n', '').replace('\"', '\'').rstrip(' ').lstrip(' ')
+                    regex = re.search('^.*\((.*?) value.*$', comment_str)
+
                     if regex:
                         var_type = regex.group(1)
                     else:
                         var_type = 'string'
+
+                    comment_str = re.sub(r' \((.*?) value.*$', '', comment_str)
+
+                    wrk_str = str(line).strip('#[]\n')
                     f.write(
-                        "%s.param('%s', type='%s', default='%s')\n\n" % (
+                        "%s.param('%s', type='%s', default='%s', description=\"%s\")\n\n" % (
                             self.prj_name,
-                            wrk_str.split('=')[0], var_type,
-                            ''.join(wrk_str.split('=')[1:])))
+                            wrk_str.split('=')[0].rstrip(' ').lstrip(' '),
+                            var_type.rstrip(' ').lstrip(' '),
+                            ''.join(wrk_str.split('=')[1:]).rstrip(' ').lstrip(
+                                ' '),
+                            comment_str))
                     continue
 
     def run(self, argv):
