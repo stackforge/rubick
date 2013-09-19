@@ -9,12 +9,14 @@ class ModelParserTests(unittest.TestCase):
     model = parser.parse('config_samples/config')
 
     for host in model.hosts:
-      print('Host %s' % host.name)
+      self.assertTrue(host.name in ['host1', 'host2'])
 
       for component in host.components:
-        print('Component %s version %s' % (component.name, component.version))
+        self.assertTrue(component.name in ['cinder', 'glance', 'horizon', 'keystone', 'nova', 'quantum', 'swift'])
 
-        print(component.get_config())
+      self.assertTrue(len(host.components) > 0)
+
+    self.assertEqual(2, len(model.hosts))
 
 if __name__ == '__main__':
   unittest.main()
