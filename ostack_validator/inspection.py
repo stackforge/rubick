@@ -41,7 +41,7 @@ class MainConfigValidationInspection(Inspection):
             for parameter in section.parameters:
               parameter_schema = schema.get_parameter(name=parameter.name.text, section=section.name.text)
               if not parameter_schema:
-                results.append(MarkedIssue(Issue.WARNING, 'Unknown parameter "%s"' % parameter.name.text, parameter.start_mark))
+                results.append(MarkedIssue(Issue.WARNING, 'Unknown parameter: section "%s" name "%s"' % (section_name, parameter.name.text), parameter.start_mark))
                 continue
 
               if parameter.name.text in seen_parameters:
