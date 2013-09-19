@@ -15,7 +15,7 @@ class MainConfigValidationInspection(Inspection):
         main_config = component.get_config()
 
         if not main_config:
-          schema.logger.debug('No main config for component "%s"' % (component.name))
+          self.logger.debug('No main config for component "%s"' % (component.name))
           results.append(Error('Missing main configuration file for component "%s" at host "%s"' % (component.name, host.name)))
           continue
 
