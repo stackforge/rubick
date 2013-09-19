@@ -100,7 +100,7 @@ class IniConfigParser:
             mark(line_number, m.start(3)),
             mark(line_number, m.end(3)),
             value,
-            quotechar
+            quotechar=quotechar
           )
         else:
           errors.append(ParseError('Syntax error', mark(line_number)))

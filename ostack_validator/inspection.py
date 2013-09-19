@@ -58,6 +58,7 @@ class MainConfigValidationInspection(Inspection):
 
               else:
                 value = type_validation_result
+                parameter.value.value = value
                 if value == parameter_schema.default:
                   results.append(MarkedIssue(Issue.INFO, 'Parameter "%s" value equals default' % parameter.name.text, parameter.start_mark))
 

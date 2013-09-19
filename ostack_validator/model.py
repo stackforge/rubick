@@ -108,8 +108,8 @@ class ConfigParameter(Element):
 class ConfigParameterName(TextElement): pass
 
 class ConfigParameterValue(TextElement):
-  def __init__(self, start_mark, end_mark, text, quotechar=None):
+  def __init__(self, start_mark, end_mark, text, value=None, quotechar=None):
     super(ConfigParameterValue, self).__init__(start_mark, end_mark, text)
+    self.value = value
     self.quotechar = quotechar
-
 
