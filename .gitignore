@@ -2,6 +2,8 @@
 *.pyc
 
 # Vim stuff
+.swp
+.swo
 .*.swp
 .*.swo
 
