@@ -76,8 +76,56 @@ class IntegerTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
     v = self.validator.validate('123')
     self.assertEqual(123, v)
 
+class HostAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+  type_name = 'host_address'
+
+  def test_ipv4_address(self):
+    self.assertValid('127.0.0.1')
+
+  def test_returns_address(self):
+    s = '10.0.0.1'
+    v = self.validator.validate(s)
+    self.assertEqual(s, v)
+
+  def test_value_with_less_than_4_numbers_separated_by_dots(self):
+    self.assertInvalid('10.0.0')
+
+  def test_ipv4_like_string_with_numbers_greater_than_255(self):
+    self.assertInvalid('10.0.256.1')
+
+
+class NetworkAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+  type_name = 'network_address'
+
+  def test_ipv4_network(self):
+    self.assertValid('127.0.0.1/24')
+
+  def test_returns_address(self):
+    s = '10.0.0.1/32'
+    v = self.validator.validate(s)
+    self.assertEqual(s, v)
+
+  def test_value_with_less_than_4_numbers_separated_by_dots(self):
+    self.assertInvalid('10.0.0/24')
+
+  def test_ipv4_like_string_with_numbers_greater_than_255(self):
+    self.assertInvalid('10.0.256.1/24')
+
+  def test_no_prefix_length(self):
+    self.assertInvalid('10.0.0.0')
+    self.assertInvalid('10.0.0.0/')
+
+  def test_non_integer_prefix_length(self):
+    self.assertInvalid('10.0.0.0/1a')
+
+  def test_prefix_greater_than_32(self):
+    self.assertInvalid('10.0.0.0/33')
+
 class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   type_name = 'port'
+
+  def test_empty(self):
+    self.assertInvalid('')
 
   def test_positive_integer(self):
     self.assertValid('123')
@@ -108,6 +156,78 @@ class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
   def test_returns_integer_if_valid(self):
     v = self.validator.validate('123')
     self.assertEqual(123, v)
+
+class HostAndPortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+  type_name = 'host_and_port'
+
+  def test_ipv4_address(self):
+    self.assertValid('127.0.0.1:80')
+
+  def test_returns_address(self):
+    s = '10.0.0.1:80'
+    v = self.validator.validate(s)
+    self.assertEqual(('10.0.0.1', 80), v)
+
+  def test_value_with_less_than_4_numbers_separated_by_dots(self):
+    self.assertInvalid('10.0.0:1234')
+
+  def test_ipv4_like_string_with_numbers_greater_than_255(self):
+    self.assertInvalid('10.0.256.1:1234')
+
+  def test_no_port(self):
+    self.assertInvalid('10.0.0.1')
+    self.assertInvalid('10.0.0.1:')
+
+  def test_port_is_not_an_integer(self):
+    self.assertInvalid('10.0.0.1:abc')
+
+  def test_port_is_greater_than_65535(self):
+    self.assertInvalid('10.0.0.1:65536')
+
+class StringListTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+  type_name = 'string_list'
+
+  def test_empty_value(self):
+    v = self.validator.validate('')
+    self.assertEqual([], v)
+
+  def test_single_value(self):
+    v = self.validator.validate(' foo bar ')
+
+    self.assertIsInstance(v, list)
+    self.assertEqual('foo bar', v[0])
+    self.assertEqual(1, len(v))
+
+  def test_list_of_values(self):
+    v = self.validator.validate(' foo bar, baz ')
+
+    self.assertIsInstance(v, list)
+    self.assertEqual('foo bar', v[0])
+    self.assertEqual('baz', v[1])
+    self.assertEqual(2, len(v))
+
+class StringDictTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+  type_name = 'string_dict'
+
+  def test_empty_value(self):
+    v = self.validator.validate('')
+    self.assertEqual({}, v)
+
+  def test_single_value(self):
+    v = self.validator.validate(' foo: bar ')
+
+    self.assertIsInstance(v, dict)
+    self.assertEqual('bar', v['foo'])
+    self.assertEqual(1, len(v))
+
+  def test_list_of_values(self):
+    v = self.validator.validate(' foo: bar, baz: 123 ')
+
+    self.assertIsInstance(v, dict)
+    self.assertEqual('bar', v['foo'])
+    self.assertEqual('123', v['baz'])
+    self.assertEqual(2, len(v))
+
 
 if __name__ == '__main__':
   unittest.main()
