@@ -5,7 +5,7 @@ from ostack_validator.model import *
 from ostack_validator.config_formats.common import *
 
 class IniConfigParser:
-  key_value_re = re.compile("^(\w+)\s*([:=])\s*('.*'|\".*\"|.*)\s*$")
+  key_value_re = re.compile("^(\S+?)\s*([:=])\s*('.*'|\".*\"|.*)\s*$")
 
   def parse(self, name, base_mark, io):
     if not hasattr(io, 'readlines'):
@@ -22,9 +22,11 @@ class IniConfigParser:
     sections = []
     parameters = []
 
-    line_number = 0
+    line_number = -1 
     for line in io.readlines():
       line = line.rstrip()
+
+      line_number += 1
 
       if current_param_name and (current_param_value.quotechar or (line == '' or not line[0].isspace())):
         param = ConfigParameter(current_param_name.start_mark, current_param_value.end_mark, current_param_name, current_param_value, current_param_delimiter)
@@ -92,7 +94,7 @@ class IniConfigParser:
           # Unquote value
           value = m.group(3)
           quotechar = None
-          if (value[0] == value[-1] and value[0] in "\"'"):
+          if len(value) > 0 and (value[0] == value[-1] and value[0] in "\"'"):
             quotechar = value[0]
             value = value[1:-1]
 
@@ -103,9 +105,7 @@ class IniConfigParser:
             quotechar=quotechar
           )
         else:
-          errors.append(ParseError('Syntax error', mark(line_number)))
-
-      line_number += 1
+          errors.append(ParseError('Syntax error in line "%s"' % line, mark(line_number)))
 
     if current_param_name:
       param = ConfigParameter(current_param_name.start_mark, current_param_value.end_mark, current_param_name, current_param_value, current_param_delimiter)
