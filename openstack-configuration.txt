@@ -1,0 +1,160 @@
+= Configutation
+== keystone (identity)
+
+* MySQL database exists
+* MySQL user exists and has proper permissions for keystone database
+* /etc/keystone/keystone.conf:
+  * contains proper 'connection' setting
+  * 'admin_token' ???
+* Keystone certificates exists (what config options control other communication methods?)
+* /etc/keystone/* has user and group set to keystone user
+
+== glance (image)
+
+* /var/lib/glance/glance.sqlite
+* MySQL database exists
+* MySQL user exists and has proper permissions for glance database
+* /etc/glance/glance-api.conf:
+  [keystone_authtoken]
+  auth_host = ...
+  auth_port = ...
+  auth_protocol = http
+  admin_tenant_name = service
+  admin_user = glance
+  admin_password = glance
+
+  [paste_deploy]
+  config_file = /etc/glance/glance-api-paste.ini
+
+  flavor = keystone
+
+  * sql_connection = mysql://glance:glance-password@<mysql-ip>/glance
+
+* /etc/glance/glance-registry.conf:
+  [keystone_authtoken]
+  auth_host = ...
+  auth_port = ...
+  auth_protocol = http
+  admin_tenant_name = service
+  admin_user = glance
+  admin_password = glance
+
+  [paste_deploy]
+  config_file = /etc/glance/glance-registry-paste.ini
+
+  flavor = keystone
+
+* /etc/glance/glance-registry-paste.ini:
+  # Use this pipeline for keystone auth
+  [pipeline:glance-registry-keystone]
+  pipeline = authtoken context registryapp
+
+  * sql_connection = mysql://glance:glance-password@<mysql-ip>/glance
+
+= nova (compute)
+
+* Enabling KVM:
+
+  /etc/nova/nova.conf:
+
+    compute_driver = libvirt.LibvirtDriver
+    libvirt_type = kvm
+
+  * Check for supported CPU features:
+
+    egrep '(vmx|svm)' --color=always /proc/cpuinfo
+
+    output:
+
+    flags       : fpu vme de pse tsc msr pae mce ...
+
+
+    lsmod | grep kvm
+
+* Enabling QEMU
+
+  /etc/nova/nova.conf:
+
+    compute_driver=libvirt.LibvirtDriver
+    libvirt_type=qemu
+
+* Enabling Xen:
+
+  /etc/nova/nova.conf:
+
+    compute_driver=xenapi.XenAPIDriver
+    xenapi_connection_url=http://your_xenapi_management_ip_address
+    xenapi_connection_username=root
+    xenapi_connection_password=your_password
+
+  or
+
+    compute_driver=libvirt.LibvirtDriver
+    libvirt_type=xen
+
+* Network configuration
+  * Network interface in promiscuous mode
+
+    ip link set eth0 promisc on
+
+  * /etc/qppid.conf has "auth=no"
+  * SELinux in permissive mode
+
+    sudo setenforce permissive
+
+* MySQL
+  * Database exists
+  * User exists and has proper permissions to access nova database
+* PostgreSQL
+  * Database exists
+  * User exists and has proper permissions to access nova database
+  * /etc/nova/nova.conf has sql_connection=postgres://novadbadmin:[[YOUR_NOVADB_PASSWORD]]@127.0.0.1/nova
+
+== cinder (block storage)
+  * /etc/cinder/api-paste.ini:
+
+    [filter:authtoken]
+    paste.filter_factory = keystone.middleware.auth_token:filter_factory
+    service_protocol = http
+    service_host = 10.211.55.20
+    service_port = 5000
+    auth_host = 10.211.55.20
+    auth_port = 35357
+    auth_protocol = http
+    admin_tenant_name = service
+    admin_user = cinder
+    admin_password = openstack
+
+  * /etc/cinder/cinder.conf:
+
+    [DEFAULT]
+    rootwrap_config=/etc/cinder/rootwrap.conf
+    sql_connection = mysql://cinder:openstack@192.168.127.130/cinder
+    api_paste_config = /etc/cinder/api-paste.ini
+    
+    iscsi_helper=tgtadm
+    volume_name_template = volume-%s
+    volume_group = cinder-volumes
+    verbose = True
+    auth_strategy = keystone
+    #osapi_volume_listen_port=5900
+
+    * If RabbitMQ:
+
+      rabbit_host = 10.10.10.10
+      rabbit_port = 5672
+      rabbit_userid = rabbit
+      rabbit_password = secure_password
+      rabbit_virtual_host = /nova
+
+    * If Qpid:
+
+      qpid_hostname=192.168.206.130
+
+  * /etc/nova/nova.conf:
+
+    volume_api_class=nova.volume.cinder.API
+
+  
+(continue from http://docs.openstack.org/grizzly/openstack-compute/install/yum/content/compute-minimum-configuration-settings.html)
+
