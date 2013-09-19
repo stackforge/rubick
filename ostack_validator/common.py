@@ -1,3 +1,4 @@
+import copy
 
 def find(l, predicate):
   results = [x for x in l if predicate(x)]
@@ -110,6 +111,11 @@ class MarkedIssue(Issue):
   def __init__(self, type, message, mark):
     super(MarkedIssue, self).__init__(type, message)
     self.mark = mark
+
+  def offset_by(self, base_mark):
+    other = copy.copy(self)
+    other.mark = base_mark.merge(self.mark)
+    return other
 
   def __repr__(self):
     return '<%s type=%s message=%s mark=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message, self.mark)
