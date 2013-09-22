@@ -1,0 +1,9 @@
+{
+  "cinder": {
+    "version": "2013.1"
+  },
+  "glance": {
+    "version": "2013.1"
+  }
+}
+

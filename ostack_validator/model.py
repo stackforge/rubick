@@ -1,3 +1,5 @@
+import os.path
+
 from ostack_validator.common import Mark
 
 class Openstack(object):
@@ -19,10 +21,11 @@ class Host(object):
       component.parent = self
 
 class OpenstackComponent(object):
-  def __init__(self, name, version):
+  def __init__(self, name, version, base_path=None):
     super(OpenstackComponent, self).__init__()
     self.name = name
     self.version = version
+    self.base_path = base_path or '/etc/%s' % self.name
     self.configs = {}
 
   @property
@@ -38,7 +41,7 @@ class OpenstackComponent(object):
       config_name = '%s.conf' % self.name
 
     if not config_name in self.configs:
-      resource = self.openstack.resource_locator.find_resource(self.host.name, self.name, config_name)
+      resource = self.openstack.resource_locator.find_resource('file', name=os.path.join(self.base_path, config_name), host=self.host.name)
       if resource:
         config = self.openstack.config_parser.parse(config_name, Mark(resource.name), resource.get_contents())
         self.configs[config_name] = config

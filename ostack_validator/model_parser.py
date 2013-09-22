@@ -2,10 +2,10 @@ import logging
 
 from ostack_validator.common import Version
 from ostack_validator.model import *
-from ostack_validator.resource import ConfigSnapshotResourceLocator
+from ostack_validator.resource import Resource, ConfigSnapshotResourceLocator
 from ostack_validator.config_formats import IniConfigParser
 
-OPENSTACK_COMPONENTS = ['nova', 'keystone', 'glance']
+OPENSTACK_COMPONENTS = ['nova', 'keystone', 'glance', 'cinder', 'horizon', 'quantum', 'swift']
 
 class ModelParser(object):
   logger = logging.getLogger('ostack_validator.ModelParser')
@@ -14,21 +14,15 @@ class ModelParser(object):
     resource_locator = ConfigSnapshotResourceLocator(path)
 
     hosts = []
-    for host_name in resource_locator.find_hosts():
+    for host in resource_locator.find_resource(Resource.HOST):
       components = []
-      for component_name in resource_locator.find_host_components(host_name):
-        if not component_name in OPENSTACK_COMPONENTS:
-          self.logger.warn('Unknown component in config: %s', component_name)
+      for service in host.find_resource(Resource.SERVICE):
+        if not service.name in OPENSTACK_COMPONENTS:
           continue
 
-        component_version = Version(1000000) # very latest version
-        version_resource = resource_locator.find_resource(host_name, component_name, 'version')
-        if version_resource:
-          component_version = Version(version_resource.get_contents())
+        components.append(OpenstackComponent(service.name, service.version))
 
-        components.append(OpenstackComponent(component_name, component_version))
-
-      hosts.append(Host(host_name, {}, components))
+      hosts.append(Host(host.name, {}, components))
 
     return Openstack(hosts, resource_locator, IniConfigParser())
 
