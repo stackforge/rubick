@@ -8,6 +8,7 @@ Vagrant::Config.run do |config|
 
   # config.vm.forward_port 80, 8080
   config.vm.forward_port 5000, 5000
+  config.vm.forward_port 8000, 8000
 
   config.vm.provision :chef_solo do |chef|
     chef.cookbooks_path = ["vagrant/cookbooks"]
