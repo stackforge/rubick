@@ -12,6 +12,12 @@ def index(l, predicate):
     i += 1
   return -1
 
+def all_subclasses(klass):
+  subclasses = klass.__subclasses__()
+  for d in list(subclasses):
+    subclasses.extend(all_subclasses(d))
+  return subclasses
+
 class Version:
   def __init__(self, major, minor=0, maintenance=0):
     "Create Version object by either passing 3 integers, one string or an another Version object"
@@ -93,6 +99,7 @@ class Error:
     return self.message
 
 class Issue(object):
+  FATAL = 'FATAL'
   ERROR = 'ERROR'
   WARNING = 'WARNING'
   INFO = 'INFO'
@@ -123,8 +130,11 @@ class MarkedIssue(Issue):
   def __str__(self):
     return super(MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' % (self.mark.source, self.mark.line+1, self.mark.column+1))
 
-
 class Inspection(object):
-  def inspect(openstack):
+  @classmethod
+  def all_inspections(klass):
+    return [c for c in all_subclasses(klass)]
+
+  def inspect(self, openstack):
     pass
 

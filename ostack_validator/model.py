@@ -1,24 +1,57 @@
 import os.path
+import re
 
 from ostack_validator.common import Mark
 
+class IssueReporter(object):
+  def __init__(self):
+    super(IssueReporter, self).__init__()
+    self.issues = []
+
+  def report(self, issue):
+    self.issues.append(issue)
+
 class Openstack(object):
-  def __init__(self, hosts, resource_locator, config_parser):
+  def __init__(self):
     super(Openstack, self).__init__()
-    self.hosts = hosts
-    self.resource_locator = resource_locator
-    self.config_parser = config_parser
-    for host in self.hosts:
-      host.parent = self
+    self.hosts = []
+    self.issue_reporter = IssueReporter()
+
+  def add_host(self, host):
+    self.hosts.append(host)
+    host.parent = self
+
+  def report_issue(self, issue):
+    self.issue_reporter.report(issue)
+
+  @property
+  def issues(self):
+    return self.issue_reporter.issues
 
 class Host(object):
-  def __init__(self, name, metadata, components):
+  def __init__(self, name, metadata, client):
     super(Host, self).__init__()
     self.name = name
     self.metadata = metadata
-    self.components = components
-    for component in self.components:
-      component.parent = self
+    self.client = client
+    self.components = []
+
+  def add_component(self, component):
+    self.components.append(component)
+    component.parent = self
+
+  @property
+  def openstack(self):
+    return self.parent
+
+  @property
+  def network_addresses(self):
+    ipaddr_re = re.compile('inet (\d+\.\d+\.\d+\.\d+)/\d+')
+    addresses = []
+    result = self.client.run(['bash', '-c', 'ip address list | grep "inet "'])
+    for match in ipaddr_re.finditer(result.output):
+      addresses.append(match.group(1))
+    return addresses
 
 class OpenstackComponent(object):
   def __init__(self, name, version, base_path=None):
