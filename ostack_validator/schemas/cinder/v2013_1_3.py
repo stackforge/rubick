@@ -766,3 +766,5 @@ cinder.param('migration_create_volume_timeout_secs', type='integer', default='30
 
 cinder.param('volume_dd_blocksize', type='string', default='1M', description="The default block size used when copying/clearing volumes")
 
+cinder.commit()
+

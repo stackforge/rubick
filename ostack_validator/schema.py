@@ -1,6 +1,6 @@
 import sys
 
-from ostack_validator.common import Inspection, Issue, MarkedIssue, Mark, Version, find, index
+from ostack_validator.common import Issue, MarkedIssue, Mark, Version, find, index
 
 class SchemaUpdateRecord(object):
   # checkpoint's data is version number
@@ -320,6 +320,8 @@ def validate_host_and_port(s, default_port=None):
   return (host_address, port)
 
 @type_validator('string')
+@type_validator('list')
+@type_validator('multi')
 def validate_string(s):
   return s
 
@@ -343,6 +345,11 @@ def validate_integer(s, min=None, max=None):
     return InvalidValueError('Should be less than or equal to %d' % max, Mark('', 1, leading_whitespace_len))
 
   return v
+
+@type_validator('float')
+def validate_integer(s):
+  # TODO: Implement proper validation
+  return float(s)
 
 @type_validator('port')
 def validate_port(s, min=1, max=65535):
