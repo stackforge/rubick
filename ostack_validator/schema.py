@@ -350,7 +350,7 @@ def validate_integer(s, min=None, max=None):
   return v
 
 @type_validator('float')
-def validate_integer(s):
+def validate_float(s):
   # TODO: Implement proper validation
   return float(s)
 
