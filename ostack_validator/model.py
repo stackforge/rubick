@@ -53,6 +53,15 @@ class Host(object):
       addresses.append(match.group(1))
     return addresses
 
+  def __getstate__(self):
+    return {
+      'name': self.name,
+      'metadata': self.metadata,
+      'client': None,
+      'components': self.components,
+      'parent': self.parent
+    }
+
 class OpenstackComponent(object):
   def __init__(self, name, version, base_path=None):
     super(OpenstackComponent, self).__init__()

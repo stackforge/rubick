@@ -134,6 +134,9 @@ class ConfigSchema:
     self.format = format
     self.parameters = parameters
 
+  def has_section(self, section):
+    return find(self.parameters, lambda p: p.section == section) != None
+
   def get_parameter(self, name, section=None):
     # TODO: optimize this
     return find(self.parameters, lambda p: p.name == name and p.section == section)

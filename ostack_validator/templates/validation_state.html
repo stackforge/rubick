@@ -1,0 +1,23 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}OpenStack Validation{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>OpenStack Validation Result</h1>
+
+  <p>
+    Job state is {{ state }}
+  </p>
+
+  <script>
+    setTimeout(function() {
+      window.location.reload();
+    }, 1000)
+  </script>
+
+</div>
+
+{% endblock %}
+
+

@@ -109,11 +109,19 @@ class OpenstackComponent(Service):
       seen_parameters = set()
 
       for section in sections:
+        unknown_section = False
+        if schema:
+          unknown_section = not schema.has_section(section.name.text)
+
+        if unknown_section:
+          report_issue(MarkedIssue(Issue.WARNING, 'Unknown section "%s"' % (section_name), section.start_mark))
+          continue
+
         for parameter in section.parameters:
           parameter_schema = None
           if schema:
             parameter_schema = schema.get_parameter(name=parameter.name.text, section=section.name.text)
-            if not parameter_schema:
+            if not (parameter_schema or unknown_section):
               report_issue(MarkedIssue(Issue.WARNING, 'Unknown parameter: section "%s" name "%s"' % (section_name, parameter.name.text), parameter.start_mark))
               continue
 
