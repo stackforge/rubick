@@ -5,9 +5,8 @@ import logging
 
 from celery import Celery
 
-from ostack_validator.common import Issue, MarkedIssue
+from ostack_validator.common import Issue, MarkedIssue, Inspection
 from ostack_validator.discovery import OpenstackDiscovery, OpenstackComponent
-from ostack_validator.inspection import Inspection
 from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection
 
 broker_url = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
