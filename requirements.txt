@@ -6,3 +6,4 @@ gunicorn==18.0
 celery-with-redis>=3.0
 # Jinja2==2.7.1
 honcho==0.4.2
+jinja2==2.7
