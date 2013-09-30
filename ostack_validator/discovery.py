@@ -38,9 +38,8 @@ class OpenstackComponent(Service):
   logger = logging.getLogger('ostack_validator.model.openstack_component')
   component = None
 
-  def __init__(self, version, config_path):
+  def __init__(self, config_path):
     super(OpenstackComponent, self).__init__()
-    self.version = version
     self.config_path = config_path
     self.config_dir = os.path.dirname(config_path)
 
@@ -66,6 +65,23 @@ class OpenstackComponent(Service):
         self._config = self._parse_config_file(Mark('%s:%s' % (self.host.name, self.config_path)), config_contents, schema, self.openstack)
 
     return self._config
+
+
+  @property
+  def version(self):
+    if not hasattr(self, '_version'):
+      result = self.host.client.run(['python', '-c', 'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' % self.component])
+      
+      s = result.output.strip()
+      parts = []
+      for p in s.split('.'):
+        if not p[0].isdigit(): break
+
+        parts.append(p)
+
+      self._version = '.'.join(parts)
+
+    return self._version
     
 
   def _parse_config_file(self, base_mark, config_contents, schema=None, issue_reporter=None):
@@ -232,10 +248,7 @@ class OpenstackDiscovery(object):
       else:
         config_file = '/etc/keystone/keystone.conf'
 
-      # TODO: Implement me
-      version = '2013.1.3'
-
-      host.add_component(KeystoneComponent(version, config_file))
+      host.add_component(KeystoneComponent(config_file))
 
     glance_api_process = self._find_python_process(processes, 'glance-api')
     if glance_api_process:
@@ -245,10 +258,7 @@ class OpenstackDiscovery(object):
       else:
         config_file = '/etc/glance/glance-api.conf'
 
-      # TODO: Implement me
-      version = '2013.1.3'
-
-      host.add_component(GlanceApiComponent(version, config_file))
+      host.add_component(GlanceApiComponent(config_file))
 
     nova_compute_process = self._find_python_process(processes, 'nova-compute')
     if nova_compute_process:
@@ -258,10 +268,7 @@ class OpenstackDiscovery(object):
       else:
         config_file = '/etc/nova/nova.conf'
 
-      # TODO: Implement me
-      version = '2013.1.3'
-
-      host.add_component(NovaComputeComponent(version, config_file))
+      host.add_component(NovaComputeComponent(config_file))
 
     return host
 

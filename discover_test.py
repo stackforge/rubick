@@ -10,7 +10,7 @@ def print_components(openstack):
   for host in openstack.hosts:
     print('Host %s (addresses = %s):' % (host.name, ', '.join(host.network_addresses)))
     for service in host.components:
-      print('Service %s config %s' % (service.name, service.config_path))
+      print('Service %s version %s config %s' % (service.name, service.version, service.config_path))
       service.config
 
       # print_service_config(service)
