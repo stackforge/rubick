@@ -18,6 +18,12 @@ def all_subclasses(klass):
     subclasses.extend(all_subclasses(d))
   return subclasses
 
+def path_relative_to(path, base_path):
+  if not path.startswith('/'):
+    path = os.path.join(base_path, paste_config_path)
+
+  return path
+
 class Version:
   def __init__(self, major, minor=0, maintenance=0):
     "Create Version object by either passing 3 integers, one string or an another Version object"

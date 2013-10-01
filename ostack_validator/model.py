@@ -1,7 +1,12 @@
 import os.path
 import re
+import logging
+from itertools import groupby
 
-from ostack_validator.common import Mark
+from ostack_validator.common import Mark, Issue, MarkedIssue, path_relative_to
+from ostack_validator.schema import ConfigSchemaRegistry, TypeValidatorRegistry
+import ostack_validator.schemas
+from ostack_validator.config_formats import IniConfigParser
 
 class IssueReporter(object):
   def __init__(self):
@@ -45,6 +50,16 @@ class Host(object):
     return self.parent
 
   @property
+  def id(self):
+    ether_re = re.compile('link/ether (([0-9a-f]{2}:){5}([0-9a-f]{2})) ')
+    result = self.client.run(['bash', '-c', 'ip link | grep "link/ether "'])
+    macs = []
+    for match in ether_re.finditer(result.output):
+      macs.append(match.group(1).replace(':', ''))
+    return ''.join(macs)
+    
+
+  @property
   def network_addresses(self):
     ipaddr_re = re.compile('inet (\d+\.\d+\.\d+\.\d+)/\d+')
     addresses = []
@@ -62,13 +77,16 @@ class Host(object):
       'parent': self.parent
     }
 
-class OpenstackComponent(object):
-  def __init__(self, name, version, base_path=None):
+class Service(object): pass
+
+class OpenstackComponent(Service):
+  logger = logging.getLogger('ostack_validator.model.openstack_component')
+  component = None
+
+  def __init__(self, config_path):
     super(OpenstackComponent, self).__init__()
-    self.name = name
-    self.version = version
-    self.base_path = base_path or '/etc/%s' % self.name
-    self.configs = {}
+    self.config_path = config_path
+    self.config_dir = os.path.dirname(config_path)
 
   @property
   def host(self):
@@ -76,85 +94,150 @@ class OpenstackComponent(object):
 
   @property
   def openstack(self):
-    return self.host.parent
+    return self.host.openstack
 
-  def get_config(self, config_name=None):
-    if config_name is None:
-      config_name = '%s.conf' % self.name
-
-    if not config_name in self.configs:
-      resource = self.openstack.resource_locator.find_resource('file', name=os.path.join(self.base_path, config_name), host=self.host.name)
-      if resource:
-        config = self.openstack.config_parser.parse(config_name, Mark(resource.name), resource.get_contents())
-        self.configs[config_name] = config
+  @property
+  def config(self):
+    if not hasattr(self, '_config'):
+      schema = ConfigSchemaRegistry.get_schema(self.component, self.version)
+      if not schema:
+        self.logger.debug('No schema for component "%s" main config version %s. Skipping it' % (self.component, self.version))
+        self._config = None
       else:
-        self.configs[config_name] = None
+        with self.host.client.open(self.config_path) as f:
+          config_contents = f.read()
 
-    return self.configs[config_name]
+        self._config = self._parse_config_file(Mark('%s:%s' % (self.host.name, self.config_path)), config_contents, schema, self.openstack)
 
-class Element(object):
-  def __init__(self, start_mark, end_mark):
-    self.start_mark = start_mark
-    self.end_mark = end_mark
+    return self._config
 
-  def __eq__(self, other):
-    return (self.__class__ == other.__class__) and (self.start_mark == other.start_mark) and (self.end_mark == other.end_mark)
 
-  def __ne__(self, other):
-    return not self == other
+  @property
+  def version(self):
+    if not hasattr(self, '_version'):
+      result = self.host.client.run(['python', '-c', 'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' % self.component])
+      
+      s = result.output.strip()
+      parts = []
+      for p in s.split('.'):
+        if not p[0].isdigit(): break
 
-class ComponentConfig(Element):
-  def __init__(self, start_mark, end_mark, name, sections=[], errors=[]):
-    super(ComponentConfig, self).__init__(start_mark, end_mark)
-    self.name = name
-    self.sections = sections
-    for section in self.sections:
-      section.parent = self
+        parts.append(p)
 
-    self.errors = errors
+      self._version = '.'.join(parts)
 
-class TextElement(Element):
-  def __init__(self, start_mark, end_mark, text):
-    super(TextElement, self).__init__(start_mark, end_mark)
-    self.text = text
-
-class ConfigSection(Element):
-  def __init__(self, start_mark, end_mark, name, parameters):
-    super(ConfigSection, self).__init__(start_mark, end_mark)
-    self.name = name
-    self.parameters = parameters
-    for parameter in self.parameters:
-      parameter.parent = self
-
-class ConfigSectionName(TextElement): pass
-
-class ConfigParameter(Element):
-  def __init__(self, start_mark, end_mark, name, value, delimiter):
-    super(ConfigParameter, self).__init__(start_mark, end_mark)
-    self.name = name
-    self.name.parent = self
-
-    self.value = value
-    self.value.parent = self
-
-    self.delimiter = delimiter
-    self.delimiter.parent = self
-
-  def __eq__(self, other):
-    return (self.name.text == other.name.text) and (self.value.text == other.value.text)
-
-  def __ne__(self, other):
-    return not self == other
+    return self._version
     
-  def __repr__(self):
-    return "<ConfigParameter %s=%s delimiter=%s>" % (self.name.text, self.value.text, self.delimiter.text)
+
+  def _parse_config_file(self, base_mark, config_contents, schema=None, issue_reporter=None):
+    if issue_reporter:
+      def report_issue(issue):
+        issue_reporter.report_issue(issue)
+    else:
+      def report_issue(issue): pass
+
+    _config = dict()
+
+    # Apply defaults
+    if schema:
+      for parameter in schema.parameters:
+        if not parameter.default: continue
+
+        if not parameter.section in _config:
+          _config[parameter.section] = {}
+
+        if parameter.name in _config[parameter.section]: continue
+
+        _config[parameter.section][parameter.name] = parameter.default
+      
+    # Parse config file
+
+    config_parser = IniConfigParser()
+    parsed_config = config_parser.parse('', base_mark, config_contents)
+    for error in parsed_config.errors:
+      report_issue(error)
+
+    # Validate config parameters and store them
+    section_name_text_f = lambda s: s.name.text
+    sections_by_name = groupby(sorted(parsed_config.sections, key=section_name_text_f), key=section_name_text_f)
+
+    for section_name, sections in sections_by_name:
+      sections = list(sections)
+
+      if len(sections) > 1:
+        report_issue(Issue(Issue.INFO, 'Section "%s" appears multiple times' % section_name))
+
+      seen_parameters = set()
+
+      for section in sections:
+        unknown_section = False
+        if schema:
+          unknown_section = not schema.has_section(section.name.text)
+
+        if unknown_section:
+          report_issue(MarkedIssue(Issue.WARNING, 'Unknown section "%s"' % (section_name), section.start_mark))
+          continue
+
+        for parameter in section.parameters:
+          parameter_schema = None
+          if schema:
+            parameter_schema = schema.get_parameter(name=parameter.name.text, section=section.name.text)
+            if not (parameter_schema or unknown_section):
+              report_issue(MarkedIssue(Issue.WARNING, 'Unknown parameter: section "%s" name "%s"' % (section_name, parameter.name.text), parameter.start_mark))
+              continue
+
+          if parameter.name.text in seen_parameters:
+            report_issue(MarkedIssue(Issue.WARNING, 'Parameter "%s" in section "%s" redeclared' % (parameter.name.text, section_name), parameter.start_mark))
+          else:
+            seen_parameters.add(parameter.name.text)
+
+          if parameter_schema:
+            type_validator = TypeValidatorRegistry.get_validator(parameter_schema.type)
+            type_validation_result = type_validator.validate(parameter.value.text)
+            if isinstance(type_validation_result, Issue):
+              type_validation_result.mark = parameter.value.start_mark.merge(type_validation_result.mark)
+              report_issue(type_validation_result)
+
+            else:
+              value = type_validation_result
+
+              if not section_name in _config: _config[section_name] = {}
+              _config[section_name][parameter.name.text] = value
+
+              # if value == parameter_schema.default:
+              #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
+          else:
+            if not section_name in _config: _config[section_name] = {}
+            _config[section_name][parameter.name.text] = parameter.value.text
+
+    return _config
 
 
-class ConfigParameterName(TextElement): pass
+class KeystoneComponent(OpenstackComponent):
+  component = 'keystone'
+  name = 'keystone'
 
-class ConfigParameterValue(TextElement):
-  def __init__(self, start_mark, end_mark, text, value=None, quotechar=None):
-    super(ConfigParameterValue, self).__init__(start_mark, end_mark, text)
-    self.value = value
-    self.quotechar = quotechar
+class GlanceApiComponent(OpenstackComponent):
+  component = 'glance'
+  name = 'glance-api'
+
+class NovaComputeComponent(OpenstackComponent):
+  component = 'nova'
+  name = 'nova-compute'
+
+  @property
+  def paste_config(self):
+    if not hasattr(self, '_paste_config'): 
+      paste_config_path = path_relative_to(self.config['DEFAULT']['api_paste_config'], self.config_dir)
+      with self.host.client.open(paste_config_path) as f:
+        paste_config_contents = f.read()
+
+      self._paste_config = self._parse_config_file(
+        Mark('%s:%s' % (self.host.name, paste_config_path)),
+        paste_config_contents,
+        issue_reporter=self.openstack
+      )
+
+    return self._paste_config
+
 

@@ -1,7 +1,7 @@
 import re
 from StringIO import StringIO
 
-from ostack_validator.model import *
+from ostack_validator.config_model import *
 from ostack_validator.config_formats.common import *
 
 class IniConfigParser:
