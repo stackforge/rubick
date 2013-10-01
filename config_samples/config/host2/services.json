@@ -1,9 +1,0 @@
-{
-  "keystone": {
-    "version": "2013.1"
-  },
-  "nova": {
-    "version": "2013.1"
-  }
-}
-
