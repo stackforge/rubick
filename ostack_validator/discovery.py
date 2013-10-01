@@ -64,7 +64,7 @@ class OpenstackDiscovery(object):
 
     host = Host(name=hostname, metadata=metadata, client=client)
 
-    processes = [line.split() for line in client.run(['ps', 'axh', '-o', 'cmd']).output.split("\n")]
+    processes = [line.split() for line in client.run(['ps', '-Ao', 'cmd', '--no-headers']).output.split("\n")]
 
     keystone_process = self._find_python_process(processes, 'keystone-all')
     if keystone_process:
