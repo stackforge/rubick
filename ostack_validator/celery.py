@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import os
 import time
 import logging
+import traceback
 
 from celery import Celery
 
@@ -26,24 +27,33 @@ class InspectionRequest(object):
     self.private_key = private_key
 
 class InspectionResult(object):
-  def __init__(self, request, openstack):
+  def __init__(self, request, value):
     super(InspectionResult, self).__init__()
     self.request = request
-    self.openstack = openstack
+    self.value = value
 
 @app.task
 def ostack_inspect_task(request):
+  logger = logging.getLogger('ostack_validator.task.inspect')
+
   discovery = OpenstackDiscovery()
 
-  openstack = discovery.discover(request.nodes, request.username, private_key=request.private_key)
+  try:
+    openstack = discovery.discover(request.nodes, request.username, private_key=request.private_key)
+  except:
+    message = traceback.format_exc()
+    logger.error(message)
+    return InspectionResult(request, message)
 
   all_inspections = [KeystoneAuthtokenSettingsInspection]
   for inspection in all_inspections:
-    x = inspection()
-    x.inspect(openstack)
-
-  # For dramatic effect! =)
-  time.sleep(2)
+    try:
+      x = inspection()
+      x.inspect(openstack)
+    except:
+      message = traceback.format_exc()
+      logger.error(message)
+      openstack.report_issue(Issue(Issue.ERROR, 'Unexpected error running inspection "%s". See log for details' % inspection.name))
 
   return InspectionResult(request, openstack)
 

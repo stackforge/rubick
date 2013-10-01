@@ -8,6 +8,7 @@ from wtforms.validators import DataRequired
 
 from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
 from ostack_validator.common import Issue, MarkedIssue
+from ostack_validator.model import Openstack
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -62,12 +63,15 @@ def job(id):
     form.username.data = r.username
     form.private_key.data = r.private_key
 
-    openstack = job.result.openstack
+    openstack = job.result.value
 
-    issue_source_f = lambda i: i.mark.source if isinstance(i, MarkedIssue) else None
-    source_groupped_issues = groupby(sorted(openstack.issues, key=issue_source_f), key=issue_source_f)
+    if isinstance(openstack, Openstack):
+      issue_source_f = lambda i: i.mark.source if isinstance(i, MarkedIssue) else None
+      source_groupped_issues = groupby(sorted(openstack.issues, key=issue_source_f), key=issue_source_f)
 
-    return render_template('validation_result.html', form=form, openstack=openstack, grouped_issues=source_groupped_issues)
+      return render_template('validation_result.html', form=form, openstack=openstack, grouped_issues=source_groupped_issues)
+    else:
+      return render_template('validation_error.html', form=form, message=openstack)
   else:
     return render_template('validation_state.html', state=job.state)
 
