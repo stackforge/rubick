@@ -1,10 +1,9 @@
 import logging
 from itertools import groupby
 
-from ostack_validator.common import Issue, MarkedIssue
+from ostack_validator.common import Issue, MarkedIssue, Inspection
 from ostack_validator.model import OpenstackComponent
 from ostack_validator.discovery import OpenstackDiscovery
-from ostack_validator.inspection import Inspection
 from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection
 
 def print_components(openstack):

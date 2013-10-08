@@ -12,9 +12,9 @@ from ostack_validator.model import Openstack, Host, OpenstackComponent, Keystone
 
 
 class NodeClient(object):
-  def __init__(self, node_address, username, private_key_file):
+  def __init__(self, node_address, username, private_key_file, ssh_port=22):
     super(NodeClient, self).__init__()
-    self.shell = spur.SshShell(hostname=node_address, username=username, private_key_file=private_key_file, missing_host_key=spur.ssh.MissingHostKey.accept)
+    self.shell = spur.SshShell(hostname=node_address, port=ssh_port, username=username, private_key_file=private_key_file, missing_host_key=spur.ssh.MissingHostKey.accept)
 
   def run(self, command):
     return self.shell.run(command)
@@ -23,6 +23,7 @@ class NodeClient(object):
     return self.shell.open(path, mode)
 
 python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
+host_port_re = re.compile('(\d+\.\d+\.\d+\.\d+):(\d+)')
 
 class OpenstackDiscovery(object):
   def discover(self, initial_nodes, username, private_key):
@@ -37,7 +38,14 @@ class OpenstackDiscovery(object):
 
     for address in initial_nodes:
       try:
-        client = NodeClient(address, username=username, private_key_file=private_key_file.name)
+        m = host_port_re.match(address)
+        if m:
+          host = m.group(1)
+          port = int(m.group(2))
+        else:
+          host = address
+          port = 22
+        client = NodeClient(host, ssh_port=port, username=username, private_key_file=private_key_file.name)
         client.run(['echo', 'test'])
       except:
         openstack.report_issue(Issue(Issue.WARNING, "Can't connect to node %s" % address))
