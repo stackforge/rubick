@@ -9,3 +9,4 @@
 
 # Vagrant state
 .vagrant
+vagrant_ansible_inventory_dev
