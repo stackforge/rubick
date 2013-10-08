@@ -5,6 +5,7 @@ from itertools import groupby
 
 from ostack_validator.common import Mark, Issue, MarkedIssue, path_relative_to
 from ostack_validator.schema import ConfigSchemaRegistry, TypeValidatorRegistry
+from ostack_validator.config_model import Configuration
 import ostack_validator.schemas
 from ostack_validator.config_formats import IniConfigParser
 
@@ -136,19 +137,12 @@ class OpenstackComponent(Service):
     else:
       def report_issue(issue): pass
 
-    _config = dict()
+    _config = Configuration()
 
     # Apply defaults
     if schema:
-      for parameter in schema.parameters:
-        if not parameter.default: continue
-
-        if not parameter.section in _config:
-          _config[parameter.section] = {}
-
-        if parameter.name in _config[parameter.section]: continue
-
-        _config[parameter.section][parameter.name] = parameter.default
+      for parameter in filter(lambda p: p.default, schema.parameters):
+        _config.set_default(parameter.section, parameter.name, parameter.default)
       
     # Parse config file
 
@@ -201,14 +195,12 @@ class OpenstackComponent(Service):
             else:
               value = type_validation_result
 
-              if not section_name in _config: _config[section_name] = {}
-              _config[section_name][parameter.name.text] = value
+              _config.set(section_name, parameter.name.text, value)
 
               # if value == parameter_schema.default:
               #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
           else:
-            if not section_name in _config: _config[section_name] = {}
-            _config[section_name][parameter.name.text] = parameter.value.text
+            _config.set(section_name, parameter.name.text, parameter.value.text)
 
     return _config
 
