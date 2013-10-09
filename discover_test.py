@@ -4,7 +4,7 @@ from itertools import groupby
 from ostack_validator.common import Issue, MarkedIssue, Inspection
 from ostack_validator.model import OpenstackComponent
 from ostack_validator.discovery import OpenstackDiscovery
-from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection
+from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection
 
 def print_components(openstack):
   for host in openstack.hosts:
@@ -46,7 +46,7 @@ def print_issues(issues):
         print('  [%s] %s (line %d column %d)' % (issue.type, issue.message, issue.mark.line+1, issue.mark.column+1))
     else:
       for issue in issues:
-        print(issue)
+        print('[%s] %s' % (issue.type, issue.message))
 
 def main():
   logging.basicConfig(level=logging.WARNING)
@@ -60,12 +60,12 @@ def main():
 
   print_components(openstack)
 
-  all_inspections = [KeystoneAuthtokenSettingsInspection]
+  all_inspections = [KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection]
   for inspection in all_inspections:
     x = inspection()
     x.inspect(openstack)
 
-  print_issues(openstack.issues)
+  print_issues(openstack.all_issues)
 
 if __name__ == '__main__':
   main()

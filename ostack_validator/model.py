@@ -3,7 +3,7 @@ import re
 import logging
 from itertools import groupby
 
-from ostack_validator.common import Mark, Issue, MarkedIssue, path_relative_to
+from ostack_validator.common import Mark, Issue, MarkedIssue
 from ostack_validator.schema import ConfigSchemaRegistry, TypeValidatorRegistry
 from ostack_validator.config_model import Configuration
 import ostack_validator.schemas
@@ -14,32 +14,44 @@ class IssueReporter(object):
     super(IssueReporter, self).__init__()
     self.issues = []
 
-  def report(self, issue):
+  def report_issue(self, issue):
     self.issues.append(issue)
 
-class Openstack(object):
+  @property
+  def all_issues(self):
+    return list(self.issues)
+
+class Openstack(IssueReporter):
   def __init__(self):
     super(Openstack, self).__init__()
     self.hosts = []
-    self.issue_reporter = IssueReporter()
 
   def add_host(self, host):
     self.hosts.append(host)
     host.parent = self
 
-  def report_issue(self, issue):
-    self.issue_reporter.report(issue)
+  @property
+  def all_issues(self):
+    result = super(Openstack, self).all_issues
+
+    for host in self.hosts:
+      result.extend(host.all_issues)
+
+    return result
 
   @property
-  def issues(self):
-    return self.issue_reporter.issues
+  def components(self):
+    components = []
+    for host in self.hosts:
+      components.extend(host.components)
 
-class Host(object):
-  def __init__(self, name, metadata, client):
+    return components
+
+
+class Host(IssueReporter):
+  def __init__(self, name):
     super(Host, self).__init__()
     self.name = name
-    self.metadata = metadata
-    self.client = client
     self.components = []
 
   def add_component(self, component):
@@ -51,34 +63,31 @@ class Host(object):
     return self.parent
 
   @property
-  def id(self):
-    ether_re = re.compile('link/ether (([0-9a-f]{2}:){5}([0-9a-f]{2})) ')
-    result = self.client.run(['bash', '-c', 'ip link | grep "link/ether "'])
-    macs = []
-    for match in ether_re.finditer(result.output):
-      macs.append(match.group(1).replace(':', ''))
-    return ''.join(macs)
-    
+  def all_issues(self):
+    result = super(Host, self).all_issues
+
+    for component in self.components:
+      result.extend(component.all_issues)
+
+    return result
+
+
+class Service(IssueReporter):
+  def __init__(self):
+    super(Service, self).__init__()
+    self.issues = []
+
+  def report_issue(self, issue):
+    self.issues.append(issue)
 
   @property
-  def network_addresses(self):
-    ipaddr_re = re.compile('inet (\d+\.\d+\.\d+\.\d+)/\d+')
-    addresses = []
-    result = self.client.run(['bash', '-c', 'ip address list | grep "inet "'])
-    for match in ipaddr_re.finditer(result.output):
-      addresses.append(match.group(1))
-    return addresses
+  def host(self):
+    return self.parent
 
-  def __getstate__(self):
-    return {
-      'name': self.name,
-      'metadata': self.metadata,
-      'client': None,
-      'components': self.components,
-      'parent': self.parent
-    }
+  @property
+  def openstack(self):
+    return self.host.openstack
 
-class Service(object): pass
 
 class OpenstackComponent(Service):
   logger = logging.getLogger('ostack_validator.model.openstack_component')
@@ -90,14 +99,6 @@ class OpenstackComponent(Service):
     self.config_dir = os.path.dirname(config_path)
 
   @property
-  def host(self):
-    return self.parent
-
-  @property
-  def openstack(self):
-    return self.host.openstack
-
-  @property
   def config(self):
     if not hasattr(self, '_config'):
       schema = ConfigSchemaRegistry.get_schema(self.component, self.version)
@@ -105,30 +106,10 @@ class OpenstackComponent(Service):
         self.logger.debug('No schema for component "%s" main config version %s. Skipping it' % (self.component, self.version))
         self._config = None
       else:
-        with self.host.client.open(self.config_path) as f:
-          config_contents = f.read()
-
-        self._config = self._parse_config_file(Mark('%s:%s' % (self.host.name, self.config_path)), config_contents, schema, self.openstack)
+        self._config = self._parse_config_file(Mark(self.config_path), self.config_contents, schema, self)
 
     return self._config
 
-
-  @property
-  def version(self):
-    if not hasattr(self, '_version'):
-      result = self.host.client.run(['python', '-c', 'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' % self.component])
-      
-      s = result.output.strip()
-      parts = []
-      for p in s.split('.'):
-        if not p[0].isdigit(): break
-
-        parts.append(p)
-
-      self._version = '.'.join(parts)
-
-    return self._version
-    
 
   def _parse_config_file(self, base_mark, config_contents, schema=None, issue_reporter=None):
     if issue_reporter:
@@ -220,14 +201,10 @@ class NovaComputeComponent(OpenstackComponent):
   @property
   def paste_config(self):
     if not hasattr(self, '_paste_config'): 
-      paste_config_path = path_relative_to(self.config['DEFAULT']['api_paste_config'], self.config_dir)
-      with self.host.client.open(paste_config_path) as f:
-        paste_config_contents = f.read()
-
       self._paste_config = self._parse_config_file(
-        Mark('%s:%s' % (self.host.name, paste_config_path)),
-        paste_config_contents,
-        issue_reporter=self.openstack
+        Mark(self.paste_config_path),
+        self.paste_config_contents,
+        issue_reporter=self
       )
 
     return self._paste_config
