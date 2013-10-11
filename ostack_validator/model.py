@@ -8,6 +8,7 @@ from ostack_validator.schema import ConfigSchemaRegistry, TypeValidatorRegistry
 from ostack_validator.config_model import Configuration
 import ostack_validator.schemas
 from ostack_validator.config_formats import IniConfigParser
+from ostack_validator.utils import memoized
 
 class IssueReporter(object):
   def __init__(self):
@@ -15,6 +16,7 @@ class IssueReporter(object):
     self.issues = []
 
   def report_issue(self, issue):
+    issue.subject = self
     self.issues.append(issue)
 
   @property
@@ -27,6 +29,8 @@ class Openstack(IssueReporter):
     self.hosts = []
 
   def add_host(self, host):
+    if not host: return
+
     self.hosts.append(host)
     host.parent = self
 
@@ -54,7 +58,12 @@ class Host(IssueReporter):
     self.name = name
     self.components = []
 
+  def __str__(self):
+    return 'Host "%s"' % self.name
+
   def add_component(self, component):
+    if not component: return
+
     self.components.append(component)
     component.parent = self
 
@@ -88,28 +97,35 @@ class Service(IssueReporter):
   def openstack(self):
     return self.host.openstack
 
+  @property
+  def all_issues(self):
+    result = super(Service, self).all_issues
+
+    if hasattr(self, 'config_file') and self.config_file:
+      result.extend(self.config_file.all_issues)
+
+    return result
+
+  def __str__(self):
+    return 'Service "%s"' % self.name
+
 
 class OpenstackComponent(Service):
   logger = logging.getLogger('ostack_validator.model.openstack_component')
   component = None
 
-  def __init__(self, config_path):
-    super(OpenstackComponent, self).__init__()
-    self.config_path = config_path
-    self.config_dir = os.path.dirname(config_path)
-
   @property
+  @memoized
   def config(self):
-    if not hasattr(self, '_config'):
-      schema = ConfigSchemaRegistry.get_schema(self.component, self.version)
-      if not schema:
-        self.logger.debug('No schema for component "%s" main config version %s. Skipping it' % (self.component, self.version))
-        self._config = None
-      else:
-        self._config = self._parse_config_file(Mark(self.config_path), self.config_contents, schema, self)
+    schema = ConfigSchemaRegistry.get_schema(self.component, self.version)
+    if not schema:
+      self.logger.debug('No schema for component "%s" main config version %s. Skipping it' % (self.component, self.version))
+      return None
 
-    return self._config
+    return self._parse_config_resource(self.config_file, schema)
 
+  def _parse_config_resource(self, resource, schema=None):
+    return self._parse_config_file(Mark(resource.path), resource.contents, schema, issue_reporter=resource)
 
   def _parse_config_file(self, base_mark, config_contents, schema=None, issue_reporter=None):
     if issue_reporter:
@@ -171,6 +187,7 @@ class OpenstackComponent(Service):
             type_validation_result = type_validator.validate(parameter.value.text)
             if isinstance(type_validation_result, Issue):
               type_validation_result.mark = parameter.value.start_mark.merge(type_validation_result.mark)
+              type_validation_result.message = 'Property "%s" in section "%s": %s' % (parameter.name.text, section_name, type_validation_result.message)
               report_issue(type_validation_result)
 
             else:
@@ -194,19 +211,52 @@ class GlanceApiComponent(OpenstackComponent):
   component = 'glance'
   name = 'glance-api'
 
+class GlanceRegistryComponent(OpenstackComponent):
+  component = 'glance'
+  name = 'glance-registry'
+
+class NovaApiComponent(OpenstackComponent):
+  component = 'nova'
+  name = 'nova-api'
+
+  @property
+  @memoized
+  def paste_config(self):
+    return self._parse_config_resource(self.paste_config_file)
+
+  @property
+  def all_issues(self):
+    result = super(NovaApiComponent, self).all_issues
+
+    if hasattr(self, 'paste_config_file') and self.paste_config_file:
+      result.extend(self.paste_config_file.all_issues)
+
+    return result
+  
+
 class NovaComputeComponent(OpenstackComponent):
   component = 'nova'
   name = 'nova-compute'
 
+class MysqlComponent(Service):
+  component = 'mysql'
+  name = 'mysql'
+
   @property
-  def paste_config(self):
-    if not hasattr(self, '_paste_config'): 
-      self._paste_config = self._parse_config_file(
-        Mark(self.paste_config_path),
-        self.paste_config_contents,
-        issue_reporter=self
-      )
+  def config_file(self):
+    if len(self.config_files) == 0:
+      return None
+    return self.config_files[0]
 
-    return self._paste_config
+class FileResource(IssueReporter):
+  def __init__(self, path, contents, owner, group, permissions):
+    super(FileResource, self).__init__()
+    self.path = path
+    self.contents = contents
+    self.owner = owner
+    self.group = group
+    self.permissions = permissions
 
+  def __str__(self):
+    return 'File "%s"' % self.path
 

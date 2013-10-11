@@ -6,47 +6,51 @@ from ostack_validator.model import OpenstackComponent
 from ostack_validator.discovery import OpenstackDiscovery
 from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection
 
-def print_components(openstack):
-  for host in openstack.hosts:
-    print('Host %s (id = %s, addresses = %s):' % (host.name, host.id, host.network_addresses))
-    for service in host.components:
-      print('Service %s version %s config %s' % (service.name, service.version, service.config_path))
-      service.config
+def indent_prefix(indent=0):
+  s = ''
+  if indent > 0:
+    for i in xrange(0, indent):
+      s += '  '
+  return s
 
-      # print_service_config(service)
+def print_issue(issue, indent=0):
+  prefix = indent_prefix(indent)
 
-def print_service_config(service):
-  if isinstance(service, OpenstackComponent):
-    if service.config:
-      for section, values in service.config.items():
-        print('  [%s]' % section)
-        for name, value in values.items():
-          if value:
-            print('    %s = %s' % (name, value))
-    else:
-      print('No config file found')
+  if hasattr(issue, 'mark'):
+    print('%s[%s] %s (line %d column %d)' % (prefix, issue.type, issue.message, issue.mark.line+1, issue.mark.column+1))
   else:
-    print('Service is not an OpenStack component')
+    print('%s[%s] %s' % (prefix, issue.type, issue.message))
 
-def print_issues(issues):
-  # Filer only errors and fatal
-  issues = [i for i in issues if i.type in [Issue.ERROR, Issue.FATAL]]
-
-  if len(issues) == 0:
-    print ('No issues found!')
-    return
-
+def print_issues(issues, indent=0):
   issue_source_f = lambda i: i.mark.source if isinstance(i, MarkedIssue) else None
   source_groupped_issues = groupby(sorted(issues, key=issue_source_f), key=issue_source_f)
-
+  
   for source, issues in source_groupped_issues:
     if source:
-      print(source)
+      print('%sFile %s' % (indent_prefix(indent), source))
       for issue in sorted(issues, key=lambda i: i.mark.line):
-        print('  [%s] %s (line %d column %d)' % (issue.type, issue.message, issue.mark.line+1, issue.mark.column+1))
+        print_issue(issue, indent+1)
     else:
       for issue in issues:
-        print('[%s] %s' % (issue.type, issue.message))
+        print_issue(issue, indent)
+
+def print_service(service):
+  print('  ' + str(service))
+  print_issues(service.all_issues, indent=2)
+
+def print_host(host):
+  print(host)
+
+  print_issues(host.issues, indent=1)
+
+  for service in host.components:
+    print_service(service)
+
+def print_openstack(openstack):
+  print_issues(openstack.issues)
+
+  for host in openstack.hosts:
+    print_host(host)
 
 def main():
   logging.basicConfig(level=logging.WARNING)
@@ -58,14 +62,12 @@ def main():
 
   openstack = discovery.discover(['172.18.65.179'], 'root', private_key=private_key)
 
-  print_components(openstack)
-
   all_inspections = [KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection]
   for inspection in all_inspections:
     x = inspection()
     x.inspect(openstack)
 
-  print_issues(openstack.all_issues)
+  print_openstack(openstack)
 
 if __name__ == '__main__':
   main()

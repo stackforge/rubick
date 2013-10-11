@@ -22,7 +22,7 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
     if keystone_addresses == ['0.0.0.0']:
       keystone_addresses = keystone.host.network_addresses
 
-    for nova in [c for c in components if c.name == 'nova-compute']:
+    for nova in [c for c in components if c.name == 'nova-api']:
       if nova.config['DEFAULT']['auth_strategy'] != 'keystone':
         continue
 

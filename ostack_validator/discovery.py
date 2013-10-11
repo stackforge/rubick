@@ -7,7 +7,7 @@ import logging
 import spur
 
 from ostack_validator.common import Issue, Mark, MarkedIssue, index, path_relative_to
-from ostack_validator.model import Openstack, Host, OpenstackComponent, KeystoneComponent, NovaComputeComponent, GlanceApiComponent
+from ostack_validator.model import Openstack, Host, OpenstackComponent, KeystoneComponent, NovaApiComponent, NovaComputeComponent, GlanceApiComponent, GlanceRegistryComponent, MysqlComponent, FileResource
 
 
 
@@ -17,7 +17,7 @@ class NodeClient(object):
     self.shell = spur.SshShell(hostname=node_address, port=ssh_port, username=username, private_key_file=private_key_file, missing_host_key=spur.ssh.MissingHostKey.accept)
 
   def run(self, command, *args, **kwargs):
-    return self.shell.run(command, *args, **kwargs)
+    return self.shell.run(command, allow_error=True, *args, **kwargs)
 
   def open(self, path, mode='r'):
     return self.shell.open(path, mode)
@@ -73,16 +73,23 @@ class OpenstackDiscovery(object):
     host.id = self._collect_host_id(client)
     host.network_addresses = self._collect_host_network_addresses(client)
 
-    keystone = self._collect_keystone_data(client)
-    if keystone:
-      host.add_component(keystone)
-
-    nova_compute = self._collect_nova_data(client)
-    if nova_compute:
-      host.add_component(nova_compute)
+    host.add_component(self._collect_keystone_data(client))
+    host.add_component(self._collect_nova_api_data(client))
+    host.add_component(self._collect_nova_compute_data(client))
+    host.add_component(self._collect_glance_api_data(client))
+    host.add_component(self._collect_glance_registry_data(client))
+    host.add_component(self._collect_mysql_data(client))
 
     return host
 
+
+  def _find_process(self, client, name):
+    processes = self._get_processes(client)
+    for line in processes:
+      if len(line) > 0 and os.path.basename(line[0]) == name:
+        return line
+
+    return None
 
   def _find_python_process(self, client, name):
     processes = self._get_processes(client)
@@ -126,6 +133,24 @@ class OpenstackDiscovery(object):
     for match in ipaddr_re.finditer(result.output):
       addresses.append(match.group(1))
     return addresses
+
+  def _permissions_string_to_number(self, s):
+    return 0
+
+  def _collect_file(self, client, path):
+    ls = client.run(['ls', '-l', '--time-style=full-iso', path])
+    if ls.return_code != 0:
+      return None
+
+    line = ls.output.split("\n")[0]
+    perm, links, owner, group, size, date, time, timezone, name = line.split()
+    permissions = self._permissions_string_to_number(perm)
+
+    with client.open(path) as f:
+      contents = f.read()
+
+    return FileResource(path, contents, owner, group, permissions)
+
 
   def _get_keystone_db_data(self, client, command, env={}):
     result = client.run(['keystone', command], update_env=env)
@@ -171,10 +196,9 @@ class OpenstackDiscovery(object):
     else:
       config_path = '/etc/keystone/keystone.conf'
 
-    keystone = KeystoneComponent(config_path)
+    keystone = KeystoneComponent()
     keystone.version = self._find_python_package_version(client, 'keystone')
-    with client.open(config_path) as f:
-      keystone.config_contents = f.read()
+    keystone.config_file = self._collect_file(client, config_path)
 
     token = keystone.config['DEFAULT']['admin_token']
     host = keystone.config['DEFAULT']['bind_host']
@@ -195,25 +219,97 @@ class OpenstackDiscovery(object):
 
     return keystone
 
-  def _collect_nova_data(self, client):
-    keystone_process = self._find_python_process(client, 'nova-compute')
-    if not keystone_process:
+  def _collect_nova_api_data(self, client):
+    process = self._find_python_process(client, 'nova-api')
+    if not process:
       return None
 
-    p = index(keystone_process, lambda s: s == '--config-file')
-    if p != -1 and p+1 < len(keystone_process):
-      config_path = keystone_process[p+1]
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
     else:
       config_path = '/etc/nova/nova.conf'
 
-    nova_compute = NovaComputeComponent(config_path)
-    nova_compute.version = self._find_python_package_version(client, 'nova')
-    with client.open(config_path) as f:
-      nova_compute.config_contents = f.read()
+    nova_api = NovaApiComponent()
+    nova_api.version = self._find_python_package_version(client, 'nova')
+    nova_api.config_file = self._collect_file(client, config_path)
 
-    nova_compute.paste_config_path = path_relative_to(nova_compute.config['DEFAULT']['api_paste_config'], os.path.dirname(config_path))
-    with client.open(nova_compute.paste_config_path) as f:
-      nova_compute.paste_config_contents = f.read()
+    paste_config_path = path_relative_to(nova_api.config['DEFAULT']['api_paste_config'], os.path.dirname(config_path))
+    nova_api.paste_config_file = self._collect_file(client, paste_config_path)
+
+    return nova_api
+
+  def _collect_nova_compute_data(self, client):
+    process = self._find_python_process(client, 'nova-compute')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/nova/nova.conf'
+
+    nova_compute = NovaComputeComponent()
+    nova_compute.version = self._find_python_package_version(client, 'nova')
+    nova_compute.config_file = self._collect_file(client, config_path)
 
     return nova_compute
+
+  def _collect_glance_api_data(self, client):
+    process = self._find_python_process(client, 'glance-api')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/glance/glance-api.conf'
+
+    glance_api = GlanceApiComponent()
+    glance_api.version = self._find_python_package_version(client, 'glance')
+    glance_api.config_file = self._collect_file(client, config_path)
+
+    return glance_api
+
+  def _collect_glance_registry_data(self, client):
+    process = self._find_python_process(client, 'glance-registry')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/glance/glance-registry.conf'
+
+    glance_registry = GlanceRegistryComponent()
+    glance_registry.version = self._find_python_package_version(client, 'glance')
+    glance_registry.config_file = self._collect_file(client, config_path)
+
+    return glance_registry
+
+  def _collect_mysql_data(self, client):
+    process = self._find_process(client, 'mysqld')
+    if not process:
+      return None
+
+    mysqld_version_re = re.compile('mysqld\s+Ver\s(\S+)\s')
+
+    mysql = MysqlComponent()
+
+    version_result = client.run(['mysqld', '--version'])
+    m = mysqld_version_re.match(version_result.output)
+    mysql.version = m.group(1) if m else 'unknown'
+    
+    mysql.config_files = []
+    config_locations_result = client.run(['bash', '-c', 'mysqld --help --verbose | grep "Default options are read from the following files in the given order" -A 1'])
+    config_locations = config_locations_result.output.strip().split("\n")[-1].split()
+    for path in config_locations:
+      f = self._collect_file(client, path)
+      if f:
+        mysql.config_files.append(f)
+
+    return mysql
 
