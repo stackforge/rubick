@@ -233,10 +233,25 @@ class NovaApiComponent(OpenstackComponent):
 
     return result
   
-
 class NovaComputeComponent(OpenstackComponent):
   component = 'nova'
   name = 'nova-compute'
+
+class NovaSchedulerComponent(OpenstackComponent):
+  component = 'nova'
+  name = 'nova-scheduler'
+
+class CinderApiComponent(OpenstackComponent):
+  component = 'cinder'
+  name = 'cinder-api'
+
+class CinderVolumeComponent(OpenstackComponent):
+  component = 'cinder'
+  name = 'cinder-volume'
+
+class CinderSchedulerComponent(OpenstackComponent):
+  component = 'cinder'
+  name = 'cinder-scheduler'
 
 class MysqlComponent(Service):
   component = 'mysql'
@@ -247,6 +262,9 @@ class MysqlComponent(Service):
     if len(self.config_files) == 0:
       return None
     return self.config_files[0]
+
+class RabbitMqComponent(Service):
+  pass
 
 class FileResource(IssueReporter):
   def __init__(self, path, contents, owner, group, permissions):

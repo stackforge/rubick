@@ -7,8 +7,7 @@ import logging
 import spur
 
 from ostack_validator.common import Issue, Mark, MarkedIssue, index, path_relative_to
-from ostack_validator.model import Openstack, Host, OpenstackComponent, KeystoneComponent, NovaApiComponent, NovaComputeComponent, GlanceApiComponent, GlanceRegistryComponent, MysqlComponent, FileResource
-
+from ostack_validator.model import *
 
 
 class NodeClient(object):
@@ -76,9 +75,14 @@ class OpenstackDiscovery(object):
     host.add_component(self._collect_keystone_data(client))
     host.add_component(self._collect_nova_api_data(client))
     host.add_component(self._collect_nova_compute_data(client))
+    host.add_component(self._collect_nova_scheduler_data(client))
     host.add_component(self._collect_glance_api_data(client))
     host.add_component(self._collect_glance_registry_data(client))
+    host.add_component(self._collect_cinder_api_data(client))
+    host.add_component(self._collect_cinder_volume_data(client))
+    host.add_component(self._collect_cinder_scheduler_data(client))
     host.add_component(self._collect_mysql_data(client))
+    host.add_component(self._collect_rabbitmq_data(client))
 
     return host
 
@@ -256,6 +260,23 @@ class OpenstackDiscovery(object):
 
     return nova_compute
 
+  def _collect_nova_scheduler_data(self, client):
+    process = self._find_python_process(client, 'nova-scheduler')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/nova/nova.conf'
+
+    nova_scheduler = NovaSchedulerComponent()
+    nova_scheduler.version = self._find_python_package_version(client, 'nova')
+    nova_scheduler.config_file = self._collect_file(client, config_path)
+
+    return nova_scheduler
+
   def _collect_glance_api_data(self, client):
     process = self._find_python_process(client, 'glance-api')
     if not process:
@@ -290,6 +311,63 @@ class OpenstackDiscovery(object):
 
     return glance_registry
 
+  def _collect_cinder_api_data(self, client):
+    process = self._find_python_process(client, 'cinder-api')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/cinder/cinder.conf'
+
+    cinder_api = CinderApiComponent()
+    cinder_api.version = self._find_python_package_version(client, 'cinder')
+    cinder_api.config_file = self._collect_file(client, config_path)
+
+    paste_config_path = path_relative_to(cinder_api.config['DEFAULT']['api_paste_config'], os.path.dirname(config_path))
+    cinder_api.paste_config_file = self._collect_file(client, paste_config_path)
+
+    return cinder_api
+
+  def _collect_cinder_volume_data(self, client):
+    process = self._find_python_process(client, 'cinder-volume')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/cinder/cinder.conf'
+
+    cinder_volume = CinderVolumeComponent()
+    cinder_volume.version = self._find_python_package_version(client, 'cinder')
+    cinder_volume.config_file = self._collect_file(client, config_path)
+
+    rootwrap_config_path = path_relative_to(cinder_volume.config['DEFAULT']['rootwrap_config'], os.path.dirname(config_path))
+    cinder_volume.rootwrap_config = self._collect_file(client, rootwrap_config_path)
+
+    return cinder_volume
+
+  def _collect_cinder_scheduler_data(self, client):
+    process = self._find_python_process(client, 'cinder-scheduler')
+    if not process:
+      return None
+
+    p = index(process, lambda s: s == '--config-file')
+    if p != -1 and p+1 < len(process):
+      config_path = process[p+1]
+    else:
+      config_path = '/etc/cinder/cinder.conf'
+
+    cinder_scheduler = CinderSchedulerComponent()
+    cinder_scheduler.version = self._find_python_package_version(client, 'cinder')
+    cinder_scheduler.config_file = self._collect_file(client, config_path)
+
+    return cinder_scheduler
+
   def _collect_mysql_data(self, client):
     process = self._find_process(client, 'mysqld')
     if not process:
@@ -313,3 +391,12 @@ class OpenstackDiscovery(object):
 
     return mysql
 
+  def _collect_rabbitmq_data(self, client):
+    process = self._find_process(client, 'beam.smp')
+    if not process:
+      return None
+
+    if ' '.join(process).find('rabbit') == -1:
+      return None
+
+    return None
