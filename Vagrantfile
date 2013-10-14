@@ -8,7 +8,6 @@ Vagrant.configure("2") do |config|
     web.vm.box = "ubuntu12.04-server-amd64"
     web.vm.box_url = "http://goo.gl/8kWkm"
     web.vm.network "forwarded_port", guest: 8000, host: 8000, host_ip: '0.0.0.0'
-    web.vm.network "forwarded_port", guest: 5000, host: 5000
     web.vm.provision :chef_solo do |chef|
       chef.cookbooks_path = ["vagrant/cookbooks"]
       chef.add_recipe "openstack-validator"
@@ -19,6 +18,9 @@ Vagrant.configure("2") do |config|
     dev.vm.box = "precise64"
     dev.vm.box_url = "http://files.vagrantup.com/precise64.box"
     dev.vm.network "forwarded_port", guest: 22, host: 2202, host_ip: '0.0.0.0'
+    dev.vm.network "forwarded_port", guest: 5000, host: 5000, host_ip: '0.0.0.0'
+    dev.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: '0.0.0.0'
+    dev.vm.network "forwarded_port", guest: 35357, host: 35357, host_ip: '0.0.0.0'
     dev.vm.network :private_network, ip: "192.168.26.100"
     dev.vm.network :private_network, ip: "172.24.4.225", :netmask => "255.255.255.224", :auto_config => false
     dev.vm.provider "virtualbox" do |vb|
