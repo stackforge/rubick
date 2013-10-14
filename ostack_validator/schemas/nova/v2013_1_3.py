@@ -1038,6 +1038,8 @@ nova.param('cinder_api_insecure', type='boolean', default=False, description="Al
 
 nova.param('cinder_cross_az_attach', type='boolean', default=True, description="Allow attach between instance and volume in different availability zones.")
 
+nova.param('sql_connection', type='string', default='sqlite:////nova/openstack/common/db/$sqlite_db', description="The SQLAlchemy connection string used to connect to the database", deprecation_message='Deprecated in favor of "[database]connection" parameter')
+
 nova.section('hyperv')
 
 nova.param('instances_path_share', type='string', default='', description="The name of a Windows share name mapped to the 'instances_path' dir and used by the resize feature to copy files to the target host. If left blank, an administrative share will be used, looking for the same 'instances_path' used locally")

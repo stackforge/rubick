@@ -250,6 +250,8 @@ cinder.param('use_tpool', type='boolean', default='false', description="Enable t
 
 cinder.param('connection', type='string', default='sqlite:////cinder/openstack/common/db/$sqlite_db', description="The SQLAlchemy connection string used to connect to the database")
 
+cinder.param('sql_connection', type='string', default='sqlite:////nova/openstack/common/db/$sqlite_db', description="The SQLAlchemy connection string used to connect to the database", deprecation_message='Deprecated in favor of "[DEFAULT]connection" parameter')
+
 cinder.param('idle_timeout', type='integer', default='3600', description="timeout before idle sql connections are reaped")
 
 cinder.param('min_pool_size', type='integer', default='1', description="Minimum number of SQL connections to keep open in a pool")

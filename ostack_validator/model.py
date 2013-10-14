@@ -197,6 +197,8 @@ class OpenstackComponent(Service):
 
               # if value == parameter_schema.default:
               #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
+            if parameter_schema.deprecation_message:
+              report_issue(MarkedIssue(Issue.WARNING, 'Deprecated parameter: section "%s" name "%s". %s' % (section_name, parameter.name.text, parameter_schema.deprecation_message), parameter.start_mark))
           else:
             _config.set(section_name, parameter.name.text, parameter.value.text)
 

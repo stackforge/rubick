@@ -145,13 +145,14 @@ class ConfigSchema:
     return '<ConfigSchema name=%s version=%s format=%s parameters=%s>' % (self.name, self.version, self.format, self.parameters)
     
 class ConfigParameterSchema:
-  def __init__(self, name, type, section=None, description=None, default=None, required=False):
+  def __init__(self, name, type, section=None, description=None, default=None, required=False, deprecation_message=None):
     self.section = section
     self.name = name
     self.type = type
     self.description = description
     self.default = default
     self.required = required
+    self.deprecation_message = deprecation_message
 
   def __repr__(self):
     return '<ConfigParameterSchema %s>' % ' '.join(['%s=%s' % (attr, getattr(self, attr)) for attr in ['section', 'name', 'type', 'description', 'default', 'required']])
