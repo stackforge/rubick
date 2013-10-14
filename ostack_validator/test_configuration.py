@@ -195,3 +195,11 @@ class ConfigurationTests(unittest.TestCase):
 
     self.assertEqual('cba', c.get('c'))
 
+  def test_getting_raw_values(self):
+    c = Configuration()
+
+    c.set('a', '$b')
+    c.set('b', 'x')
+
+    self.assertEqual('$b', c.get('a', raw=True))
+

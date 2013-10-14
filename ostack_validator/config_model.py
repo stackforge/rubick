@@ -77,7 +77,7 @@ class Configuration(object):
 
     return '%s.%s' % (section, param)
 
-  def get(self, name, default=None, _state=[]):
+  def get(self, name, default=None, raw=False, _state=[]):
     section, name = self._normalize_name(name)
 
     if section in self._normal and name in self._normal[section]:
@@ -88,6 +88,9 @@ class Configuration(object):
       value = default
 
     if not isinstance(value, str):
+      return value
+
+    if raw:
       return value
 
     tmpl = string.Template(value)
