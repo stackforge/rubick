@@ -101,8 +101,8 @@ class Service(IssueReporter):
   def all_issues(self):
     result = super(Service, self).all_issues
 
-    if hasattr(self, 'config_file') and self.config_file:
-      result.extend(self.config_file.all_issues)
+    if hasattr(self, 'config_files') and self.config_files:
+      [result.extend(config_file.all_issues) for config_file in self.config_files]
 
     return result
 
@@ -122,30 +122,32 @@ class OpenstackComponent(Service):
       self.logger.debug('No schema for component "%s" main config version %s. Skipping it' % (self.component, self.version))
       return None
 
-    return self._parse_config_resource(self.config_file, schema)
+    return self._parse_config_resources(self.config_files, schema)
 
-  def _parse_config_resource(self, resource, schema=None):
-    return self._parse_config_file(Mark(resource.path), resource.contents, schema, issue_reporter=resource)
+  def _parse_config_resources(self, resources, schema=None):
+    config = Configuration()
 
-  def _parse_config_file(self, base_mark, config_contents, schema=None, issue_reporter=None):
+    # Apply defaults
+    if schema:
+      for parameter in filter(lambda p: p.default, schema.parameters):
+        if parameter.section == 'DEFAULT':
+          config.set_default(parameter.name, parameter.default)
+        else:
+          config.set_default('%s.%s' % (parameter.section, parameter.name), parameter.default)
+      
+    for resource in reversed(resources):
+      self._parse_config_file(Mark(resource.path), resource.contents, config, schema, issue_reporter=resource)
+
+    return config
+
+  def _parse_config_file(self, base_mark, config_contents, config=Configuration(), schema=None, issue_reporter=None):
     if issue_reporter:
       def report_issue(issue):
         issue_reporter.report_issue(issue)
     else:
       def report_issue(issue): pass
 
-    _config = Configuration()
-
-    # Apply defaults
-    if schema:
-      for parameter in filter(lambda p: p.default, schema.parameters):
-        if parameter.section == 'DEFAULT':
-          _config.set_default(parameter.name, parameter.default)
-        else:
-          _config.set_default('%s.%s' % (parameter.section, parameter.name), parameter.default)
-      
     # Parse config file
-
     config_parser = IniConfigParser()
     parsed_config = config_parser.parse('', base_mark, config_contents)
     for error in parsed_config.errors:
@@ -197,19 +199,20 @@ class OpenstackComponent(Service):
               type_validation_result.message = 'Property "%s" in section "%s": %s' % (parameter.name.text, section_name, type_validation_result.message)
               report_issue(type_validation_result)
 
+              config.set(parameter_fullname, parameter.value.text)
             else:
               value = type_validation_result
 
-              _config.set(parameter_fullname, value)
+              config.set(parameter_fullname, value)
 
               # if value == parameter_schema.default:
               #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
             if parameter_schema.deprecation_message:
               report_issue(MarkedIssue(Issue.WARNING, 'Deprecated parameter: section "%s" name "%s". %s' % (section_name, parameter.name.text, parameter_schema.deprecation_message), parameter.start_mark))
           else:
-            _config.set(parameter_fullname, parameter.value.text)
+            config.set(parameter_fullname, parameter.value.text)
 
-    return _config
+    return config
 
 
 class KeystoneComponent(OpenstackComponent):
@@ -231,7 +234,7 @@ class NovaApiComponent(OpenstackComponent):
   @property
   @memoized
   def paste_config(self):
-    return self._parse_config_resource(self.paste_config_file)
+    return self._parse_config_resources([self.paste_config_file])
 
   @property
   def all_issues(self):
@@ -265,12 +268,6 @@ class CinderSchedulerComponent(OpenstackComponent):
 class MysqlComponent(Service):
   component = 'mysql'
   name = 'mysql'
-
-  @property
-  def config_file(self):
-    if len(self.config_files) == 0:
-      return None
-    return self.config_files[0]
 
 class RabbitMqComponent(Service):
   pass

@@ -202,7 +202,8 @@ class OpenstackDiscovery(object):
 
     keystone = KeystoneComponent()
     keystone.version = self._find_python_package_version(client, 'keystone')
-    keystone.config_file = self._collect_file(client, config_path)
+    keystone.config_files = []
+    keystone.config_files.append(self._collect_file(client, config_path))
 
     token = keystone.config['admin_token']
     host = keystone.config['bind_host']
@@ -236,7 +237,8 @@ class OpenstackDiscovery(object):
 
     nova_api = NovaApiComponent()
     nova_api.version = self._find_python_package_version(client, 'nova')
-    nova_api.config_file = self._collect_file(client, config_path)
+    nova_api.config_files = []
+    nova_api.config_files.append(self._collect_file(client, config_path))
 
     paste_config_path = path_relative_to(nova_api.config['api_paste_config'], os.path.dirname(config_path))
     nova_api.paste_config_file = self._collect_file(client, paste_config_path)
@@ -256,7 +258,8 @@ class OpenstackDiscovery(object):
 
     nova_compute = NovaComputeComponent()
     nova_compute.version = self._find_python_package_version(client, 'nova')
-    nova_compute.config_file = self._collect_file(client, config_path)
+    nova_compute.config_files = []
+    nova_compute.config_files.append(self._collect_file(client, config_path))
 
     return nova_compute
 
@@ -273,7 +276,8 @@ class OpenstackDiscovery(object):
 
     nova_scheduler = NovaSchedulerComponent()
     nova_scheduler.version = self._find_python_package_version(client, 'nova')
-    nova_scheduler.config_file = self._collect_file(client, config_path)
+    nova_scheduler.config_files = []
+    nova_scheduler.config_files.append(self._collect_file(client, config_path))
 
     return nova_scheduler
 
@@ -290,7 +294,8 @@ class OpenstackDiscovery(object):
 
     glance_api = GlanceApiComponent()
     glance_api.version = self._find_python_package_version(client, 'glance')
-    glance_api.config_file = self._collect_file(client, config_path)
+    glance_api.config_files = []
+    glance_api.config_files.append(self._collect_file(client, config_path))
 
     return glance_api
 
@@ -307,7 +312,8 @@ class OpenstackDiscovery(object):
 
     glance_registry = GlanceRegistryComponent()
     glance_registry.version = self._find_python_package_version(client, 'glance')
-    glance_registry.config_file = self._collect_file(client, config_path)
+    glance_registry.config_files = []
+    glance_registry.config_files.append(self._collect_file(client, config_path))
 
     return glance_registry
 
@@ -324,7 +330,8 @@ class OpenstackDiscovery(object):
 
     cinder_api = CinderApiComponent()
     cinder_api.version = self._find_python_package_version(client, 'cinder')
-    cinder_api.config_file = self._collect_file(client, config_path)
+    cinder_api.config_files = []
+    cinder_api.config_files.append(self._collect_file(client, config_path))
 
     paste_config_path = path_relative_to(cinder_api.config['api_paste_config'], os.path.dirname(config_path))
     cinder_api.paste_config_file = self._collect_file(client, paste_config_path)
@@ -344,7 +351,8 @@ class OpenstackDiscovery(object):
 
     cinder_volume = CinderVolumeComponent()
     cinder_volume.version = self._find_python_package_version(client, 'cinder')
-    cinder_volume.config_file = self._collect_file(client, config_path)
+    cinder_volume.config_files = []
+    cinder_volume.config_files.append(self._collect_file(client, config_path))
 
     rootwrap_config_path = path_relative_to(cinder_volume.config['rootwrap_config'], os.path.dirname(config_path))
     cinder_volume.rootwrap_config = self._collect_file(client, rootwrap_config_path)
@@ -364,7 +372,8 @@ class OpenstackDiscovery(object):
 
     cinder_scheduler = CinderSchedulerComponent()
     cinder_scheduler.version = self._find_python_package_version(client, 'cinder')
-    cinder_scheduler.config_file = self._collect_file(client, config_path)
+    cinder_scheduler.config_files = []
+    cinder_scheduler.config_files.append(self._collect_file(client, config_path))
 
     return cinder_scheduler
 
