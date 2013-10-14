@@ -18,12 +18,12 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
       return
 
     keystone = keystones[0]
-    keystone_addresses = [keystone.config['DEFAULT']['bind_host']]
+    keystone_addresses = [keystone.config['bind_host']]
     if keystone_addresses == ['0.0.0.0']:
       keystone_addresses = keystone.host.network_addresses
 
     for nova in [c for c in components if c.name == 'nova-api']:
-      if nova.config['DEFAULT']['auth_strategy'] != 'keystone':
+      if nova.config['auth_strategy'] != 'keystone':
         continue
 
       (authtoken_section,_) = find(
@@ -33,11 +33,11 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
 
       if not authtoken_section: continue
 
-      authtoken_settings = nova.paste_config[authtoken_section]
+      authtoken_settings = nova.paste_config.section(authtoken_section)
 
 
       def get_value(name):
-        return authtoken_settings[name] or nova.config['keystone_authtoken', name]
+        return authtoken_settings[name] or nova.config['keystone_authtoken.%s' % name]
 
       auth_host = get_value('auth_host')
       auth_port = get_value('auth_port')
@@ -56,7 +56,7 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
 
       if not auth_port:
         nova.report_issue(Issue(Issue.ERROR, msg_prefix + ' miss "auth_port" setting in keystone authtoken config'))
-      elif auth_port != keystone.config['DEFAULT']['admin_port']:
+      elif auth_port != keystone.config['admin_port']:
         nova.report_issue(Issue(Issue.ERROR, msg_prefix + ' has incorrect "auth_port" setting in keystone authtoken config'))
 
       if not auth_protocol:

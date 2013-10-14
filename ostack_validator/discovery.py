@@ -204,11 +204,11 @@ class OpenstackDiscovery(object):
     keystone.version = self._find_python_package_version(client, 'keystone')
     keystone.config_file = self._collect_file(client, config_path)
 
-    token = keystone.config['DEFAULT']['admin_token']
-    host = keystone.config['DEFAULT']['bind_host']
+    token = keystone.config['admin_token']
+    host = keystone.config['bind_host']
     if host == '0.0.0.0':
       host = '127.0.0.1'
-    port = int(keystone.config['DEFAULT']['admin_port'])
+    port = int(keystone.config['admin_port'])
 
     keystone_env = {
       'OS_SERVICE_TOKEN': token,
@@ -238,7 +238,7 @@ class OpenstackDiscovery(object):
     nova_api.version = self._find_python_package_version(client, 'nova')
     nova_api.config_file = self._collect_file(client, config_path)
 
-    paste_config_path = path_relative_to(nova_api.config['DEFAULT']['api_paste_config'], os.path.dirname(config_path))
+    paste_config_path = path_relative_to(nova_api.config['api_paste_config'], os.path.dirname(config_path))
     nova_api.paste_config_file = self._collect_file(client, paste_config_path)
 
     return nova_api
@@ -326,7 +326,7 @@ class OpenstackDiscovery(object):
     cinder_api.version = self._find_python_package_version(client, 'cinder')
     cinder_api.config_file = self._collect_file(client, config_path)
 
-    paste_config_path = path_relative_to(cinder_api.config['DEFAULT']['api_paste_config'], os.path.dirname(config_path))
+    paste_config_path = path_relative_to(cinder_api.config['api_paste_config'], os.path.dirname(config_path))
     cinder_api.paste_config_file = self._collect_file(client, paste_config_path)
 
     return cinder_api
@@ -346,7 +346,7 @@ class OpenstackDiscovery(object):
     cinder_volume.version = self._find_python_package_version(client, 'cinder')
     cinder_volume.config_file = self._collect_file(client, config_path)
 
-    rootwrap_config_path = path_relative_to(cinder_volume.config['DEFAULT']['rootwrap_config'], os.path.dirname(config_path))
+    rootwrap_config_path = path_relative_to(cinder_volume.config['rootwrap_config'], os.path.dirname(config_path))
     cinder_volume.rootwrap_config = self._collect_file(client, rootwrap_config_path)
 
     return cinder_volume
@@ -400,3 +400,4 @@ class OpenstackDiscovery(object):
       return None
 
     return None
+

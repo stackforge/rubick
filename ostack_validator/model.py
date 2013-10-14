@@ -139,7 +139,10 @@ class OpenstackComponent(Service):
     # Apply defaults
     if schema:
       for parameter in filter(lambda p: p.default, schema.parameters):
-        _config.set_default(parameter.section, parameter.name, parameter.default)
+        if parameter.section == 'DEFAULT':
+          _config.set_default(parameter.name, parameter.default)
+        else:
+          _config.set_default('%s.%s' % (parameter.section, parameter.name), parameter.default)
       
     # Parse config file
 
@@ -182,6 +185,10 @@ class OpenstackComponent(Service):
           else:
             seen_parameters.add(parameter.name.text)
 
+          parameter_fullname = parameter.name.text
+          if section_name != 'DEFAULT':
+            parameter_fullname = section_name + '.' + parameter_fullname
+
           if parameter_schema:
             type_validator = TypeValidatorRegistry.get_validator(parameter_schema.type)
             type_validation_result = type_validator.validate(parameter.value.text)
@@ -193,14 +200,14 @@ class OpenstackComponent(Service):
             else:
               value = type_validation_result
 
-              _config.set(section_name, parameter.name.text, value)
+              _config.set(parameter_fullname, value)
 
               # if value == parameter_schema.default:
               #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
             if parameter_schema.deprecation_message:
               report_issue(MarkedIssue(Issue.WARNING, 'Deprecated parameter: section "%s" name "%s". %s' % (section_name, parameter.name.text, parameter_schema.deprecation_message), parameter.start_mark))
           else:
-            _config.set(section_name, parameter.name.text, parameter.value.text)
+            _config.set(parameter_fullname, parameter.value.text)
 
     return _config
 

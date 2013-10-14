@@ -1,3 +1,5 @@
+import string
+
 from ostack_validator.common import Mark
 
 class ConfigurationSection(object):
@@ -6,35 +8,53 @@ class ConfigurationSection(object):
     self.config = config
     self.section = section
 
-  def get(self, *args, **kwargs):
-    return self.config.get(self.section, *args, **kwargs)
+  def _combine_names(self, section, param):
+    if section == 'DEFAULT':
+      return param
 
-  def set(self, *args, **kwargs):
-    self.config.set(self.section, *args, **kwargs)
+    return '%s.%s' % (section, param)
 
-  def set_default(self, *args, **kwargs):
-    self.config.set_default(self.section, *args, **kwargs)
+  def get(self, name, *args, **kwargs):
+    return self.config.get(self._combine_names(self.section, name), *args, **kwargs)
 
-  def contains(self, *args, **kwargs):
-    return self.config.contains(self.section, *args, **kwargs)
+  def set(self, name, *args, **kwargs):
+    self.config.set(self._combine_names(self.section, name), *args, **kwargs)
 
-  def is_default(self, *args, **kwargs):
-    return self.config.is_default(self.section, *args, **kwargs)
+  def set_default(self, name, *args, **kwargs):
+    self.config.set_default(self._combine_names(self.section, name), *args, **kwargs)
+
+  def contains(self, name, *args, **kwargs):
+    return self.config.contains(self._combine_names(self.section, name), *args, **kwargs)
+
+  def is_default(self, name, *args, **kwargs):
+    return self.config.is_default(self._combine_names(self.section, name), *args, **kwargs)
 
   def __getitem__(self, key):
-    return self.config.get(self.section, key)
+    return self.config.get(self._combine_names(self.section, key))
 
   def __setitem__(self, key, value):
-    return self.config.set(self.section, key, value)
+    return self.config.set(self._combine_names(self.section, key), value)
 
   def __contains__(self, key):
-    return self.config.contains(self.section, key)
+    return self.config.contains(self._combine_names(self.section, key))
 
   def keys(self):
     return self.config.keys(self.section)
 
   def items(self, *args, **kwargs):
     return self.config.items(self.section, *args, **kwargs)
+
+class ConfigurationWrapper(object):
+  def __init__(self, config, state):
+    super(ConfigurationWrapper, self).__init__()
+    self.config = config
+    self.state = state
+
+  def __getitem__(self, key):
+    if key in self.state:
+      return ''
+
+    return self.config.get(key, _state=self.state)
 
 
 class Configuration(object):
@@ -43,16 +63,39 @@ class Configuration(object):
     self._defaults = dict()
     self._normal = dict()
 
-  def get(self, section, name, default=None):
+  def _normalize_name(self, name):
+    if name.find('.') == -1:
+      section = 'DEFAULT'
+    else:
+      section, name = name.split('.', 1)
+
+    return (section, name)
+
+  def _combine_names(self, section, param):
+    if section == 'DEFAULT':
+      return param
+
+    return '%s.%s' % (section, param)
+
+  def get(self, name, default=None, _state=[]):
+    section, name = self._normalize_name(name)
+
     if section in self._normal and name in self._normal[section]:
-      return self._normal[section][name]
+      value = self._normal[section][name]
+    elif section in self._defaults and name in self._defaults[section]:
+      value = self._defaults[section][name]
+    else:
+      value = default
 
-    if section in self._defaults and name in self._defaults[section]:
-      return self._defaults[section][name]
+    if not isinstance(value, str):
+      return value
 
-    return default
+    tmpl = string.Template(value)
+    return tmpl.safe_substitute(ConfigurationWrapper(self, _state + [name]))
 
-  def contains(self, section, name, ignoreDefault=False):
+  def contains(self, name, ignoreDefault=False):
+    section, name = self._normalize_name(name)
+
     if section in self._normal and name in self._normal[section]:
       return True
 
@@ -61,16 +104,22 @@ class Configuration(object):
 
     return False
 
-  def is_default(self, section, name):
+  def is_default(self, name):
+    section, name = self._normalize_name(name)
+
     return not (section in self._normal and name in self._normal[section]) and (section in self._defaults and name in self._defaults[section])
 
-  def set_default(self, section, name, value):
+  def set_default(self, name, value):
+    section, name = self._normalize_name(name)
+
     if not section in self._defaults:
       self._defaults[section] = dict()
 
     self._defaults[section][name] = value
 
-  def set(self, section, name, value):
+  def set(self, name, value):
+    section, name = self._normalize_name(name)
+
     if not section in self._normal:
       self._normal[section] = dict()
 
@@ -80,18 +129,10 @@ class Configuration(object):
     return ConfigurationSection(self, section)
 
   def __getitem__(self, key):
-    if not isinstance(key, tuple) == 1:
-      return self.section(key)
-    elif isinstance(key, tuple) and len(key) == 2:
-      return self.get(key[0], key[1])
-    else:
-      raise TypeError, "expectes 1 or 2 arguments, %d given" % len(key)
+    return self.get(key)
 
   def __setitem__(self, key, value):
-    if isinstance(key, tuple) and len(key) == 2:
-      self.set(key[0], key[1], value)
-    else:
-      raise TypeError, "key expected to be section + parameter names, got %s" % key
+    self.set(key, value)
 
   def __contains__(self, section):
     return (section in self._defaults) or (section in self._normal)
@@ -119,7 +160,7 @@ class Configuration(object):
 
   def items(self, section=None):
     if section:
-      return [(name, self.get(section, name)) for name in self.keys(section)]
+      return [(name, self.get(self._combine_names(section, name))) for name in self.keys(section)]
     else:
       return [(name, ConfigurationSection(self, name)) for name in self.keys()]
 

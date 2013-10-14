@@ -31,7 +31,7 @@ class KeystoneEndpointsInspection(Inspection):
           for c in host.components:
             if c.name != 'nova-compute': continue
 
-            if c.config['DEFAULT', 'osapi_compute_listen'] in ['0.0.0.0', url.hostname] and c.config['DEFAULT', 'osapi_compute_listen_port'] == url.port:
+            if c.config['osapi_compute_listen'] in ['0.0.0.0', url.hostname] and c.config['osapi_compute_listen_port'] == url.port:
               nova_compute = c
               break
 
