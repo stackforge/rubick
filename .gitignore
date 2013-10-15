@@ -1,5 +1,7 @@
 # Python stuff
 *.pyc
+.idea
+ProcfileHonchoLocal
 
 # Vim stuff
 .swp
@@ -10,3 +12,5 @@
 # Vagrant state
 .vagrant
 vagrant_ansible_inventory_dev
+dev.out.txt
+web.out.txt
