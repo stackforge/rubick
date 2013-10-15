@@ -1,0 +1,28 @@
+frame "Peter" {
+          [network emulation]
+                cloud {
+                                [demo scenario]
+                                      }
+}
+frame "Sergey" {
+          [network emulation] --> [salt bootstrap]
+                [salt bootstrap] --> [nodes discovery]
+}
+
+frame "Max" {
+          [config files collector]
+                [config-inspector] -up-> [demo scenario]
+}
+frame "Ilya" {
+          [tripleo-image-elements] --> [os-collect-config]
+                [tripleo-heat-templates] --> [os-collect-config]
+}
+frame "Kirill" {
+          [rules editing engine] <-- [config-inspector]
+                [rules editing engine] --> [demo scenario]
+}
+[nodes discovery] --> nodelist
+nodelist --> [config files collector]
+[config files collector] --> JSON
+JSON --> [config-inspector]
+[os-collect-config] --> JSON
