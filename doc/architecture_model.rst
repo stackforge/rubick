@@ -1,6 +1,10 @@
-= Arhitecture Data Model
+=======================
+ARCHITECTURE DATA MODEL
+=======================
 
-== Overview
+--------
+Overview
+--------
 
 Architecture data model produced by Joker could be consumed by configuration
 validator tool (Dark Knight), by architecture graph (Stencil) and others. 
@@ -20,7 +24,9 @@ support contract pricing purposes.
 The model could be used to perform automated/guided hardening of OpenStack
 architecture and configuration.
 
-== Data Format
+-----------
+Data Format
+-----------
 
 This section proposes data model format which allows to describe any OpenStack
 installation. The model includes data regarding physical infrastructure, logical

@@ -1,6 +1,9 @@
-= VALIDATOR INTEGRATION WITH OPENSTACK
+VALIDATOR INTEGRATION WITH OPENSTACK
+====================================
 
-== Overview
+--------
+Overview
+--------
 
 OpenStack cloud life cycle consists of 2 distinct phases:
 
@@ -9,16 +12,24 @@ OpenStack cloud life cycle consists of 2 distinct phases:
 
 Success of the *initial deployment* stage means that upfront installation and
 configuration of the OpenStack platform is successful. Multiple projects work in
-that area: TripleO+Tuskar, Fuel, Packstack, Devstack to name a few. Most of
-these projects are pretty good in what they are doing, but once you installed
-and kicked off the cloud, things begin to change.
+that area: TripleO+Tuskar, Fuel, Packstack, Devstack to name a few. 
 
-On the other hand, *operation maintenance* phase is more or less abundant of
+Most of these projects are pretty good in what they are doing, but once you
+installed and kicked off the cloud, things begin to change. Cloud enters
+*operation maintenance* phase of its life cycle. 
+
+Changes to configuration, architecture and environment itself could reduce
+overall stability and performance of the platform. Eventually operators faces
+the situation when something goes wrong and service gets disrupted.
+
+That said, *operation maintenance* phase is more or less abundant of
 community-driven projects aimed to increase reliablility of cloud and
 resilience which allows to support the SLA at reasonably high level (think your
 favourite number of nines).
 
-== Proposal Summary
+----------------
+Proposal Summary
+----------------
 
 With this proposal we want to introduce a project aimed to enhance and simplify
 operatinal maintenance of OpenStack cloud. Project provides service which uses
@@ -26,12 +37,18 @@ rule-based engine (```lettuce```) to inspect configurations of OpenStack
 platform and find all kinds of architecture- and configuration-level glitches
 and inconsistencies.
 
-This engine will be eventually used to provide hints and best practices to
-increase reliability and operational resilience of the cloud.
+This engine will provide hints and best practices to increase reliability and
+operational resilience of the cloud.
 
-== Integration Points
+Rules engine
+------------
 
-=== TripleO integration points
+------------------
+Integration Points
+------------------
+
+TripleO integration points
+--------------------------
 
 .. image:: images/openstack_integration.png
 
