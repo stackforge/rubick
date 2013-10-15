@@ -2,44 +2,46 @@
 
 == Overview
 
+OpenStack cloud life cycle consists of 2 distinct phases:
+
+* initial deployment and
+* operation maintenance
+
+Success of the *initial deployment* stage means that upfront installation and
+configuration of the OpenStack platform is successful. Multiple projects work in
+that area: TripleO+Tuskar, Fuel, Packstack, Devstack to name a few. Most of
+these projects are pretty good in what they are doing, but once you installed
+and kicked off the cloud, things begin to change.
+
+On the other hand, *operation maintenance* phase is more or less abundant of
+community-driven projects aimed to increase reliablility of cloud and
+resilience which allows to support the SLA at reasonably high level (think your
+favourite number of nines).
+
+== Proposal Summary
+
+With this proposal we want to introduce a project aimed to enhance and simplify
+operatinal maintenance of OpenStack cloud. Project provides service which uses
+rule-based engine (```lettuce```) to inspect configurations of OpenStack
+platform and find all kinds of architecture- and configuration-level glitches
+and inconsistencies.
+
+This engine will be eventually used to provide hints and best practices to
+increase reliability and operational resilience of the cloud.
+
 == Integration Points
 
 === TripleO integration points
 
-::
+.. image:: images/openstack_integration.png
 
-package "Metadata services" {
-        [Heat]
-            [CFN]
-                [EC2]
-}
+This diagram shows integration points between OpenStack and config-validator:
 
-frame "TripleO" {
-        package "diskimage-builder" {
-                    [tripleo-image-elements] -- nova.conf
-                            [tripleo-image-elements] -- keystone.conf
-                                    [tripleo-image-elements] -- glance.conf
-                                        }
-                                            [os-collect-config] <-- [Heat]
-                                                [os-collect-config] <-- [CFN]
-                                                    [os-collect-config] <--
-                                                    [EC2]
-                                                        [os-collect-config]
-                                                        -left-> JSON
-                                                            JSON -->
-                                                            [os-refresh-config]
-}
-
-frame "Tuskar" {
-        [Tuskar] -right- Tuskar_API
-}
-
-[Tuskar] --> HOT
-HOT --> [Heat]
-
-cloud {
-        [Config Validator] << DarkKnight >>
-}
-
-JSON -up-> [Config Validator]
-[tripleo-image-elements] -up-> [Config Validator]
+* Source configuration data from **metadata services**
+* Reuse **data collection methods** from TripleO program
+* Create **configuration models** of all OpenStack services with default values of
+  the parameters and extended typization
+* Use configuration files templates from TripleO program to define **actual
+  state** of configuration in configuration models
+* Populate **architecture data model** with collected data
+* Run **validator inspections** on the 
