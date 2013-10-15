@@ -18,5 +18,4 @@ vagrant up --no-provision
 # but run provision tasks in parallel
 cat <<EOF | parallel_provision
 web
-dev
 EOF
