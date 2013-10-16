@@ -26,3 +26,19 @@ Each configuration option should have information on versions. When validating s
 
 Changes in schema can be small between build (maintanence) releases, so there is no need to store whole schema for those. It should be stored in a diff-like format: for each known version there should be records on configuration changes like added/changed option, removed option. To validate configuration for paritcular version a configuration schema snapshot for that version will need to be calculated. Major (and maybe minor) versions can have the whole schema to speed up schema snapshot calculus.
 
+Deployment
+-------------
+
+### Development environment in vbox via vagrant
+1. Install vagrant(MacOS, Windows, Ubuntu) - http://downloads.vagrantup.com/tags/v1.3.3
+2. ./run_vagrant_provision.sh
+3. After that you can access application on http://<host_machine_ip>:8000/validation
+
+### Heroku deployment
+1. $ git clone git@github.com:MirantisLabs/openstack-config-validator.git
+2. $ cd openstack-config-validator
+3. $ heroku git:remote -a <name_of_the_heroku_app>
+4. $ git push heroku master
+ 
+### Manual deployment 
+All steps for manual deployment and running the app you can find here: ```/vagrant/cookbooks/openstack-validator/recipes/default.rb```
