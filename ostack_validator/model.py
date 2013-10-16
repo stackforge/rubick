@@ -270,7 +270,7 @@ class MysqlComponent(Service):
   name = 'mysql'
 
 class RabbitMqComponent(Service):
-  pass
+  name = 'rabbitmq'
 
 class FileResource(IssueReporter):
   def __init__(self, path, contents, owner, group, permissions):

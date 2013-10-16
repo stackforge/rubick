@@ -408,5 +408,8 @@ class OpenstackDiscovery(object):
     if ' '.join(process).find('rabbit') == -1:
       return None
 
-    return None
+    rabbitmq = RabbitMqComponent()
+    rabbitmq.version = 'unknown'
+
+    return rabbitmq
 
