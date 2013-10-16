@@ -15,9 +15,6 @@ class SchemaParser(object):
         args = parser.parse_args(argv[1:])
         return args
 
-    def variable_type_detection(self, variable):
-        return basestring
-
     def generate_schema(self, file_to_open, file_to_generate='/tmp/sample.py'):
         with open(file_to_open, 'r') as f:
             content = f.readlines()
