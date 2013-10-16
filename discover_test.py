@@ -4,7 +4,7 @@ from itertools import groupby
 from ostack_validator.common import Issue, MarkedIssue, Inspection
 from ostack_validator.model import OpenstackComponent
 from ostack_validator.discovery import OpenstackDiscovery
-from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection
+from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection, LettuceRunnerInspection
 
 def indent_prefix(indent=0):
   s = ''
@@ -62,7 +62,7 @@ def main():
 
   openstack = discovery.discover(['172.18.65.179'], 'root', private_key=private_key)
 
-  all_inspections = [KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection]
+  all_inspections = [KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection, LettuceRunnerInspection]
   for inspection in all_inspections:
     x = inspection()
     x.inspect(openstack)

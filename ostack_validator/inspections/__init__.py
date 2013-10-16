@@ -1,3 +1,4 @@
 from ostack_validator.inspections.keystone_authtoken import KeystoneAuthtokenSettingsInspection
 from ostack_validator.inspections.keystone_endpoints import KeystoneEndpointsInspection
+from ostack_validator.inspections.lettuce_runner import LettuceRunnerInspection
 
