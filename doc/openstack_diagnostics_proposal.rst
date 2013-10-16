@@ -15,10 +15,20 @@ OpenStack cloud operators usually rely on deploymnet tools to configure all the
 platform components correctly and efficiently upfront. However, after initial
 deployment platform configurations and operational conditions start to change.
 These changes could break consistency and integration of cloud platform and its
-components.
+components, and ultimately cause cloud service failures of different kinds.
+
+Cloud operator must quickly and efficiently identify and respond to the root
+cause of such failures. To do so, he must check if his OpenStack configuration
+is sane and consistent. These checks could be thought of as rules of diagnostic
+production system.
+
+Currently OpenStack ecosystem does not provide tools which specifically help to
+diagnose platform configuration. We propose a project which will help operators
+to diagnose their OpenStack platform and reduce response time to known and
+unknown failures.
 
 Mission
----------
+-------
 
 Diagnostics' mission is to **provide OpenStack cloud operators with tools which
 minimize time and effort needed to identify and fix errors in operations
