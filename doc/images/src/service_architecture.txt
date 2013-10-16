@@ -1,0 +1,34 @@
+@startuml
+
+frame "Rubick" {
+    [Rubick API]
+    [Rule engine]
+    [Config data\nextractor]
+    [Heat metadata\n plugin]
+    [Metadata\nplugin 1]
+    [...]
+    [Metadata\nplugin N]
+    [Config data\nstore]
+    () "env.json"
+}
+
+frame "Heat" {
+    [Heat API]
+    [Templated\nconfig data]
+}
+
+() HOT
+
+[Rubick API] -- env.json
+[Config data\nstore] -- env.json
+[Heat API] --> HOT
+HOT --> [Heat metadata\n plugin]
+[Config data\nextractor] -up- env.json
+[Rule engine] -- env.json
+[Templated\nconfig data] --> [Heat API]
+[Config data\nextractor] -- [Heat metadata\n plugin]
+[Config data\nextractor] -- [Metadata\nplugin 1]
+[Config data\nextractor] -- [...]
+[Config data\nextractor] -- [Metadata\nplugin N]
+
+@enduml

@@ -27,15 +27,25 @@ community-driven projects aimed to increase reliablility of cloud and
 resilience which allows to support the SLA at reasonably high level (think your
 favourite number of nines).
 
+Maintenance stages
+
+Where the product is applicable?
+
 ----------------
 Proposal Summary
 ----------------
 
 With this proposal we want to introduce a project aimed to enhance and simplify
 operatinal maintenance of OpenStack cloud. Project provides service which uses
-rule-based engine (```lettuce```) to inspect configurations of OpenStack
+rule-based engine to inspect configurations of OpenStack
 platform and find all kinds of architecture- and configuration-level glitches
 and inconsistencies.
+
+*# describe motivation behind rules
+# describe rules reuse
+# desribe rule-based inspection
+# example rule
+# mandatory rules vs. best-practice rules*
 
 This engine will provide hints and best practices to increase reliability and
 operational resilience of the cloud.
