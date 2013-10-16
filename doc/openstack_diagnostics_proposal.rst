@@ -5,6 +5,7 @@ Project Name
 ------------
 
 **Official:** OpenStack Diagnostics
+
 **Codename:** Rubick
 
 Overview
@@ -26,23 +27,23 @@ maintenance phase of cloud life cycle.**
 User Stories
 ------------
 
- - As a **cloud operator**, I want to make sure that my OpenStack architecture
-   and configuration is sane and consistent across all platform components and
-   services.
- - As a **cloud architect**, I want to make sure that my OpenStack architecture
-   and configuration are compliant to best practices.
- - As a **cloud architect**, I need a knowledge base of sanity checks and best
-   practices for troubleshooting my OpenStack cloud which I can reuse and update
-   with my own checks and rules.
- - As a **cloud operator**, I want to be able to automatically extract
-   configuration parameters from all OpenStack components to verify their
-   correctness, consistency and integrity.
- - As a **cloud operator**, I want automatic diagnostics tool which can inspect
-   configuration of my OpenStack cloud and report if it is sane and/or compliant
-   toc community-defined best practices.
- - As a **cloud operator**, I want to be able to define rules used to inspect
-   and verify configuration of OpenStack components and store them to use for
-   verification of future configuration changes.
+- As a **cloud operator**, I want to make sure that my OpenStack architecture
+  and configuration is sane and consistent across all platform components and
+  services.
+- As a **cloud architect**, I want to make sure that my OpenStack architecture
+  and configuration are compliant to best practices.
+- As a **cloud architect**, I need a knowledge base of sanity checks and best
+  practices for troubleshooting my OpenStack cloud which I can reuse and update
+  with my own checks and rules.
+- As a **cloud operator**, I want to be able to automatically extract
+  configuration parameters from all OpenStack components to verify their
+  correctness, consistency and integrity.
+- As a **cloud operator**, I want automatic diagnostics tool which can inspect
+  configuration of my OpenStack cloud and report if it is sane and/or compliant
+  toc community-defined best practices.
+- As a **cloud operator**, I want to be able to define rules used to inspect
+  and verify configuration of OpenStack components and store them to use for
+  verification of future configuration changes.
 
 Requirements
 ------------
@@ -54,11 +55,11 @@ Scope
 
 As an MVP1, we create a service that includes:
 
- 1. Rules engine with grammatic analysis capabilities
- 1. Extensible implementation of rules
- 1. REST API for running inspections
- 1. Storage back-end implementation for OpenStack platform architecture and
-    configuration data
+#. Rules engine with grammatic analysis capabilities
+#. Extensible implementation of rules
+#. REST API for running inspections
+#. Storage back-end implementation for OpenStack platform architecture and
+   configuration data
 
 Assumptions
 -----------
