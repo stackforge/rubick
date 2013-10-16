@@ -1,146 +1,188 @@
 import copy
 
+
 def find(l, predicate):
-  results = [x for x in l if predicate(x)]
-  return results[0] if len(results) > 0 else None
+    results = [x for x in l if predicate(x)]
+    return results[0] if len(results) > 0 else None
+
 
 def index(l, predicate):
-  i = 0
-  while i<len(l):
-    if predicate(l[i]):
-      return i
-    i += 1
-  return -1
+    i = 0
+    while i < len(l):
+        if predicate(l[i]):
+            return i
+        i += 1
+    return -1
+
 
 def all_subclasses(klass):
-  subclasses = klass.__subclasses__()
-  for d in list(subclasses):
-    subclasses.extend(all_subclasses(d))
-  return subclasses
+    subclasses = klass.__subclasses__()
+    for d in list(subclasses):
+        subclasses.extend(all_subclasses(d))
+    return subclasses
+
 
 def path_relative_to(path, base_path):
-  if not path.startswith('/'):
-    path = os.path.join(base_path, paste_config_path)
+    if not path.startswith('/'):
+        path = os.path.join(base_path, paste_config_path)
 
-  return path
+    return path
+
 
 class Version:
-  def __init__(self, major, minor=0, maintenance=0):
-    "Create Version object by either passing 3 integers, one string or an another Version object"
-    if isinstance(major, str):
-      self.parts = [int(x) for x in major.split('.', 3)]
-      while len(self.parts) < 3:
-        self.parts.append(0)
 
-    elif isinstance(major, Version):
-      self.parts = major.parts
-    else:
-      self.parts = [int(major), int(minor), int(maintenance)]
+    def __init__(self, major, minor=0, maintenance=0):
+        "Create Version object by either passing 3 integers, one string or an another Version object"
+        if isinstance(major, str):
+            self.parts = [int(x) for x in major.split('.', 3)]
+            while len(self.parts) < 3:
+                self.parts.append(0)
 
-  @property
-  def major(self):
-    return self.parts[0]
+        elif isinstance(major, Version):
+            self.parts = major.parts
+        else:
+            self.parts = [int(major), int(minor), int(maintenance)]
 
-  @major.setter
-  def major(self, value):
-    self.parts[0] = int(value)
+    @property
+    def major(self):
+        return self.parts[0]
 
-  @property
-  def minor(self):
-    return self.parts[1]
+    @major.setter
+    def major(self, value):
+        self.parts[0] = int(value)
 
-  @minor.setter
-  def minor(self, value):
-    self.parts[1] = int(value)
+    @property
+    def minor(self):
+        return self.parts[1]
 
-  @property
-  def maintenance(self):
-    return self.parts[2]
+    @minor.setter
+    def minor(self, value):
+        self.parts[1] = int(value)
 
-  @maintenance.setter
-  def maintenance(self, value):
-    self.parts[2] = value
+    @property
+    def maintenance(self):
+        return self.parts[2]
 
-  def __str__(self):
-    return '.'.join([str(p) for p in self.parts])
+    @maintenance.setter
+    def maintenance(self, value):
+        self.parts[2] = value
 
-  def __repr__(self):
-    return '<Version %s>' % str(self)
+    def __str__(self):
+        return '.'.join([str(p) for p in self.parts])
 
-  def __cmp__(self, other):
-    for i in xrange(0, 3):
-      x = self.parts[i] - other.parts[i]
-      if x != 0:
-        return -1 if x < 0 else 1
+    def __repr__(self):
+        return '<Version %s>' % str(self)
 
-    return 0
+    def __cmp__(self, other):
+        for i in xrange(0, 3):
+            x = self.parts[i] - other.parts[i]
+            if x != 0:
+                return -1 if x < 0 else 1
+
+        return 0
 
 
 class Mark(object):
-  def __init__(self, source, line=0, column=0):
-    self.source = source
-    self.line = line
-    self.column = column
 
-  def __eq__(self, other):
-    return (self.source == source) and (self.line == other.line) and (self.column == other.column)
+    def __init__(self, source, line=0, column=0):
+        self.source = source
+        self.line = line
+        self.column = column
 
-  def __ne__(self, other):
-    return not self == other
+    def __eq__(self, other):
+        return (
+            (self.source == source) and (
+                self.line == other.line) and (self.column == other.column)
+        )
 
-  def merge(self, other):
-    return Mark(self.source, self.line + other.line, self.column + other.column)
+    def __ne__(self, other):
+        return not self == other
 
-  def __repr__(self):
-    return '%s line %d column %d' % (self.source, self.line, self.column)
+    def merge(self, other):
+        return (
+            Mark(
+                self.source,
+                self.line +
+                other.line,
+                self.column +
+                other.column)
+        )
+
+    def __repr__(self):
+        return '%s line %d column %d' % (self.source, self.line, self.column)
+
 
 class Error:
-  def __init__(self, message):
-    self.message = message
 
-  def __repr__(self):
-    return '<%s "%s">' % (str(self.__class__).split('.')[-1][:-2], self.message)
+    def __init__(self, message):
+        self.message = message
 
-  def __str__(self):
-    return self.message
+    def __repr__(self):
+        return (
+            '<%s "%s">' % (
+                str(self.__class__).split('.')[-1][:-2],
+                self.message)
+        )
+
+    def __str__(self):
+        return self.message
+
 
 class Issue(object):
-  FATAL = 'FATAL'
-  ERROR = 'ERROR'
-  WARNING = 'WARNING'
-  INFO = 'INFO'
+    FATAL = 'FATAL'
+    ERROR = 'ERROR'
+    WARNING = 'WARNING'
+    INFO = 'INFO'
 
-  def __init__(self, type, message):
-    self.type = type
-    self.message = message
+    def __init__(self, type, message):
+        self.type = type
+        self.message = message
 
-  def __repr__(self):
-    return '<%s type=%s message=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message)
+    def __repr__(self):
+        return (
+            '<%s type=%s message=%s>' % (
+                str(self.__class__).split('.')[-1][:-2],
+                self.type,
+                self.message)
+        )
 
-  def __str__(self):
-    return '%s: %s' % (self.type, self.message)
+    def __str__(self):
+        return '%s: %s' % (self.type, self.message)
+
 
 class MarkedIssue(Issue):
-  def __init__(self, type, message, mark):
-    super(MarkedIssue, self).__init__(type, message)
-    self.mark = mark
 
-  def offset_by(self, base_mark):
-    other = copy.copy(self)
-    other.mark = base_mark.merge(self.mark)
-    return other
+    def __init__(self, type, message, mark):
+        super(MarkedIssue, self).__init__(type, message)
+        self.mark = mark
 
-  def __repr__(self):
-    return '<%s type=%s message=%s mark=%s>' % (str(self.__class__).split('.')[-1][:-2], self.type, self.message, self.mark)
+    def offset_by(self, base_mark):
+        other = copy.copy(self)
+        other.mark = base_mark.merge(self.mark)
+        return other
 
-  def __str__(self):
-    return super(MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' % (self.mark.source, self.mark.line+1, self.mark.column+1))
+    def __repr__(self):
+        return (
+            '<%s type=%s message=%s mark=%s>' % (
+                str(self.__class__).split('.')[-1][:-2],
+                self.type,
+                self.message,
+                self.mark)
+        )
+
+    def __str__(self):
+        return (
+            super(
+                MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' %
+                                                (self.mark.source, self.mark.line + 1, self.mark.column + 1))
+        )
+
 
 class Inspection(object):
-  @classmethod
-  def all_inspections(klass):
-    return [c for c in all_subclasses(klass)]
 
-  def inspect(self, openstack):
-    pass
+    @classmethod
+    def all_inspections(klass):
+        return [c for c in all_subclasses(klass)]
 
+    def inspect(self, openstack):
+        pass

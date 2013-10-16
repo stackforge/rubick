@@ -4,6 +4,7 @@ import sys
 
 
 class SchemaParser(object):
+
     def parse_args(self, argv):
         parser = argparse.ArgumentParser()
         parser.add_argument('--conf', dest='conf_file', default=None,
