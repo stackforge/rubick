@@ -1,6 +1,12 @@
 OPENSTACK DIAGNOSTICS PROPOSAL
 ==============================
 
+Project Name
+------------
+
+**Official:** OpenStack Diagnostics
+**Codename:** Dark Knight
+
 Overview
 --------
 
@@ -40,7 +46,7 @@ TBD
 Scope
 -----
 
-As an MVP1, we create service that includes:
+As an MVP1, we create a service that includes:
 
 1. Rules engine with grammatic analysis capabilities
 1. Extensible implementation of rules

@@ -2,16 +2,20 @@
 ARCHITECTURE DATA MODEL
 =======================
 
---------
 Overview
 --------
 
-Architecture data model produced by Joker could be consumed by configuration
-validator tool (Dark Knight), by architecture graph (Stencil) and others. 
+We want to introduce unified data structure which contains all information
+necessary to inspect, analyze, describe and visualize OpenStack architecture.
 
-At some point it should be made convertible into format accepted by deployment
-systems (e.g. Fuel or TripleO) which will allow to effectively 'clone' OpenStack
-clouds using different deployment applications.
+This Architecture data model could be consumed and processed by configuration
+analysis and diagnostics tool (**Dark Knight**) and by architecture visualizer
+(**Stencil**). 
+
+Arhictecture data model must include all information necessary to deployment
+systems (e.g. **Fuel** or **TripleO**). We will implement simple conversion tools which
+will allow to configure these deployment systems and effectively support
+'portable' clouds.
 
 This model could be reused by Rally project to compare benchmarking results for
 different architectures.
@@ -24,11 +28,10 @@ support contract pricing purposes.
 The model could be used to perform automated/guided hardening of OpenStack
 architecture and configuration.
 
------------
 Data Format
 -----------
 
-This section proposes data model format which allows to describe any OpenStack
+This section proposes data model format which allows to describe an OpenStack
 installation. The model includes data regarding physical infrastructure, logical
 topology of services and mapping between the two.
 
