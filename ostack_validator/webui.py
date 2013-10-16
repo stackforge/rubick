@@ -7,6 +7,7 @@ from flask_wtf import Form
 from wtforms import StringField, TextAreaField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json
+from pymongo import MongoClient
 
 from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
 from ostack_validator.common import Issue, MarkedIssue
@@ -34,15 +35,21 @@ def get_db():
 class Cluster(object):
   @classmethod
   def from_doc(klass, doc):
-    return Cluster(doc['name'], doc['seed_nodes'], doc['nodes'], doc['private_key'])
+    return Cluster(doc['id'], doc['name'], description=doc['description'], status=doc['status'], seed_nodes=doc['seed_nodes'], nodes=doc['nodes'], private_key=doc['private_key'])
 
-  def __init__(self, id, name, seed_nodes, private_key, nodes):
+  def __init__(self, id, name, description=None, status='Unknown', seed_nodes=[], private_key=None, nodes=[]):
     super(Cluster, self).__init__()
     self.id = id
     self.name = name
+    self.description = description
+    self.status = status
     self.seed_nodes = seed_nodes
     self.private_key = private_key
     self.nodes = nodes
+
+  # JSON serialization helper
+  def _asdict(self):
+    return dict(id=self.id, name=self.name, description=self.description, status=self.status, nodes=self.nodes, seed_nodes=self.seed_nodes, private_key=self.private_key)
 
 class RuleGroup:
   VALIDITY='validity'
@@ -62,6 +69,10 @@ class Rule(object):
     self.group = group
     self.name = name
     self.text = text
+
+  # JSON serialization helper
+  def _asdict(self):
+    return dict(id=self.id, group=self.group, name=self.name, text=self.text)
 
 class ClusterForm(Form):
   name = StringField('Name', validators=[DataRequired()])
@@ -89,7 +100,11 @@ def index():
 @app.route('/clusters')
 def get_clusters():
   db = get_db()
-  return json.dumps([Cluster.from_doc(doc) for doc in db['clusters'].find()])
+  #return json.dumps([Cluster.from_doc(doc) for doc in db['clusters'].find()])
+  return json.dumps([
+    Cluster('cluster1', "Kirill's DevStack", description="Grizzly-based devstack with Quantum and oVS, deployed on Kirill's laptop", status='Available'),
+    Cluster('cluster2', "Peter's DevStack", description="Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager", status='Broken')
+  ])
 
 @app.route('/clusters', methods=['POST'])
 def add_cluster():
@@ -102,13 +117,35 @@ def add_cluster():
   else:
     return json.dumps(dict(errors=form.errors)), 422
 
+@app.route('/rules')
+def get_rules():
+  db = get_db()
+  rules = [Rule.from_doc(doc) for doc in db['rules'].find()]
+  rules = [
+    Rule('rule1', RuleGroup.VALIDITY, 'Nova has proper Keystone host',
+      """Given I use OpenStack Grizzly 2013.1
+And Nova has "auth_strategy" equal to "keystone"
+And Keystone addresses are @X
+Then Nova should have "keystone_authtoken.auth_host" in "$X" """
+    ),
+    Rule('rule1', RuleGroup.VALIDITY, 'Nova has proper Keystone host',
+      """Given I use OpenStack Grizzly 2013.1
+And Nova has "auth_strategy" equal to "keystone"
+And Keystone addresses are @X
+Then Nova should have "keystone_authtoken.auth_host" in "$X" """
+    )
+  ]
+  return json.dumps(rules)
+
 @app.route('/rules/<group>')
-def get_rules(group):
+def get_rules_group(group):
   if not group in RuleGroup.all:
     return 'Unknown rule group "%s"' % group, 404
 
-  rules = [Rule.from_doc(doc) for doc in db['rules'].find({'group': group})]
-  return json.dumps(rules)
+  db = get_db()
+  #rules = [Rule.from_doc(doc) for doc in db['rules'].find({'group': group})]
+  #return json.dumps(rules)
+  return get_rules()
 
 
 @app.route('/validation', methods=['GET', 'POST'])

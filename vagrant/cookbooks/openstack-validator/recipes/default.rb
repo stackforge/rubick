@@ -1,3 +1,5 @@
+package 'build-essential'
+package 'mongodb-server'
 package 'redis-server'
 package 'python-pip'
 
