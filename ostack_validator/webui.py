@@ -97,15 +97,21 @@ def get_db():
 class Cluster(object):
   @classmethod
   def from_doc(klass, doc):
-    return Cluster(doc['name'], doc['seed_nodes'], doc['nodes'], doc['private_key'])
+    return Cluster(doc['id'], doc['name'], description=doc['description'], status=doc['status'], seed_nodes=doc['seed_nodes'], nodes=doc['nodes'], private_key=doc['private_key'])
 
-  def __init__(self, id, name, seed_nodes, private_key, nodes):
+  def __init__(self, id, name, description=None, status='Unknown', seed_nodes=[], private_key=None, nodes=[]):
     super(Cluster, self).__init__()
     self.id = id
     self.name = name
+    self.description = description
+    self.status = status
     self.seed_nodes = seed_nodes
     self.private_key = private_key
     self.nodes = nodes
+
+  # JSON serialization helper
+  def _asdict(self):
+    return dict(id=self.id, name=self.name, description=self.description, status=self.status, nodes=self.nodes, seed_nodes=self.seed_nodes, private_key=self.private_key)
 
 class RuleGroup:
   VALIDITY='validity'
@@ -125,6 +131,10 @@ class Rule(object):
     self.group = group
     self.name = name
     self.text = text
+
+  # JSON serialization helper
+  def _asdict(self):
+    return dict(id=self.id, group=self.group, name=self.name, text=self.text)
 
 class ClusterForm(Form):
   name = StringField('Name', validators=[DataRequired()])
@@ -156,7 +166,7 @@ def get_clusters():
   #return json.dumps([Cluster.from_doc(doc) for doc in db['clusters'].find()])
   return json.dumps([
     Cluster('cluster1', "Kirill's DevStack", description="Grizzly-based devstack with Quantum and oVS, deployed on Kirill's laptop", status='Available'),
-    #Cluster('cluster2', "Peter's DevStack", description="Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager", status='Broken')
+    Cluster('cluster2', "Peter's DevStack", description="Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager", status='Broken')
   ])
 
 @app.route('/clusters', methods=['POST'])
