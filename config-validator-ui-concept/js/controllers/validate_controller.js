@@ -1,3 +1,4 @@
+'use strict';
 
 /* Controllers */
 
@@ -36,4 +37,5 @@ angular.module('rubick.controllers', []).
         $scope.newCluster = undefined;
         $('#add-cluster-modal').modal('hide');
     }
+
 }])
