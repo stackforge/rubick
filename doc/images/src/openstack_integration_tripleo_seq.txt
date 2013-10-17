@@ -1,0 +1,15 @@
+@startuml
+
+User -> Tuskar: Create cluster (metadata)
+Tuskar -> Heat: Create HOT (metadata)
+Tuskar -> diskimagebuilder: Create images\n(config files templates)
+Tuskar -> Rubick: Verify config
+Rubick -> Heat: Get HOT
+Heat -> Rubick: HOT (metadata)
+Rubick -> diskimagebuilder: Get config\nfiles templates
+diskimagebuilder -> Rubick: Templates
+Rubick -> Rubick: Create data model\nInpspect config
+Rubick -> Tuskar: Config report
+Tuskar -> User: Config report
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+
+frame "Undercloud" {
+  
+  package "Metadata services" {
+    [Heat]
+    [CFN]
+    [EC2]
+  }
+
+  frame "TripleO" {
+    cloud {
+      folder "tripleo-image-elements" {
+        () "nova.conf"
+        () "keystone.conf"
+        () "glance.conf"
+        () "..."
+      }
+      [diskimage-builder] -- nova.conf
+      [diskimage-builder] -- keystone.conf
+      [diskimage-builder] -- glance.conf
+      [diskimage-builder] -- ...
+    }
+    [os-collect-config] --> JSON
+    JSON --> [os-refresh-config]
+  }
+
+  frame "Tuskar" {
+    [Tuskar]
+  }
+
+  frame "OpenStack Dashboard" {
+    [Tuskar-UI]
+    [Rubick-UI]
+  }
+
+  cloud {
+    [OpenStack Diagnostics] << Rubick >>
+  }
+
+  () HOT
+  () Templates
+
+  frame "Glance" {
+    [Images]
+  }
+}
+
+[Heat] --> [os-collect-config]
+[CFN] --> [os-collect-config]
+[EC2] --> [os-collect-config]
+[Tuskar] -- HOT
+HOT -- [Heat]
+HOT -- [OpenStack Diagnostics]
+[OpenStack Diagnostics] -- [Rubick-UI]
+[Tuskar] -- [Tuskar-UI]
+[diskimage-builder] -right-> [Images]
+[diskimage-builder] -up-> Templates
+Templates --> [OpenStack Diagnostics]
+
+@enduml
