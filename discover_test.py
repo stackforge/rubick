@@ -1,10 +1,11 @@
 import logging
 from itertools import groupby
 
-from ostack_validator.common import Issue, MarkedIssue, Inspection
-from ostack_validator.model import OpenstackComponent
+from ostack_validator.common import MarkedIssue, Inspection
 from ostack_validator.discovery import OpenstackDiscovery
-from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection, KeystoneEndpointsInspection, LettuceRunnerInspection
+import ostack_validator.inspections
+# Silence PEP8 "unused import"
+assert ostack_validator.inspections
 
 
 def indent_prefix(indent=0):
@@ -21,7 +22,8 @@ def print_issue(issue, indent=0):
     if hasattr(issue, 'mark'):
         print(
             '%s[%s] %s (line %d column %d)' %
-            (prefix, issue.type, issue.message, issue.mark.line + 1, issue.mark.column + 1))
+            (prefix, issue.type, issue.message,
+             issue.mark.line + 1, issue.mark.column + 1))
     else:
         print('%s[%s] %s' % (prefix, issue.type, issue.message))
 
@@ -76,10 +78,7 @@ def main():
         'root',
         private_key=private_key)
 
-    all_inspections = [
-        KeystoneAuthtokenSettingsInspection,
-        KeystoneEndpointsInspection,
-        LettuceRunnerInspection]
+    all_inspections = Inspection.all_inspections()
     for inspection in all_inspections:
         x = inspection()
         x.inspect(openstack)
