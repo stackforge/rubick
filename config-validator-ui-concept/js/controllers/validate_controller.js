@@ -1,9 +1,8 @@
-'use strict';
 
 /* Controllers */
 
 angular.module('rubick.controllers', []).
-    controller('ValidateCtrl', ['$scope', function($scope) {
+    controller('ValidateCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.currentStep = "cluster";
     $scope.ruleGroup = "valid";
 
@@ -22,24 +21,13 @@ angular.module('rubick.controllers', []).
         $('#add-cluster-modal').modal('show');
     }
 
-    $scope.clusters = [
-        {
-        name: "Kirill's DevStack",
-        description: "Grizzly-based devstack with Quantum and oVS, deployed on Kirill's laptop",
-        sshKey: "beasdfahsldjhfsadg",
-        nodesCount: 2,
-        status: "Available",
-        lastChecked: moment().startOf('hour').fromNow()
-    },
-    {
-        name: "Peter's DevStack",
-        description: "Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager",
-        sshKey: "beasdfahsldjhfsadg",
-        nodesCount: 5,
-        status: "Broken",
-        lastChecked: moment().startOf('day').fromNow()
-    }
-    ]
+    $http.get('/clusters').success(function(data) {
+        $scope.clusters = data;
+    });
+
+    $http.get('/rules').success(function(data) {
+        $scope.rules = data;
+    });
 
     $scope.addCluster = function() {
         $scope.newCluster.nodesCount = 20;
@@ -48,5 +36,4 @@ angular.module('rubick.controllers', []).
         $scope.newCluster = undefined;
         $('#add-cluster-modal').modal('hide');
     }
-
 }])
