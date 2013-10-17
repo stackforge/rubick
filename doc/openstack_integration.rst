@@ -1,5 +1,5 @@
-DIAGNOSTICS INTEGRATION WITH OPENSTACK
-======================================
+Integration with OpenStack
+==========================
 
 -------------------------------------
 Integration with OpenStack Deployment

@@ -1,15 +1,18 @@
+==============================
 OPENSTACK DIAGNOSTICS PROPOSAL
 ==============================
 
+.. contents::
+
 Project Name
-------------
+============
 
 **Official:** OpenStack Diagnostics
 
 **Codename:** Rubick
 
-Overview
---------
+OVERVIEW
+========
 
 The typical OpenStack cloud life cycle consists of 2 phases:
 
@@ -90,5 +93,13 @@ TripleO Heat and configuration files templates).
 Dependencies
 ------------
 
-Design
-------
+DESIGN
+======
+
+.. include:: service_architecture.rst
+
+.. include:: rules_engine.rst
+
+.. include:: openstack_integration.rst
+
+.. include:: openstack_architecture_model.rst

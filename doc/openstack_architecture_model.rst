@@ -1,5 +1,4 @@
-=======================
-ARCHITECTURE DATA MODEL
+Architecture Data Model
 =======================
 
 Overview
