@@ -8,6 +8,7 @@ ProcfileHonchoLocal
 .swo
 .*.swp
 .*.swo
+.ropeproject
 
 # Vagrant state
 .vagrant
