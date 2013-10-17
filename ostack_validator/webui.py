@@ -83,6 +83,58 @@ class ValidateClusterForm(Form):
   cluster_id = StringField('Cluster', validators=[DataRequired()])
   rules = SelectMultipleField('Rules')
 
+wtforms_json.init()
+
+def connect_to_db():
+    mongo_url = os.environ.get("MONGODB_URI") or "mongodb://localhost/rubick"
+    client = MongoClient(mongo_url)
+    return client[mongo_url.split('/')[-1]]
+
+def get_db():
+    db = connect_to_db()
+    return db
+
+class Cluster(object):
+  @classmethod
+  def from_doc(klass, doc):
+    return Cluster(doc['name'], doc['seed_nodes'], doc['nodes'], doc['private_key'])
+
+  def __init__(self, id, name, seed_nodes, private_key, nodes):
+    super(Cluster, self).__init__()
+    self.id = id
+    self.name = name
+    self.seed_nodes = seed_nodes
+    self.private_key = private_key
+    self.nodes = nodes
+
+class RuleGroup:
+  VALIDITY='validity'
+  HA='high-availability'
+  BEST_PRACTICES='best-practices'
+
+  all = [VALIDITY, HA, BEST_PRACTICES]
+
+class Rule(object):
+  @classmethod
+  def from_doc(klass, doc):
+    return Rule(doc['id'], doc['group'], doc['name'], doc['text'])
+
+  def __init__(self, id, group, name, text):
+    super(Rule, self).__init__()
+    self.id = id
+    self.group = group
+    self.name = name
+    self.text = text
+
+class ClusterForm(Form):
+  name = StringField('Name', validators=[DataRequired()])
+  nodes = StringField('Nodes', validators=[DataRequired()])
+  private_key = TextAreaField('Private Key', validators=[DataRequired()])
+
+class ValidateClusterForm(Form):
+  cluster_id = StringField('Cluster', validators=[DataRequired()])
+  rules = SelectMultipleField('Rules')
+
 
 @app.template_filter()
 def to_label(s):
@@ -96,7 +148,7 @@ def to_label(s):
 
 @app.route('/')
 def index():
-  return send_file(os.path.join(app.static_folder, 'index.html'))
+    return send_file(os.path.join(app.static_folder, 'index.html'))
 
 @app.route('/clusters')
 def get_clusters():
