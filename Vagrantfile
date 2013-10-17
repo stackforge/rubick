@@ -12,6 +12,7 @@ Vagrant.configure("2") do |config|
         vb.customize ["modifyvm", :id, "--cpus", "1"]
     end
     web.vm.provision :chef_solo do |chef|
+      chef.log_level = :debug
       chef.cookbooks_path = ["vagrant/cookbooks"]
       chef.add_recipe "openstack-validator"
     end
