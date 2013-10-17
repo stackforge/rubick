@@ -1,16 +1,18 @@
 from itertools import groupby
+import os.path
 
-from flask import Flask, request, redirect, render_template, json
+from flask import Flask, request, redirect, render_template, json, send_file
 from flask_bootstrap import Bootstrap
 from flask_wtf import Form
-from wtforms import StringField, TextAreaField, SubmitField
+from wtforms import StringField, TextAreaField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired
+import wtforms_json
 
 from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
 from ostack_validator.common import Issue, MarkedIssue
 from ostack_validator.model import Openstack
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../config-validator-ui-concept', static_url_path='/static')
 Bootstrap(app)
 app.debug = True
 app.config.update(
@@ -29,6 +31,58 @@ class ValidationLaunchForm(Form):
 
     launch = SubmitField('Launch validation')
 
+wtforms_json.init()
+
+def connect_to_db():
+    mongo_url = os.environ.get("MONGODB_URI") or "mongodb://localhost/rubick"
+    client = MongoClient(mongo_url)
+    return client[mongo_url.split('/')[-1]]
+
+def get_db():
+    db = connect_to_db()
+    return db
+
+class Cluster(object):
+  @classmethod
+  def from_doc(klass, doc):
+    return Cluster(doc['name'], doc['seed_nodes'], doc['nodes'], doc['private_key'])
+
+  def __init__(self, id, name, seed_nodes, private_key, nodes):
+    super(Cluster, self).__init__()
+    self.id = id
+    self.name = name
+    self.seed_nodes = seed_nodes
+    self.private_key = private_key
+    self.nodes = nodes
+
+class RuleGroup:
+  VALIDITY='validity'
+  HA='high-availability'
+  BEST_PRACTICES='best-practices'
+
+  all = [VALIDITY, HA, BEST_PRACTICES]
+
+class Rule(object):
+  @classmethod
+  def from_doc(klass, doc):
+    return Rule(doc['id'], doc['group'], doc['name'], doc['text'])
+
+  def __init__(self, id, group, name, text):
+    super(Rule, self).__init__()
+    self.id = id
+    self.group = group
+    self.name = name
+    self.text = text
+
+class ClusterForm(Form):
+  name = StringField('Name', validators=[DataRequired()])
+  nodes = StringField('Nodes', validators=[DataRequired()])
+  private_key = TextAreaField('Private Key', validators=[DataRequired()])
+
+class ValidateClusterForm(Form):
+  cluster_id = StringField('Cluster', validators=[DataRequired()])
+  rules = SelectMultipleField('Rules')
+
 
 @app.template_filter()
 def to_label(s):
@@ -42,7 +96,31 @@ def to_label(s):
 
 @app.route('/')
 def index():
-    return redirect('/validation')
+    return send_file(os.path.join(app.static_folder, 'index.html'))
+
+@app.route('/clusters')
+def get_clusters():
+  db = get_db()
+  return json.dumps([Cluster.from_doc(doc) for doc in db['clusters'].find()])
+
+@app.route('/clusters', methods=['POST'])
+def add_cluster():
+  form = ClusterForm.from_json(json.loads(request.data))
+  if form.validate():
+    cluster = Cluster()
+    form.populate_obj(cluster)
+    get_db()['clusters'].save(cluster)
+    return '', 201
+  else:
+    return json.dumps(dict(errors=form.errors)), 422
+
+@app.route('/rules/<group>')
+def get_rules(group):
+  if not group in RuleGroup.all:
+    return 'Unknown rule group "%s"' % group, 404
+
+  rules = [Rule.from_doc(doc) for doc in db['rules'].find({'group': group})]
+  return json.dumps(rules)
 
 
 @app.route('/validation', methods=['GET', 'POST'])
