@@ -2,7 +2,6 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.provision "shell", inline: "echo 'Hello, lets start deployment.'"
 
   config.vm.define "web" do |web|
     web.vm.box = "ubuntu12.04-server-amd64"
