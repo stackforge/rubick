@@ -42,3 +42,8 @@ Deployment
  
 ### Manual deployment 
 All steps for manual deployment and running the app you can find here: ```/vagrant/cookbooks/openstack-validator/recipes/default.rb```
+
+Hacking
+-------
+
+To check project on compliance to PEP8 run command use tox.
