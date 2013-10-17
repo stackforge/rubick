@@ -13,7 +13,7 @@ from ostack_validator.celery import app as celery, ostack_inspect_task, Inspecti
 from ostack_validator.common import Issue, MarkedIssue
 from ostack_validator.model import Openstack
 
-app = Flask(__name__, static_folder='../config-validator-ui-concept', static_url_path='/static')
+app = Flask(__name__, static_folder='config-validator-ui-concept', static_url_path='/static')
 Bootstrap(app)
 app.debug = True
 app.config.update(
@@ -267,4 +267,4 @@ def job(id):
         return render_template('validation_state.html', state=job.state)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
