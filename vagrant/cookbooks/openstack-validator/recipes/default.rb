@@ -11,7 +11,7 @@ end
 
 bash 'Run application' do
   code <<-EOS
-    echo "webui: gunicorn --log-level debug ostack_validator.webui:app --bind 0.0.0.0:8000" > ProcfileHonchoLocal
+    echo "webui: python webui.py" > ProcfileHonchoLocal
     echo "worker: celery worker --app=ostack_validator.celery:app" >> ProcfileHonchoLocal
     if ! tmux has-session -t dev; then
       tmux new-session -d -s dev "honcho -f ProcfileHonchoLocal start"
