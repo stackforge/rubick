@@ -1,5 +1,3 @@
-import os.path
-import re
 import logging
 from itertools import groupby
 
