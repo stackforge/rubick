@@ -11,21 +11,30 @@ Project Name
 Overview
 --------
 
+The typical OpenStack cloud life cycle consists of 2 phases:
+
+- initial deployment and
+- operation maintenance
+
 OpenStack cloud operators usually rely on deploymnet tools to configure all the
-platform components correctly and efficiently upfront. However, after initial
-deployment platform configurations and operational conditions start to change.
-These changes could break consistency and integration of cloud platform and its
-components, and ultimately cause cloud service failures of different kinds.
+platform components correctly and efficiently in *initial deployment* phase.
+Multiple OpenStack projects cover that area: TripleO/Tuskar, Fuel and Devstack,
+to name a few.
+
+However, once you installed and kicked off the cloud, platform configurations
+and operational conditions begin to change. These changes could break
+consistency and integration of cloud platform components. Keeping cloud up and
+running is the essense of *operation maintenance* phase.
 
 Cloud operator must quickly and efficiently identify and respond to the root
 cause of such failures. To do so, he must check if his OpenStack configuration
 is sane and consistent. These checks could be thought of as rules of diagnostic
 production system.
 
-Currently OpenStack ecosystem does not provide tools which specifically help to
-diagnose platform configuration. We propose a project which will help operators
-to diagnose their OpenStack platform and reduce response time to known and
-unknown failures.
+Currently OpenStack ecosystem lacks projects aimed to increase reliability and
+resilience of the cloud. With this proposal we want to introduce a project which
+will help operators to diagnose their OpenStack platform, reduce response time
+to known and unknown failures and effectively support the desired SLA.
 
 Mission
 -------
