@@ -103,7 +103,7 @@ def get_clusters():
   #return json.dumps([Cluster.from_doc(doc) for doc in db['clusters'].find()])
   return json.dumps([
     Cluster('cluster1', "Kirill's DevStack", description="Grizzly-based devstack with Quantum and oVS, deployed on Kirill's laptop", status='Available'),
-    Cluster('cluster2', "Peter's DevStack", description="Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager", status='Broken')
+    #Cluster('cluster2', "Peter's DevStack", description="Grizzly-based devstack deployed on Peter Lomakin's workstation with nova-network and FlatDHCP manager", status='Broken')
   ])
 
 @app.route('/clusters', methods=['POST'])
