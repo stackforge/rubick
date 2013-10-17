@@ -1,14 +1,15 @@
 from __future__ import absolute_import
 import os
-import time
 import logging
 import traceback
 
 from celery import Celery
 
-from ostack_validator.common import Issue, MarkedIssue, Inspection
-from ostack_validator.discovery import OpenstackDiscovery, OpenstackComponent
-from ostack_validator.inspections import KeystoneAuthtokenSettingsInspection
+from ostack_validator.common import Issue, Inspection
+from ostack_validator.discovery import OpenstackDiscovery
+import ostack_validator.inspections
+# Silence PEP8 "unused import"
+assert ostack_validator.inspections
 
 broker_url = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 backend_url = os.getenv('CELERY_RESULT_BACKEND', broker_url)
@@ -49,9 +50,9 @@ def ostack_inspect_task(request):
     except:
         message = traceback.format_exc()
         logger.error(message)
-    return InspectionResult(request, message)
+        return InspectionResult(request, message)
 
-    all_inspections = [KeystoneAuthtokenSettingsInspection]
+    all_inspections = Inspection.all_inspections()
     for inspection in all_inspections:
         try:
             x = inspection()
