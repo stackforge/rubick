@@ -8,17 +8,16 @@ from wtforms import StringField, TextAreaField, SubmitField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json
 from pymongo import MongoClient
+from recordtype import recordtype
 
 from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
-from ostack_validator.common import Issue, MarkedIssue
+from ostack_validator.common import Inspection, Issue, MarkedIssue
 from ostack_validator.model import Openstack
 
-app = Flask(__name__, static_folder='config-validator-ui-concept', static_url_path='/static')
+app = Flask(__name__,
+            static_folder='config-validator-ui-concept',
+            static_url_path='/static')
 Bootstrap(app)
-app.debug = True
-app.config.update(
-    WTF_CSRF_SECRET_KEY='foo bar baz'
-)
 app.secret_key = 'A0Zr98j/3fooN]LWX/,?RT'
 
 wtforms_json.init()
@@ -160,6 +159,7 @@ def to_label(s):
 def index():
     return send_file(os.path.join(app.static_folder, 'index.html'))
 
+
 @app.route('/clusters')
 def get_clusters():
   db = get_db()
@@ -182,23 +182,26 @@ def add_cluster():
 
 @app.route('/rules')
 def get_rules():
-  db = get_db()
-  rules = [Rule.from_doc(doc) for doc in db['rules'].find()]
-  rules = [
-    Rule('rule1', RuleGroup.VALIDITY, 'Nova has proper Keystone host',
-      """Given I use OpenStack Grizzly 2013.1
-And Nova has "auth_strategy" equal to "keystone"
-And Keystone addresses are @X
-Then Nova should have "keystone_authtoken.auth_host" in "$X" """
-    ),
-    Rule('rule1', RuleGroup.VALIDITY, 'Nova has proper Keystone host',
-      """Given I use OpenStack Grizzly 2013.1
-And Nova has "auth_strategy" equal to "keystone"
-And Keystone addresses are @X
-Then Nova should have "keystone_authtoken.auth_host" in "$X" """
-    )
-  ]
-  return json.dumps(rules)
+    rules = []
+    for inspection in Inspection.all_inspections():
+        rules.extend(inspection.rules())
+
+#     rules = [Rule.from_doc(doc) for doc in db['rules'].find()]
+#     rules = [
+#         Rule(id='rule1', group=RuleGroup.VALIDITY,
+#              name='Nova has proper Keystone host',
+#              description="""Given I use OpenStack Grizzly 2013.1
+# And Nova has "auth_strategy" equal to "keystone"
+# And Keystone addresses are @X
+# Then Nova should have "keystone_authtoken.auth_host" in "$X" """),
+#         Rule(id='rule1', group=RuleGroup.VALIDITY,
+#              name='Nova has proper Keystone host',
+#              description="""Given I use OpenStack Grizzly 2013.1
+# And Nova has "auth_strategy" equal to "keystone"
+# And Keystone addresses are @X
+# Then Nova should have "keystone_authtoken.auth_host" in "$X" """)]
+    return json.dumps(rules)
+
 
 @app.route('/rules/<group>')
 def get_rules_group(group):

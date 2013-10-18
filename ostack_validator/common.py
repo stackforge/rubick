@@ -1,4 +1,7 @@
 import copy
+import os.path
+
+from recordtype import recordtype
 
 
 def find(l, predicate):
@@ -24,7 +27,7 @@ def all_subclasses(klass):
 
 def path_relative_to(path, base_path):
     if not path.startswith('/'):
-        path = os.path.join(base_path, paste_config_path)
+        path = os.path.join(base_path, path)
 
     return path
 
@@ -178,11 +181,21 @@ class MarkedIssue(Issue):
         )
 
 
+Rule = recordtype('Rule', ['name', 'description'])
+
+
 class Inspection(object):
 
     @classmethod
     def all_inspections(klass):
         return [c for c in all_subclasses(klass)]
+
+    @classmethod
+    def rules(klass):
+        if hasattr(klass, 'name') and hasattr(klass, 'description'):
+            return [Rule(klass.name, klass.description)]
+        else:
+            return []
 
     def inspect(self, openstack):
         pass

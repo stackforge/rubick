@@ -10,3 +10,4 @@ honcho==0.4.2
 jinja2==2.7
 lettuce>=0.2.19
 pymongo==2.6.1
+recordtype==1.1
