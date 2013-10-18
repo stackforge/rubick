@@ -18,6 +18,7 @@ class LettuceRunnerInspection(Inspection):
             for scenario in feature.scenarios:
                 rules.append(Rule(scenario.name,
                                   "\n".join(scenario.remaining_lines)))
+        return rules
 
     def inspect(self, openstack):
         runner = lettuce.Runner(base_path=self.base_path)

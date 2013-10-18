@@ -97,7 +97,7 @@ def get_db():
 
 
 Cluster = recordtype('Cluster',
-                     ['_id', 'name', 'description', 'status', 'nodes'],
+                     ['id', 'name', 'description', 'status', 'nodes'],
                      default=None)
 
 
