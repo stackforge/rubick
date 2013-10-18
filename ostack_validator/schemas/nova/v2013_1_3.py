@@ -1487,6 +1487,12 @@ nova.param(
     description="Fixed IPv6 address block")
 
 nova.param(
+    'fixed_range',
+    type='string',
+    default='',
+    description="Fixed IPv4 address block")
+
+nova.param(
     'gateway',
     type='string',
     default=None,
@@ -4004,5 +4010,14 @@ nova.param(
     type='string',
     default='en-us',
     description="keymap for spice")
+
+nova.section('filter:authtoken')
+
+nova.param(
+    'keymap',
+    type='string',
+    default='127.0.0.1',
+    description="keymap for spice")
+
 
 nova.commit()

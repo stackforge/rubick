@@ -94,4 +94,33 @@ def nova_property_assertion(self, name, values):
         if not (nova_value and nova_value in values):
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova should have "%s" in %s' %
-                      (name, values)))
+                      (nova_value, values)))
+
+
+@step(r'"(.+)" component must have "(.+)" parameter')
+def nova_has_property(step, component_name, parameter_name):
+    component_name = subst(component_name)
+    parameter_name = subst(parameter_name)
+
+    for component in [c for c in world.openstack.components if c.component.startswith('%s' % component_name)]:
+        component_value = component.config[parameter_name]
+
+        if component_value is None:
+            component.report_issue(
+                Issue(Issue.ERROR, '"%s" should have parameter "%s"'  %
+                      (component_name, component_value)))
+
+
+@step(r'"(.+)" component have "(.+)" parameter equal to "(.*)"')
+def nova_has_property(step, component_name, parameter_name, value):
+    component_name = subst(component_name)
+    parameter_name = subst(parameter_name)
+    value = subst(value)
+
+    for component in [c for c in world.openstack.components if c.component.startswith('%s' % component_name)]:
+        component_value = component.config[parameter_name]
+
+        if not component_value == value:
+            component.report_issue(
+                Issue(Issue.ERROR, '"%s" should have parameter equals "%s"  now its "%s"' %
+                      (component_name, component_value, value)))
