@@ -1,10 +1,6 @@
 Integration with OpenStack
 ==========================
 
--------------------------------------
-Integration with OpenStack Deployment
--------------------------------------
-
 Use Case #1. Validate initial configuration
 -------------------------------------------
 

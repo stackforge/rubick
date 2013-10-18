@@ -5,30 +5,32 @@ frame "Rubick" {
     [Rule engine]
     [Config data\nextractor]
     [Heat metadata\n plugin]
-    [Metadata\nplugin 1]
+    [SSH metadata\nplugin]
     [...]
-    [Metadata\nplugin N]
     [Config data\nstore]
-    () "env.json"
+    () "openstack.model"
+    folder "Rulesets" {
+        [healthcheck\nruleset]
+        [best practices\nruleset]
+    }
 }
 
 frame "Heat" {
     [Heat API]
-    [Templated\nconfig data]
 }
 
-() HOT
+() Stack
 
-[Rubick API] -- env.json
-[Config data\nstore] -- env.json
-[Heat API] --> HOT
-HOT --> [Heat metadata\n plugin]
-[Config data\nextractor] -up- env.json
-[Rule engine] -- env.json
-[Templated\nconfig data] --> [Heat API]
+[Rubick API] -- openstack.model
+[Config data\nstore] -- openstack.model
+[Heat API] -up-> Stack
+Stack -up-> [Heat metadata\n plugin]
+[Config data\nextractor] -up- openstack.model
+[Rule engine] -- openstack.model
 [Config data\nextractor] -- [Heat metadata\n plugin]
-[Config data\nextractor] -- [Metadata\nplugin 1]
 [Config data\nextractor] -- [...]
-[Config data\nextractor] -- [Metadata\nplugin N]
+[Config data\nextractor] -- [SSH metadata\nplugin]
+[Rule engine] -up- [healthcheck\nruleset]
+[Rule engine] -up- [best practices\nruleset]
 
 @enduml

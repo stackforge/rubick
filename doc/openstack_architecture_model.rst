@@ -8,7 +8,7 @@ We want to introduce unified data structure which contains all information
 necessary to inspect, analyze, describe and visualize OpenStack architecture.
 
 This Architecture data model could be consumed and processed by configuration
-analysis and diagnostics tool (**Dark Knight**).
+analysis and diagnostics tool (**Rubick**).
 
 Arhictecture data model must include all information necessary to deployment
 systems (e.g. **Fuel** or **TripleO**). We will implement simple conversion

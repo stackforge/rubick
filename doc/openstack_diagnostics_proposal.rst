@@ -20,19 +20,19 @@ The typical OpenStack cloud life cycle consists of 2 phases:
 - operation maintenance
 
 OpenStack cloud operators usually rely on deploymnet tools to configure all the
-platform components correctly and efficiently in *initial deployment* phase.
+platform components correctly and efficiently in **initial deployment** phase.
 Multiple OpenStack projects cover that area: TripleO/Tuskar, Fuel and Devstack,
 to name a few.
 
 However, once you installed and kicked off the cloud, platform configurations
 and operational conditions begin to change. These changes could break
 consistency and integration of cloud platform components. Keeping cloud up and
-running is the essense of *operation maintenance* phase.
+running is the essense of **operation maintenance** phase.
 
 Cloud operator must quickly and efficiently identify and respond to the root
 cause of such failures. To do so, he must check if his OpenStack configuration
 is sane and consistent. These checks could be thought of as rules of diagnostic
-production system.
+system.
 
 Currently OpenStack ecosystem lacks projects aimed to increase reliability and
 resilience of the cloud. With this proposal we want to introduce a project which
@@ -67,21 +67,26 @@ User Stories
   and verify configuration of OpenStack components and store them to use for
   verification of future configuration changes.
 
-Requirements
-------------
+Roadmap
+-------
 
-TBD
+Proof of concept implementation - end October 2013. PoC implementation includes:
 
-Scope
------
+#. Open source code in stackforge repository
+#. Standalone service with REST API v0.1
+#. Simple SSH-based configuration data extraction
+#. Rules engine with grammatic analysis
+#. Basic healthcheck ruleset v0.1 with example rules of different types
+#. Filesystem-based ruleset store
 
-As an MVP1, we create a service that includes:
+PoC scope does not include:
 
-#. Rules engine with grammatic analysis capabilities
-#. Extensible implementation of rules
-#. REST API for running inspections
-#. Storage back-end implementation for OpenStack platform architecture and
-   configuration data
+#. Basic integration with OpenStack Deployment program projects (Tuskar,
+   TripleO)
+#. Extraction of configuration data from Heat metadata
+#. Extended ruleset with example best practices
+#. Healthcheck ruleset v1.0
+#. Ruleset store back-ends
 
 Assumptions
 -----------
@@ -89,9 +94,6 @@ Assumptions
 We assume that we must reuse as much as possible from OpenStack Deployment
 program in terms of platform configuration and architecture definitions (i.e.
 TripleO Heat and configuration files templates).
-
-Dependencies
-------------
 
 DESIGN
 ======

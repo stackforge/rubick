@@ -22,7 +22,7 @@ That is how production rules or diagnostic systems work.
 Example production rule
 -----------------------
 
-Example production rule for OpenStack system could be::
+Example production rule for OpenStack system would be::
 
   Given (condition_parameter_1) is (value) and
   (condition_parameter_2) is (value)
