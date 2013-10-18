@@ -35,7 +35,8 @@ def path_relative_to(path, base_path):
 class Version:
 
     def __init__(self, major, minor=0, maintenance=0):
-        "Create Version object by either passing 3 integers, one string or an another Version object"
+        "Create Version object by either passing 3 integers,"
+        "one string or an another Version object"
         if isinstance(major, str):
             self.parts = [int(x) for x in major.split('.', 3)]
             while len(self.parts) < 3:
@@ -94,8 +95,9 @@ class Mark(object):
 
     def __eq__(self, other):
         return (
-            (self.source == source) and (
-                self.line == other.line) and (self.column == other.column)
+            (self.source == other.source) and
+            (self.line == other.line) and
+            (self.column == other.column)
         )
 
     def __ne__(self, other):
@@ -175,9 +177,9 @@ class MarkedIssue(Issue):
 
     def __str__(self):
         return (
-            super(
-                MarkedIssue, self).__str__() + (' (source "%s" line %d column %d)' %
-                                                (self.mark.source, self.mark.line + 1, self.mark.column + 1))
+            super(MarkedIssue, self).__str__() +
+            (' (source "%s" line %d column %d)' %
+                (self.mark.source, self.mark.line + 1, self.mark.column + 1))
         )
 
 

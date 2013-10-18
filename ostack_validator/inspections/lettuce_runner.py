@@ -27,10 +27,11 @@ class LettuceRunnerInspection(Inspection):
         del lettuce.world.openstack
 
         for feature_result in result.feature_results:
-            for scenario_result in [s for s in feature_result.scenario_results if not s.passed]:
+            for scenario_result in feature_result.scenario_results:
+                if scenario_result.passed:
+                    continue
+
                 for step in scenario_result.steps_undefined:
                     openstack.report_issue(
-                        Issue(
-                            Issue.ERROR,
-                            'Undefined step "%s"' %
-                            step.sentence))
+                        Issue(Issue.ERROR, 'Undefined step "%s"' %
+                              step.sentence))
