@@ -30,9 +30,10 @@ angular.module('rubick.controllers', []).
     });
 
     $scope.addCluster = function() {
-        $scope.newCluster.nodesCount = 20;
-        $scope.newCluster.status = "Available";
-        $scope.clusters.push($scope.newCluster);
+        console.log($scope.newCluster);
+        $http.post('/clusters', $scope.newCluster).success(function() {
+            $scope.clusters.push($scope.newCluster);
+        });
         $scope.newCluster = undefined;
         $('#add-cluster-modal').modal('hide');
     }

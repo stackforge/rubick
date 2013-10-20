@@ -37,7 +37,7 @@ class Cluster(recordtype('Cluster',
                          default=None)):
     @classmethod
     def from_doc(klass, doc):
-        doc['id'] = doc['_id']
+        doc['id'] = str(doc['_id'])
         del doc['_id']
         return Cluster(**doc)
 
@@ -90,11 +90,12 @@ def get_clusters():
 
 @app.route('/clusters', methods=['POST'])
 def add_cluster():
+    print request.data
     form = ClusterForm.from_json(json.loads(request.data))
     if form.validate():
         cluster = Cluster()
         form.populate_obj(cluster)
-        get_db()['clusters'].save(cluster.asdict())
+        get_db()['clusters'].save(cluster._asdict())
         return '', 201
     else:
         return json.dumps(dict(errors=form.errors)), 422
