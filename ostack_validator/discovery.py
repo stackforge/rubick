@@ -1,69 +1,166 @@
+import sys
 import os.path
 import re
-import sys
 import tempfile
-import logging
+import traceback
 
 import spur
+import paramiko
+import joker
 
-from ostack_validator.common import Issue, Mark, MarkedIssue, index, path_relative_to
+from ostack_validator.common import Issue, index, path_relative_to
 from ostack_validator.model import *
+
+
+class SshShell(spur.SshShell):
+    def __init__(self,
+                 hostname,
+                 username=None,
+                 password=None,
+                 port=22,
+                 private_key_file=None,
+                 connect_timeout=None,
+                 missing_host_key=None,
+                 sock=None):
+        super(SshShell, self).__init__(hostname, username, password, port,
+                                       private_key_file, connect_timeout,
+                                       missing_host_key)
+        self._sock = sock
+
+    def _connect_ssh(self):
+        if self._client is None:
+            if self._closed:
+                raise RuntimeError("Shell is closed")
+            client = paramiko.SSHClient()
+            client.load_system_host_keys()
+            client.set_missing_host_key_policy(self._missing_host_key)
+            client.connect(
+                hostname=self._hostname,
+                port=self._port,
+                username=self._username,
+                password=self._password,
+                key_filename=self._private_key_file,
+                timeout=self._connect_timeout,
+                sock=self._sock)
+
+            self._client = client
+
+        return self._client
 
 
 class NodeClient(object):
 
-    def __init__(self, node_address, username, private_key_file, ssh_port=22):
+    def __init__(self, node_address, username, password=None,
+                 private_key_file=None, ssh_port=22, proxy_command=None):
         super(NodeClient, self).__init__()
-        self.shell = spur.SshShell(
+        self.use_sudo = (username != 'root')
+        sock = None
+        if proxy_command:
+            sock = paramiko.ProxyCommand(proxy_command)
+        self.shell = SshShell(
             hostname=node_address,
             port=ssh_port,
             username=username,
+            password=password,
             private_key_file=private_key_file,
-            missing_host_key=spur.ssh.MissingHostKey.accept)
+            missing_host_key=spur.ssh.MissingHostKey.accept,
+            sock=sock)
 
     def run(self, command, *args, **kwargs):
+        if self.use_sudo:
+            command = ['sudo'] + command
         return self.shell.run(command, allow_error=True, *args, **kwargs)
 
     def open(self, path, mode='r'):
         return self.shell.open(path, mode)
 
+
+connection_re = re.compile('(?:(\w+)@)?([^:]+)(?::(\d+))?')
+
+
+class SimpleNodeDiscovery(object):
+    def discover(self, initial_nodes, private_key):
+        nodes = []
+        for node in initial_nodes:
+            m = connection_re.match(node)
+            if not m:
+                continue
+
+            username = m.group(1) or 'root'
+            host = m.group(2)
+            port = int(m.group(3) or '22')
+
+            nodes.append(
+                dict(host=host,
+                     port=port,
+                     username=username,
+                     private_key=private_key))
+
+        return nodes
+
+
+class JokerNodeDiscovery(object):
+    def discover(self, initial_nodes, private_key):
+        j = joker.Joker(default_key=private_key)
+        count = 0
+        for node in initial_nodes:
+            count += 1
+            m = connection_re.match(address)
+            if not m:
+                continue
+
+            username = m.group(1) or 'root'
+            host = m.group(2)
+            port = int(m.group(3) or '22')
+
+            j.add_node('node%d' % count, host, port, username)
+
+        nodes = j.discover()
+
+        return nodes
+
+
 python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
-host_port_re = re.compile('(\d+\.\d+\.\d+\.\d+):(\d+)')
 
 
 class OpenstackDiscovery(object):
 
     def discover(self, initial_nodes, username, private_key):
-        "Takes a list of node addresses and returns discovered openstack installation info"
+        "Takes a list of node addresses "
+        "and returns discovered openstack installation info"
         openstack = Openstack()
 
-        private_key_file = None
-        if private_key:
-            private_key_file = tempfile.NamedTemporaryFile(suffix='.key')
-            private_key_file.write(private_key)
-            private_key_file.flush()
+        private_key_to_files = {}
 
-        for address in initial_nodes:
+        node_discovery = SimpleNodeDiscovery()
+
+        for node_info in node_discovery.discover(initial_nodes, private_key):
             try:
-                m = host_port_re.match(address)
-                if m:
-                    host = m.group(1)
-                    port = int(m.group(2))
+                if node_info['private_key'] and not node_info['private_key'] in private_key_to_files:
+                    f = tempfile.NamedTemporaryFile(suffix='.key')
+                    f.write(node_info['private_key'])
+                    f.flush()
+                    private_key_to_files[node_info['private_key']] = f
+                    private_key_filename = f.name
                 else:
-                    host = address
-                    port = 22
+                    private_key_filename = None
+
                 client = NodeClient(
-                    host,
-                    ssh_port=port,
-                    username=username,
-                    private_key_file=private_key_file.name)
+                    node_info['host'],
+                    ssh_port=node_info['port'],
+                    username=node_info['username'],
+                    password=node_info.get('password'),
+                    private_key_file=private_key_filename)
+
                 client.run(['echo', 'test'])
             except:
+                print(sys.exc_info())
+                traceback.print_exc()
                 openstack.report_issue(
                     Issue(
                         Issue.WARNING,
                         "Can't connect to node %s" %
-                        address))
+                        node_info['host']))
                 continue
 
             host = self._discover_node(client)
@@ -77,8 +174,8 @@ class OpenstackDiscovery(object):
             openstack.report_issue(
                 Issue(Issue.FATAL, "No OpenStack nodes were discovered"))
 
-        if private_key_file:
-            private_key_file.close()
+        for f in private_key_to_files.values():
+            f.close()
 
         return openstack
 

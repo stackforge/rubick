@@ -1,0 +1,144 @@
+<div>
+    <div class="ui large steps">
+        <div class="ui step"
+            ng-class="{'active': currentStep == 'cluster'}"
+            ng-click="setStep('cluster')">Select Cluster</div>
+        <div class="ui step"
+            ng-class="{'active': currentStep == 'rules'}"
+            ng-click="setStep('rules')">Select Rules</div>
+        <div class="ui step"
+            ng-class="{'active': currentStep == 'validate'}"
+            ng-click="setStep('validate')">Validate</div>
+    </div>
+
+
+    <div ng-show="currentStep == 'cluster'" style="margin-top: 40px;">
+
+        <div class="ui blue button" ng-click="showAddClusterModal()"><i class="add icon"></i>Add Cluster</div>
+
+
+        <div class="ui items">
+            <div class="item" ng-repeat="cluster in clusters">
+                <div class="content">
+                    <div class="meta">{{cluster.lastChecked}}</div>
+                    <div class="name">{{cluster.name}}</div>
+                    <p class="description"> {{cluster.description}}
+                    <div>Status: {{cluster.status}}</div>
+                    </p>
+                </div>
+                <div class="extra">{{cluster.nodesCount}} nodes</div>
+            </div>
+        </div>
+
+        <div class="ui modal" id="add-cluster-modal">
+            <i class="close icon"></i>
+            <div class="header">
+                New Cluster
+            </div>
+            <div class="content">
+
+                <div class="ui form segment">
+                    <div class="field">
+                        <label>Cluster Name</label>
+                        <div class="ui left labeled icon input">
+                            <input type="text" placeholder="My Cluster" ng-model="newCluster.name">
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>IP Address (of any node in management network)</label>
+                        <div class="ui left labeled icon input">
+                            <input type="text" placeholder="172.168.10.5" ng-model="newCluster.ip">
+                            <i class="terminal icon"></i>
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>SSH Key (for root user)</label>
+                        <div class="ui left labeled icon input">
+                            <textarea ng-model="newCluster.sshKey"></textarea>
+                            <i class="file icon"></i>
+                            <div class="ui corner label">
+                                <i class="icon asterisk"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ui error message">
+                        <div class="header">We noticed some issues</div>
+                    </div>
+                    <div class="ui blue submit button">Test Connection</div>
+                </div>
+
+            </div>
+            <div class="actions">
+                <div class="ui button">Cancel</div>
+                <div class="ui button" ng-click="addCluster()">Create</div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div ng-show="currentStep == 'rules'" style="margin-top: 40px;">
+
+        <div class="ui pointing menu">
+            <a class="item"
+                ng-click="setRuleGroup('valid')"
+                ng-class="{'active' : ruleGroup == 'valid'}">
+
+                <i class="cloud icon"></i> Validty
+                <div class="ui label">{{rules.length}}</div>
+            </a>
+            <a class="item"
+                ng-click="setRuleGroup('ha')"
+                ng-class="{'active' : ruleGroup == 'ha'}">
+                <i class="legal icon"></i> High Availability
+                <div class="ui label">0</div>
+            </a>
+            <a class="item"
+                ng-click="setRuleGroup('best')"
+                ng-class="{'active' : ruleGroup == 'best'}">
+                <i class="certificate icon"></i> Best Practices
+                <div class="ui label">0</div>
+            </a>
+        </div>
+
+
+        <div class="ui fluid accordion" ng-show="ruleGroup == 'valid'">
+            <div ng-repeat="rule in rules.validity">
+                <div class="title">
+                    <i class="dropdown icon"></i>
+                    {{rule.name}}
+                </div>
+                <div class="content">
+                    {{rule.text}}
+                    <!--<div class="ui list">-->
+                        
+                        <!--<div><strong>Given</strong> I use OpenStack Grizzly 2013.1</div>-->
+                        <!--<div><strong>And</strong> Nova has <code>"auth_strategy"</code> equal to <code>"keystone"</code></div>-->
+                        <!--<div><strong>And</strong> Keystone addresses are <code>@X</code></div>-->
+                        <!--<div><strong>Then</strong> Nova should have <code>"keystone_authtoken.auth_host"</code> in <code>"$X"</code></div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="currentStep == 'validate'" style="margin-top: 40px;">
+        <div class="ui segment">
+            <div class="ui list">
+                <div><strong>Cluster Name:</strong> Bebebeko</strong>
+                <div><strong>Rules selected:</strong> 17</strong>
+                <div style="margin-top: 15px;">
+                    <a class="ui blue button">Run Validation</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
