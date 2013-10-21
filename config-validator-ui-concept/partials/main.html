@@ -1,15 +1,29 @@
 <div>
-    <div class="ui large steps">
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'cluster'}"
-            ng-click="setStep('cluster')">Select Cluster</div>
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'rules'}"
-            ng-click="setStep('rules')">Select Rules</div>
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'validate'}"
-            ng-click="setStep('validate')">Validate</div>
+    <div class="ui grid">
+        <div class="nine wide column">
+            <div class="ui large steps">
+                <div class="ui step"
+                    ng-class="{'active': currentStep == 'cluster'}"
+                    ng-click="setStep('cluster')">Select Cluster</div>
+                <div class="ui step"
+                    ng-class="{'active': currentStep == 'rules'}"
+                    ng-click="setStep('rules')">Select Rules</div>
+                <div class="ui step"
+                    ng-class="{'active': currentStep == 'validate'}"
+                    ng-click="setStep('validate')">Validate</div>
+            </div>
+        </div>
+
+        <div class="three wide column">
+            <div class="ui pointing left red label" ng-show="selectedCluster">
+                Selected Cluster: 
+                <div class="detail">{{selectedCluster.name}}</div>
+                <i class="delete icon" ng-click="selectedCluster = undefined"></i>
+            </div>
+        </div>
+
     </div>
+
 
 
     <div ng-show="currentStep == 'cluster'" style="margin-top: 40px;">
@@ -20,6 +34,14 @@
         <div class="ui items">
             <div class="item" ng-repeat="cluster in clusters">
                 <div class="content">
+                    <div class="meta">
+                        <a href="" class="mini orange ui button"
+                            ng-show="!selectedCluster"
+                            ng-click="selectCluster(cluster.id)">Select Cluster</a>
+                        <span class="mini ui label"
+                            ng-show="selectedCluster"
+                            >Select Cluster</a>
+                    </div>
                     <div class="name">{{cluster.name}}</div>
                     <p class="description"> {{cluster.description}} </p>
                 </div>
