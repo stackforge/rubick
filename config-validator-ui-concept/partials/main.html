@@ -1,15 +1,27 @@
 <div>
-    <div class="ui large steps">
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'cluster'}"
-            ng-click="setStep('cluster')">Select Cluster</div>
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'rules'}"
-            ng-click="setStep('rules')">Select Rules</div>
-        <div class="ui step"
-            ng-class="{'active': currentStep == 'validate'}"
-            ng-click="setStep('validate')">Validate</div>
+
+    <div>
+        <div class="ui large steps">
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'cluster'}"
+                ng-click="setStep('cluster')">Select Cluster</div>
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'rules', 'disabled': !selectedCluster}"
+                ng-disabled="!selectedCluster"
+                ng-click="setStep('rules')">Select Rules</div>
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'validate', 'disabled': !selectedCluster}"
+                ng-disabled="!selectedCluster"
+                ng-click="setStep('validate')">Validate</div>
+        </div>
+
+        <div class="ui pointing left red label" ng-show="selectedCluster">
+            Selected Cluster: 
+            <div class="detail">{{selectedCluster.name}}</div>
+            <i class="delete icon" ng-click="selectedCluster = undefined"></i>
+        </div>
     </div>
+
 
 
     <div ng-show="currentStep == 'cluster'" style="margin-top: 40px;">
@@ -20,13 +32,17 @@
         <div class="ui items">
             <div class="item" ng-repeat="cluster in clusters">
                 <div class="content">
-                    <div class="meta">{{cluster.lastChecked}}</div>
+                    <div class="meta">
+                        <a href="" class="mini orange ui button"
+                            ng-show="!selectedCluster"
+                            ng-click="selectCluster(cluster.id)">Select Cluster</a>
+                        <span class="mini ui label"
+                            ng-show="selectedCluster"
+                            >Select Cluster</a>
+                    </div>
                     <div class="name">{{cluster.name}}</div>
-                    <p class="description"> {{cluster.description}}
-                    <div>Status: {{cluster.status}}</div>
-                    </p>
+                    <p class="description"> {{cluster.description}} </p>
                 </div>
-                <div class="extra">{{cluster.nodesCount}} nodes</div>
             </div>
         </div>
 
@@ -39,14 +55,14 @@
                 <div class="content">
                     <div class="ui error message"
                         ng-show="addClusterForm.$invalid && addClusterForm.$dirty">
-                        <div class="header">Some errors in form</div>
-                        <p ng-show="addClusterForm.$error.required[0].$name == 'name'">Cluster name cannot be empty.</p>
-                        <p ng-show="addClusterForm.$error.pattern[0].$name == 'nodes'">Invalid IP address.</p>
-                        <p ng-show="addClusterForm.$error.required[1].$name == 'private_key'">SSH Key is missing.</p>
+                        <div class="header">Oops, there are some errors in the form:</div>
+                        <ul>
+                            <li ng-repeat="error in getAddClusterFormErrors()">{{error}}</li>
+                        </ul>
                     </div>
 
                     <div class="ui form segment">
-                        <div class="field" ng-class="{'error': addClusterForm.name.$error}">
+                        <div class="field" ng-class="{'error': getErrorClass('name', addCluster.$error.required)}">
                             <label>Cluster Name</label>
                             <div class="ui left labeled icon input">
                                 <input type="text"
@@ -62,31 +78,30 @@
                         <div class="field">
                             <label>Description</label>
                             <div class="ui left labeled icon input">
-                                <input type="text" placeholder="Private multinode
-                                Grizzly-based cloud with Neutron + oVS" ng-model="newCluster.description">
+                                <input type="text" placeholder="Private multinode Grizzly-based cloud with Neutron + oVS" ng-model="newCluster.description">
                             </div>
                         </div>
-                        <div class="field">
+                        <div class="field" ng-class="{'error': getErrorClass('nodes', addCluster.$error.pattern)}">
                             <label>IP Address (of any node in management network)</label>
                             <div class="ui left labeled icon input">
                                 <input type="text"
-                                    placeholder="172.168.10.5"
-                                    name="nodes"
-                                    id="nodes"
-                                    ng-pattern="/^\d{1,3}$/"
-                                    ng-model="newCluster.nodes">
+                                placeholder="172.168.10.5"
+                                name="nodes"
+                                id="nodes"
+                                required
+                                ng-pattern="/^(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))$/"
+                                ng-model="newCluster.nodes">
                                 <i class="terminal icon"></i>
                                 <div class="ui corner label">
                                     <i class="icon asterisk"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="field">
+                        <div class="field" ng-class="{'error': getErrorClass('private_key', addCluster.$error.required)}">
                             <label>SSH Key (for root user)</label>
                             <div class="ui left labeled icon input">
                                 <textarea ng-model="newCluster.private_key"
                                     required name="private_key"></textarea>
-                                <i class="file icon"></i>
                                 <div class="ui corner label">
                                     <i class="icon asterisk"></i>
                                 </div>
@@ -102,8 +117,10 @@
                 </div>
                 <div class="actions">
                     <div class="ui button">Cancel</div>
-                    <div class="ui button" ng-click="addCluster()"
-                        ng-disabled="addClusterForm.$error || addClusterForm.$pristine">Create</div>
+                    <div class="ui button"
+                        ng-class="{'disabled': addClusterForm.$pristine || !addClusterForm.$valid}"
+                        ng-click="addCluster()"
+                        ng-disabled="addClusterForm.$pristine || !addClusterForm.$valid">Create</div>
                 </div>
 
             </form>
@@ -136,23 +153,13 @@
             </a>
         </div>
 
-
-        <div class="ui fluid accordion" ng-show="ruleGroup == 'valid'">
-            <div ng-repeat="rule in rules.validity">
-                <div class="title">
-                    <i class="dropdown icon"></i>
-                    {{rule.name}}
-                </div>
-                <div class="content">
-                    {{rule.text}}
-                    <!--<div class="ui list">-->
-
-                    <!--<div><strong>Given</strong> I use OpenStack Grizzly 2013.1</div>-->
-                    <!--<div><strong>And</strong> Nova has <code>"auth_strategy"</code> equal to <code>"keystone"</code></div>-->
-                    <!--<div><strong>And</strong> Keystone addresses are <code>@X</code></div>-->
-                    <!--<div><strong>Then</strong> Nova should have <code>"keystone_authtoken.auth_host"</code> in <code>"$X"</code></div>-->
-                    <!--</div>-->
-                </div>
+        <div class="ui accordion" ng-show="ruleGroup == 'valid'" ng-repeat="rule in rules">
+            <div class="title">
+                <i class="dropdown icon"></i>
+                {{rule.name}}
+            </div>
+            <div class="content">
+                {{rule.description}}
             </div>
         </div>
     </div>

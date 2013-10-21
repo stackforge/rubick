@@ -5,6 +5,7 @@ angular.module('rubick.controllers', []).
     controller('ValidateCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.currentStep = "cluster";
     $scope.ruleGroup = "valid";
+    $scope.ipPattern = 
 
     $scope.setStep = function(step) {
         $scope.currentStep = step;
@@ -15,6 +16,43 @@ angular.module('rubick.controllers', []).
     }
 
     $('.ui.accordion').accordion();
+
+    $scope.getAddClusterFormErrors = function() {
+        var errors = []
+        var required = $scope.addClusterForm.$error.required;
+        var pattern = $scope.addClusterForm.$error.pattern;
+
+        if (required) {
+            _.each(required, function(e) {
+                switch (e.$name) {
+                    case 'name':
+                        errors.push("Cluster name cannot be empty.");
+                    break;
+                    case 'private_key':
+                        errors.push("SSH Key is missing.");
+                    break;
+                    default:
+                        break;
+                }
+            });
+        }
+
+        if (pattern) {
+            errors.push("Invalid IP address.");
+        }
+
+        return errors;
+    }
+
+    $scope.getErrorClass = function(fieldName, collection) {
+        if (collection) {
+            return _.find(collection, function(e) {
+                return e.$name == fieldName;
+            });
+        } else {
+            return false;
+        }
+    }
 
     $scope.showAddClusterModal = function() {
         $('.ui.modal').modal();
@@ -30,11 +68,20 @@ angular.module('rubick.controllers', []).
     });
 
     $scope.addCluster = function() {
-        console.log($scope.newCluster);
         $http.post('/clusters', $scope.newCluster).success(function() {
             $scope.clusters.push($scope.newCluster);
         });
         $scope.newCluster = undefined;
         $('#add-cluster-modal').modal('hide');
+    }
+
+    $scope.selectedCluster = undefined;
+
+    $scope.selectCluster = function(clusterId) {
+        console.log(clusterId);
+        $scope.selectedCluster = _.find($scope.clusters, function(c) {
+            return c.id == clusterId;
+        });
+        console.log($scope.seletedCluster);
     }
 }])
