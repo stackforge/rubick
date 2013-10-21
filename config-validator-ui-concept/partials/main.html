@@ -42,7 +42,7 @@
                     </div>
 
                     <div class="ui form segment">
-                        <div class="field" ng-class="{'error': addClusterForm.name.$error}">
+                        <div class="field" ng-class="{'error': getErrorClass('name', addCluster.$error.required)}">
                             <label>Cluster Name</label>
                             <div class="ui left labeled icon input">
                                 <input type="text"
@@ -61,14 +61,15 @@
                                 <input type="text" placeholder="Private multinode Grizzly-based cloud with Neutron + oVS" ng-model="newCluster.description">
                             </div>
                         </div>
-                        <div class="field">
+                        <div class="field" ng-class="{'error': getErrorClass('nodes', addCluster.$error.pattern)}">
                             <label>IP Address (of any node in management network)</label>
                             <div class="ui left labeled icon input">
                                 <input type="text"
                                     placeholder="172.168.10.5"
                                     name="nodes"
                                     id="nodes"
-                                    ng-pattern="/^\d{1,3}$/"
+                                    required
+                                    ng-pattern="/^(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))$/"
                                     ng-model="newCluster.nodes">
                                 <i class="terminal icon"></i>
                                 <div class="ui corner label">
@@ -76,7 +77,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="field">
+                        <div class="field" ng-class="{'error': getErrorClass('private_key', addCluster.$error.required)}">
                             <label>SSH Key (for root user)</label>
                             <div class="ui left labeled icon input">
                                 <textarea ng-model="newCluster.private_key"

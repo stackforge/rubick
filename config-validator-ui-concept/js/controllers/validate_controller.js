@@ -5,7 +5,7 @@ angular.module('rubick.controllers', []).
     controller('ValidateCtrl', ['$scope', '$http', function($scope, $http) {
     $scope.currentStep = "cluster";
     $scope.ruleGroup = "valid";
-    $scope.ipPattern = "\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+    $scope.ipPattern = /^(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))$/
 
     $scope.setStep = function(step) {
         $scope.currentStep = step;
@@ -42,6 +42,16 @@ angular.module('rubick.controllers', []).
         }
 
         return errors;
+    }
+
+    $scope.getErrorClass = function(fieldName, collection) {
+        if (collection) {
+            return _.find(collection, function(e) {
+                return e.$name == fieldName;
+            });
+        } else {
+            return false;
+        }
     }
 
     $scope.showAddClusterModal = function() {
