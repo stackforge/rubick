@@ -1,55 +1,54 @@
-== Architecture Data Model
-
-=== Overview
+== Architecture Data Model ==
+=== Overview ===
 
 We want to introduce unified data structure which contains all information
 necessary to inspect, analyze, describe and visualize OpenStack architecture.
 
 Architecture data model serves multiple actual and potential use cases.
 
-==== Diagnostics
+==== Diagnostics ====
 
 Architecture data model provides necessary data for the configuration analysis
 and diagnostics tool ('''Rubick''').
 
-==== Deployment
+==== Deployment ====
 
 Arhictecture data model must include all information necessary to deployment
 systems (e.g. **Fuel** or **TripleO**). We will implement simple conversion
 tools which will allow to configure these deployment systems and effectively
 support 'portable' clouds.
 
-==== Benchmarking
+==== Benchmarking ====
 
 This model could be reused by '''Rally''' project to compare benchmarking
 results for different architectures. Definitions of architectures must be
 comparable and portable, which is exactly what architecture model aimed to
 solve.
 
-==== Upgrade
+==== Upgrade ====
 
 Upgrade system could potentially utilize the model just in the way the
 Deployment systems do. In addition, existing clouds could be inspected and
 described for subsequent upgrade using this model.
 
-==== Support
+==== Support ====
 
 The model suits as base for questionaire to assess existing installations for
 support contract pricing purposes.
 
-==== Hardening
+==== Hardening ====
 
 The model could be used to perform automated/guided hardening of OpenStack
 architecture and configuration. This is achieved through use of 'best practice'
 rulesets for the inspection of cloud.
 
-==== Expert system
+==== Expert system ====
 
 The model could be used as a part of production rules system capable of
 automated reporting and handling of operational errors, based on combination of
 'base' status of the cloud, logging messages and notifications.
 
-=== Data Format
+=== Data Format ===
 
 This section proposes data model format which allows to describe an OpenStack
 installation. The model includes data regarding physical infrastructure, logical
