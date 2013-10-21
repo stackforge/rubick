@@ -133,23 +133,13 @@
             </a>
         </div>
 
-
-        <div class="ui fluid accordion" ng-show="ruleGroup == 'valid'">
-            <div ng-repeat="rule in rules.validity">
-                <div class="title">
-                    <i class="dropdown icon"></i>
-                    {{rule.name}}
-                </div>
-                <div class="content">
-                    {{rule.text}}
-                    <!--<div class="ui list">-->
-
-                    <!--<div><strong>Given</strong> I use OpenStack Grizzly 2013.1</div>-->
-                    <!--<div><strong>And</strong> Nova has <code>"auth_strategy"</code> equal to <code>"keystone"</code></div>-->
-                    <!--<div><strong>And</strong> Keystone addresses are <code>@X</code></div>-->
-                    <!--<div><strong>Then</strong> Nova should have <code>"keystone_authtoken.auth_host"</code> in <code>"$X"</code></div>-->
-                    <!--</div>-->
-                </div>
+        <div class="ui accordion" ng-show="ruleGroup == 'valid'" ng-repeat="rule in rules">
+            <div class="title">
+                <i class="dropdown icon"></i>
+                {{rule.name}}
+            </div>
+            <div class="content">
+                {{rule.description}}
             </div>
         </div>
     </div>
