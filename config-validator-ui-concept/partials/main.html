@@ -20,13 +20,9 @@
         <div class="ui items">
             <div class="item" ng-repeat="cluster in clusters">
                 <div class="content">
-                    <div class="meta">{{cluster.lastChecked}}</div>
                     <div class="name">{{cluster.name}}</div>
-                    <p class="description"> {{cluster.description}}
-                    <div>Status: {{cluster.status}}</div>
-                    </p>
+                    <p class="description"> {{cluster.description}} </p>
                 </div>
-                <div class="extra">{{cluster.nodesCount}} nodes</div>
             </div>
         </div>
 
@@ -39,10 +35,10 @@
                 <div class="content">
                     <div class="ui error message"
                         ng-show="addClusterForm.$invalid && addClusterForm.$dirty">
-                        <div class="header">Some errors in form</div>
-                        <p ng-show="addClusterForm.$error.required[0].$name == 'name'">Cluster name cannot be empty.</p>
-                        <p ng-show="addClusterForm.$error.pattern[0].$name == 'nodes'">Invalid IP address.</p>
-                        <p ng-show="addClusterForm.$error.required[1].$name == 'private_key'">SSH Key is missing.</p>
+                        <div class="header">Oops, there are some errors in the form:</div>
+                        <ul>
+                            <li ng-repeat="error in getAddClusterFormErrors()">{{error}}</li>
+                        </ul>
                     </div>
 
                     <div class="ui form segment">
@@ -62,8 +58,7 @@
                         <div class="field">
                             <label>Description</label>
                             <div class="ui left labeled icon input">
-                                <input type="text" placeholder="Private multinode
-                                Grizzly-based cloud with Neutron + oVS" ng-model="newCluster.description">
+                                <input type="text" placeholder="Private multinode Grizzly-based cloud with Neutron + oVS" ng-model="newCluster.description">
                             </div>
                         </div>
                         <div class="field">
@@ -86,7 +81,6 @@
                             <div class="ui left labeled icon input">
                                 <textarea ng-model="newCluster.private_key"
                                     required name="private_key"></textarea>
-                                <i class="file icon"></i>
                                 <div class="ui corner label">
                                     <i class="icon asterisk"></i>
                                 </div>
@@ -102,8 +96,10 @@
                 </div>
                 <div class="actions">
                     <div class="ui button">Cancel</div>
-                    <div class="ui button" ng-click="addCluster()"
-                        ng-disabled="addClusterForm.$error || addClusterForm.$pristine">Create</div>
+                    <div class="ui button"
+                        ng-class="{'disabled': addClusterForm.$pristine || !addClusterForm.$valid}"
+                        ng-click="addCluster()"
+                        ng-disabled="addClusterForm.$pristine || !addClusterForm.$valid">Create</div>
                 </div>
 
             </form>
