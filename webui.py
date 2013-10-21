@@ -6,6 +6,7 @@ from wtforms import StringField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 from recordtype import recordtype
 
 from ostack_validator.celery import app as celery, \
@@ -107,7 +108,7 @@ def add_cluster():
 
 @app.route('/clusters/<id>', methods=['DELETE'])
 def del_cluster(id):
-    get_db()['clusters'].remove({'_id': id})
+    get_db()['clusters'].remove({'_id': ObjectId(id)})
     return '', 200
 
 

@@ -22,6 +22,19 @@
         </div>
     </div>
 
+    <div class="ui modal" id="remove-cluster-confirm-modal">
+        <i class="close icon"></i>
+        <div class="header">
+            Delete Cluster
+        </div>
+        <div class="content">
+            Are you sure you want to delete <strong>{{clusterToDelete}}?
+        </div>
+        <div class="actions">
+            <div class="ui red button">No</div>
+            <div class="ui green button" ng-click="removeConfirm()">Yes</div>
+        </div>
+    </div>
 
 
     <div ng-show="currentStep == 'cluster'" style="margin-top: 40px;">
@@ -32,6 +45,10 @@
         <div class="ui items">
             <div class="item" ng-repeat="cluster in clusters">
                 <div class="content">
+                    <a class="remove ui corner label"
+                        ng-click="removeCluster(cluster.id)">
+                        <i class="remove icon"></i>
+                    </a>
                     <div class="meta">
                         <a href="" class="mini orange ui button"
                             ng-show="!selectedCluster"
