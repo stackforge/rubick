@@ -1,27 +1,23 @@
 <div>
-    <div class="ui grid">
-        <div class="nine wide column">
-            <div class="ui large steps">
-                <div class="ui step"
-                    ng-class="{'active': currentStep == 'cluster'}"
-                    ng-click="setStep('cluster')">Select Cluster</div>
-                <div class="ui step"
-                    ng-class="{'active': currentStep == 'rules'}"
-                    ng-click="setStep('rules')">Select Rules</div>
-                <div class="ui step"
-                    ng-class="{'active': currentStep == 'validate'}"
-                    ng-click="setStep('validate')">Validate</div>
-            </div>
+
+    <div>
+        <div class="ui large steps">
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'cluster'}"
+                ng-click="setStep('cluster')">Select Cluster</div>
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'rules'}"
+                ng-click="setStep('rules')">Select Rules</div>
+            <div class="ui step"
+                ng-class="{'active': currentStep == 'validate'}"
+                ng-click="setStep('validate')">Validate</div>
         </div>
 
-        <div class="three wide column">
-            <div class="ui pointing left red label" ng-show="selectedCluster">
-                Selected Cluster: 
-                <div class="detail">{{selectedCluster.name}}</div>
-                <i class="delete icon" ng-click="selectedCluster = undefined"></i>
-            </div>
+        <div class="ui pointing left red label" ng-show="selectedCluster">
+            Selected Cluster: 
+            <div class="detail">{{selectedCluster.name}}</div>
+            <i class="delete icon" ng-click="selectedCluster = undefined"></i>
         </div>
-
     </div>
 
 
@@ -87,12 +83,12 @@
                             <label>IP Address (of any node in management network)</label>
                             <div class="ui left labeled icon input">
                                 <input type="text"
-                                    placeholder="172.168.10.5"
-                                    name="nodes"
-                                    id="nodes"
-                                    required
-                                    ng-pattern="/^(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))$/"
-                                    ng-model="newCluster.nodes">
+                                placeholder="172.168.10.5"
+                                name="nodes"
+                                id="nodes"
+                                required
+                                ng-pattern="/^(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))\.(\d|[1-9]\d|1\d\d|2([0-4]\d|5[0-5]))$/"
+                                ng-model="newCluster.nodes">
                                 <i class="terminal icon"></i>
                                 <div class="ui corner label">
                                     <i class="icon asterisk"></i>
