@@ -50,16 +50,22 @@ class SshShell(spur.SshShell):
 
 class NodeClient(object):
 
-    def __init__(self, node_address, username, password=None,
-                 private_key_file=None, ssh_port=22, proxy_command=None):
+    def __init__(self, host, port=22, username='root', password=None,
+                 private_key=None, private_key_file=None, proxy_command=None):
         super(NodeClient, self).__init__()
         self.use_sudo = (username != 'root')
-        sock = None
-        if proxy_command:
-            sock = paramiko.ProxyCommand(proxy_command)
+        sock = paramiko.ProxyCommand(proxy_command) if proxy_command else None
+
+        if private_key and not private_key_file:
+            f = tempfile.NamedTemporaryFile(suffix='.key')
+            f.write(private_key)
+            f.flush()
+            self.private_key_file = f
+            private_key_file = f.name
+
         self.shell = SshShell(
-            hostname=node_address,
-            port=ssh_port,
+            hostname=host,
+            port=port,
             username=username,
             password=password,
             private_key_file=private_key_file,
@@ -78,42 +84,64 @@ class NodeClient(object):
 connection_re = re.compile('(?:(\w+)@)?([^:]+)(?::(\d+))?')
 
 
+def parse_nodes_info(nodes, password=None, private_key=None):
+    result = []
+    for node in nodes:
+        m = connection_re.match(node)
+        if not m:
+            continue
+
+        username = m.group(1) or 'root'
+        host = m.group(2)
+        port = int(m.group(3) or '22')
+
+        result.append(
+            dict(host=host,
+                 port=port,
+                 username=username,
+                 password=password,
+                 private_key=private_key))
+
+    return result
+
+
 class SimpleNodeDiscovery(object):
+    def test_connection(self, initial_nodes, private_key):
+        for node in parse_nodes_info(initial_nodes, private_key=private_key):
+            client = NodeClient(**node)
+
+            try:
+                client.run(['echo', 'ok'])
+            except:
+                traceback.print_exc()
+                return False
+
+        return True
+
     def discover(self, initial_nodes, private_key):
-        nodes = []
-        for node in initial_nodes:
-            m = connection_re.match(node)
-            if not m:
-                continue
-
-            username = m.group(1) or 'root'
-            host = m.group(2)
-            port = int(m.group(3) or '22')
-
-            nodes.append(
-                dict(host=host,
-                     port=port,
-                     username=username,
-                     private_key=private_key))
-
-        return nodes
+        return parse_nodes_info(initial_nodes, private_key=private_key)
 
 
 class JokerNodeDiscovery(object):
+    def test_connection(self, initial_nodes, private_key):
+        for node in parse_nodes_info(initial_nodes, private_key=private_key):
+            client = NodeClient(**node)
+
+            try:
+                client.run(['echo', 'ok'])
+            except:
+                return False
+
+        return True
+
     def discover(self, initial_nodes, private_key):
         j = joker.Joker(default_key=private_key)
         count = 0
-        for node in initial_nodes:
-            count += 1
-            m = connection_re.match(address)
-            if not m:
-                continue
-
-            username = m.group(1) or 'root'
-            host = m.group(2)
-            port = int(m.group(3) or '22')
-
-            j.add_node('node%d' % count, host, port, username)
+        for node in parse_nodes_info(initial_nodes):
+            j.add_node('node%d' % count,
+                       node['host'],
+                       node['port'],
+                       node['username'])
 
         nodes = j.discover()
 
@@ -124,6 +152,11 @@ python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
 
 
 class OpenstackDiscovery(object):
+    node_discovery_klass = SimpleNodeDiscovery
+
+    def test_connection(self, initial_nodes, private_key):
+        d = self.node_discovery_klass()
+        return d.test_connection(initial_nodes, private_key)
 
     def discover(self, initial_nodes, username, private_key):
         "Takes a list of node addresses "
@@ -132,7 +165,7 @@ class OpenstackDiscovery(object):
 
         private_key_to_files = {}
 
-        node_discovery = SimpleNodeDiscovery()
+        node_discovery = self.node_discovery_klass()
 
         for node_info in node_discovery.discover(initial_nodes, private_key):
             try:
@@ -146,8 +179,8 @@ class OpenstackDiscovery(object):
                     private_key_filename = None
 
                 client = NodeClient(
-                    node_info['host'],
-                    ssh_port=node_info['port'],
+                    host=node_info['host'],
+                    port=node_info['port'],
                     username=node_info['username'],
                     password=node_info.get('password'),
                     private_key_file=private_key_filename)

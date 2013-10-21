@@ -1,8 +1,8 @@
 import os.path
 
-from flask import Flask, request, render_template, json, send_file
+from flask import Flask, request, json, send_file
 from flask_wtf import Form
-from wtforms import StringField, TextAreaField, SelectMultipleField
+from wtforms import StringField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json
 from pymongo import MongoClient
@@ -11,6 +11,7 @@ from recordtype import recordtype
 from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
 from ostack_validator.common import Inspection, Issue
 from ostack_validator.model import Openstack
+from ostack_validator.discovery import OpenstackDiscovery
 
 app = Flask(__name__,
             static_folder='config-validator-ui-concept',
@@ -41,6 +42,9 @@ class Cluster(recordtype('Cluster',
         del doc['_id']
         return Cluster(**doc)
 
+    def as_doc(self):
+        return self._asdict()
+
 
 class RuleGroup:
     VALIDITY = 'validity'
@@ -50,21 +54,12 @@ class RuleGroup:
     all = [VALIDITY, HA, BEST_PRACTICES]
 
 
-class ClusterForm(Form):
-    name = StringField('Name', validators=[DataRequired()])
-    nodes = StringField('Cluster nodes', validators=[DataRequired()])
-    private_key = TextAreaField('Private Key', validators=[DataRequired()])
-
-    def __init__(self, *args, **kwargs):
-        super(ClusterForm, self).__init__(*args, csrf_enabled=False, **kwargs)
-
-
 class ValidateClusterForm(Form):
     cluster_id = StringField('Cluster', validators=[DataRequired()])
     rules = SelectMultipleField('Rules')
 
     def __init__(self):
-        super(ClusterForm, self).__init__(csrf_enabled=False)
+        super(ValidateClusterForm, self).__init__(csrf_enabled=False)
 
 
 @app.template_filter()
@@ -90,15 +85,47 @@ def get_clusters():
 
 @app.route('/clusters', methods=['POST'])
 def add_cluster():
-    print request.data
-    form = ClusterForm.from_json(json.loads(request.data))
-    if form.validate():
-        cluster = Cluster()
-        form.populate_obj(cluster)
-        get_db()['clusters'].save(cluster._asdict())
+    data = json.loads(request.data)
+    errors = {}
+    if not 'name' in data or data['name'] == '':
+        errors['name'] = ['Cluster name is required']
+    if not 'nodes' in data or data['nodes'] == []:
+        errors['nodes'] = ['At least one cluster node is required']
+    if not 'private_key' in data:
+        errors['private_key'] = ['Private key for accessing nodes is required']
+
+    if len(errors) == 0:
+        cluster = Cluster(**data)
+
+        get_db()['clusters'].save(cluster.as_doc())
         return '', 201
     else:
-        return json.dumps(dict(errors=form.errors)), 422
+        return json.dumps(dict(errors=errors)), 422
+
+
+@app.route('/clusters/<id>', methods=['DELETE'])
+def del_cluster(id):
+    get_db()['clusters'].remove({'_id': id})
+    return '', 200
+
+
+@app.route('/clusters/test', methods=['POST'])
+def test_cluster():
+    data = json.loads(request.data)
+    errors = {}
+    if not 'nodes' in data or data['nodes'] == []:
+        errors['nodes'] = ['At least one cluster node is required']
+    if not 'private_key' in data:
+        errors['private_key'] = ['Private key for accessing nodes is required']
+
+    if len(errors) == 0:
+        d = OpenstackDiscovery()
+        if d.test_connection(data['nodes'], private_key=data['private_key']):
+            return '', 200
+        else:
+            return '', 409
+    else:
+        return json.dumps(dict(errors=errors)), 422
 
 
 @app.route('/rules')
