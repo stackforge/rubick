@@ -1,0 +1,118 @@
+{
+    "hosts": [
+        {
+            "addresses": [
+                "127.0.0.1", 
+                "169.254.169.254", 
+                "10.1.60.8", 
+                "192.168.122.1"
+            ], 
+            "components": [
+                {
+                    "issues": [
+                        "[WARNING] Unknown section \"app:admin_service\" (source \"/etc/keystone/keystone.conf\" line 274 column 1)", 
+                        "[WARNING] Unknown section \"app:admin_version_service\" (source \"/etc/keystone/keystone.conf\" line 289 column 1)", 
+                        "[WARNING] Unknown section \"app:public_service\" (source \"/etc/keystone/keystone.conf\" line 268 column 1)", 
+                        "[WARNING] Unknown section \"app:public_version_service\" (source \"/etc/keystone/keystone.conf\" line 286 column 1)", 
+                        "[WARNING] Unknown section \"app:service_v3\" (source \"/etc/keystone/keystone.conf\" line 271 column 1)", 
+                        "[WARNING] Unknown parameter: section \"catalog\" name \"driver\" (source \"/etc/keystone/keystone.conf\" line 103 column 1)", 
+                        "[WARNING] Unknown section \"composite:admin\" (source \"/etc/keystone/keystone.conf\" line 304 column 1)", 
+                        "[WARNING] Unknown section \"composite:main\" (source \"/etc/keystone/keystone.conf\" line 298 column 1)", 
+                        "[WARNING] Unknown section \"ec2\" (source \"/etc/keystone/keystone.conf\" line 122 column 1)", 
+                        "[WARNING] Unknown section \"filter:access_log\" (source \"/etc/keystone/keystone.conf\" line 265 column 1)", 
+                        "[WARNING] Unknown section \"filter:admin_token_auth\" (source \"/etc/keystone/keystone.conf\" line 232 column 1)", 
+                        "[WARNING] Unknown section \"filter:crud_extension\" (source \"/etc/keystone/keystone.conf\" line 244 column 1)", 
+                        "[WARNING] Unknown section \"filter:debug\" (source \"/etc/keystone/keystone.conf\" line 226 column 1)", 
+                        "[WARNING] Unknown section \"filter:ec2_extension\" (source \"/etc/keystone/keystone.conf\" line 247 column 1)", 
+                        "[WARNING] Unknown section \"filter:json_body\" (source \"/etc/keystone/keystone.conf\" line 238 column 1)", 
+                        "[WARNING] Unknown section \"filter:s3_extension\" (source \"/etc/keystone/keystone.conf\" line 250 column 1)", 
+                        "[WARNING] Unknown section \"filter:sizelimit\" (source \"/etc/keystone/keystone.conf\" line 256 column 1)", 
+                        "[WARNING] Unknown section \"filter:stats_monitoring\" (source \"/etc/keystone/keystone.conf\" line 259 column 1)", 
+                        "[WARNING] Unknown section \"filter:stats_reporting\" (source \"/etc/keystone/keystone.conf\" line 262 column 1)", 
+                        "[WARNING] Unknown section \"filter:token_auth\" (source \"/etc/keystone/keystone.conf\" line 229 column 1)", 
+                        "[WARNING] Unknown section \"filter:url_normalize\" (source \"/etc/keystone/keystone.conf\" line 253 column 1)", 
+                        "[WARNING] Unknown section \"filter:user_crud_extension\" (source \"/etc/keystone/keystone.conf\" line 241 column 1)", 
+                        "[WARNING] Unknown section \"filter:xml_body\" (source \"/etc/keystone/keystone.conf\" line 235 column 1)", 
+                        "[WARNING] Unknown section \"pipeline:admin_api\" (source \"/etc/keystone/keystone.conf\" line 280 column 1)", 
+                        "[WARNING] Unknown section \"pipeline:admin_version_api\" (source \"/etc/keystone/keystone.conf\" line 295 column 1)", 
+                        "[WARNING] Unknown section \"pipeline:api_v3\" (source \"/etc/keystone/keystone.conf\" line 283 column 1)", 
+                        "[WARNING] Unknown section \"pipeline:public_api\" (source \"/etc/keystone/keystone.conf\" line 277 column 1)", 
+                        "[WARNING] Unknown section \"pipeline:public_version_api\" (source \"/etc/keystone/keystone.conf\" line 292 column 1)", 
+                        "[WARNING] Unknown section \"policy\" (source \"/etc/keystone/keystone.conf\" line 119 column 1)", 
+                        "[WARNING] Unknown parameter: section \"token\" name \"driver\" (source \"/etc/keystone/keystone.conf\" line 113 column 1)", 
+                        "[WARNING] Unknown section \"trust\" (source \"/etc/keystone/keystone.conf\" line 96 column 1)"
+                    ], 
+                    "name": "keystone", 
+                    "type": "component"
+                }, 
+                {
+                    "issues": [
+                        "[ERROR] Nova should have \"None\" in ['169.254.169.254', '10.1.60.8', '192.168.122.1']", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"vlan_interface\" (source \"/etc/nova/nova.conf\" line 6 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"sql_connection\" (source \"/etc/nova/nova.conf\" line 31 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"compute_scheduler_driver\" (source \"/etc/nova/nova.conf\" line 40 column 1)"
+                    ], 
+                    "name": "nova-api", 
+                    "type": "component"
+                }, 
+                {
+                    "issues": [
+                        "[ERROR] Nova should have \"None\" in ['169.254.169.254', '10.1.60.8', '192.168.122.1']", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"vlan_interface\" (source \"/etc/nova/nova.conf\" line 6 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"sql_connection\" (source \"/etc/nova/nova.conf\" line 31 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"compute_scheduler_driver\" (source \"/etc/nova/nova.conf\" line 40 column 1)"
+                    ], 
+                    "name": "nova-compute", 
+                    "type": "component"
+                }, 
+                {
+                    "issues": [
+                        "[ERROR] Nova should have \"None\" in ['169.254.169.254', '10.1.60.8', '192.168.122.1']", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"vlan_interface\" (source \"/etc/nova/nova.conf\" line 6 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"sql_connection\" (source \"/etc/nova/nova.conf\" line 31 column 1)", 
+                        "[WARNING] Unknown parameter: section \"DEFAULT\" name \"compute_scheduler_driver\" (source \"/etc/nova/nova.conf\" line 40 column 1)"
+                    ], 
+                    "name": "nova-scheduler", 
+                    "type": "component"
+                }, 
+                {
+                    "name": "glance-api", 
+                    "type": "component"
+                }, 
+                {
+                    "name": "glance-registry", 
+                    "type": "component"
+                }, 
+                {
+                    "issues": [
+                        "[WARNING] Deprecated parameter: section \"DEFAULT\" name \"sql_connection\". Deprecated in favor of \"[DEFAULT]connection\" parameter (source \"/etc/cinder/cinder.conf\" line 17 column 1)"
+                    ], 
+                    "name": "cinder-api", 
+                    "type": "component"
+                }, 
+                {
+                    "issues": [
+                        "[WARNING] Deprecated parameter: section \"DEFAULT\" name \"sql_connection\". Deprecated in favor of \"[DEFAULT]connection\" parameter (source \"/etc/cinder/cinder.conf\" line 17 column 1)"
+                    ], 
+                    "name": "cinder-volume", 
+                    "type": "component"
+                }, 
+                {
+                    "name": "cinder-scheduler", 
+                    "type": "component"
+                }, 
+                {
+                    "name": "mysql", 
+                    "type": "component"
+                }, 
+                {
+                    "name": "rabbitmq", 
+                    "type": "component"
+                }
+            ], 
+            "name": "ic-14-ubuntu", 
+            "type": "host"
+        }
+    ], 
+    "type": "openstack"
+}

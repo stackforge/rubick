@@ -28,7 +28,7 @@
             Delete Cluster
         </div>
         <div class="content">
-            Are you sure you want to delete <strong>{{clusterToDelete}}?
+            Are you sure you want to delete <strong>{{clusterToDelete}}</strong>?
         </div>
         <div class="actions">
             <div class="ui red button">No</div>
@@ -184,13 +184,42 @@
     <div ng-show="currentStep == 'validate'" style="margin-top: 40px;">
         <div class="ui segment">
             <div class="ui list">
-                <div><strong>Cluster Name:</strong> Bebebeko</strong>
-                <div><strong>Rules selected:</strong> 17</strong>
+                <div><strong>Cluster Name:</strong>{{selectedCluster.name}}</div>
+                <div><strong>Rules selected:</strong>{{rules.length}}</div>
                 <div style="margin-top: 15px;">
-                    <a class="ui blue button">Run Validation</a>
+                    <a class="ui blue button" ng-click="runValidation()">Run Validation</a>
                 </div>
             </div>
         </div>
-    </div>
 
-</div>
+        <div class="ui feed segment">
+            <h2 class="ui header">
+                Diagnostics Results
+            </h2>
+
+            <div ng-repeat="host in results.hosts">
+
+                <div class="event" ng-repeat="component in host.components" ng-show="component.issues.length > 0">
+                    <div class="label">
+                        <i class="circular pencil icon"></i>
+                    </div>
+                    <div class="content">
+                        <div class="date">
+                            Number of issues: {{component.issues.length}}
+                        </div>
+                        <div class="summary">
+                            {{component.name}}
+                            <div class="extra text">
+                                <ul>
+                                    <li ng-repeat="issue in component.issues">{{issue}}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>

@@ -111,4 +111,10 @@ angular.module('rubick.controllers', []).
             $('#remove-cluster-confirm-modal').modal('hide');
         });
     }
+
+    $scope.runValidation = function() {
+        $http.get('/static/data/validate_stub.json').success(function(data) {
+            $scope.results = data;
+        });
+    }
 }])
