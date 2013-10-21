@@ -55,17 +55,26 @@ angular.module('rubick.controllers', []).
     }
 
     $scope.showAddClusterModal = function() {
-        $('.ui.modal').modal();
+        $('#add-cluster-modal').modal();
         $('#add-cluster-modal').modal('show');
     }
 
-    $http.get('/clusters').success(function(data) {
-        $scope.clusters = data;
-    });
+    $scope.fetchClusters = function() {
+        $http.get('/clusters').success(function(data) {
+            $scope.clusters = data;
+        });
+    }
 
-    $http.get('/rules').success(function(data) {
-        $scope.rules = data;
-    });
+    $scope.fetchClusters();
+
+    $scope.fetchRules = function() {
+        $http.get('/rules').success(function(data) {
+            $scope.rules = data;
+        });
+    }
+
+    $scope.fetchRules();
+
 
     $scope.addCluster = function() {
         $http.post('/clusters', $scope.newCluster).success(function() {
@@ -78,10 +87,28 @@ angular.module('rubick.controllers', []).
     $scope.selectedCluster = undefined;
 
     $scope.selectCluster = function(clusterId) {
-        console.log(clusterId);
         $scope.selectedCluster = _.find($scope.clusters, function(c) {
             return c.id == clusterId;
         });
-        console.log($scope.seletedCluster);
+    }
+
+    $scope.removeCluster = function(clusterId) {
+        $('#remove-cluster-confirm-modal').modal();
+        $('#remove-cluster-confirm-modal').modal('show');
+
+        $scope.clusterIdToRemove = clusterId;
+    }
+
+    $scope.removeConfirm = function() {
+        var url = '/clusters/' + $scope.clusterIdToRemove;
+        $scope.clusterIdToRemove = undefined;
+        console.log(url);
+
+        $http.delete(url).success(function() {
+            $scope.fetchClusters();
+            $('#remove-cluster-confirm-modal').modal('hide');
+        }).error(function() {
+            $('#remove-cluster-confirm-modal').modal('hide');
+        });
     }
 }])
