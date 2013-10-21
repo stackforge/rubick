@@ -6,10 +6,12 @@
                 ng-class="{'active': currentStep == 'cluster'}"
                 ng-click="setStep('cluster')">Select Cluster</div>
             <div class="ui step"
-                ng-class="{'active': currentStep == 'rules'}"
+                ng-class="{'active': currentStep == 'rules', 'disabled': !selectedCluster}"
+                ng-disabled="!selectedCluster"
                 ng-click="setStep('rules')">Select Rules</div>
             <div class="ui step"
-                ng-class="{'active': currentStep == 'validate'}"
+                ng-class="{'active': currentStep == 'validate', 'disabled': !selectedCluster}"
+                ng-disabled="!selectedCluster"
                 ng-click="setStep('validate')">Validate</div>
         </div>
 
