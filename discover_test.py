@@ -6,6 +6,8 @@ from ostack_validator.discovery import OpenstackDiscovery
 import ostack_validator.inspections
 # Silence PEP8 "unused import"
 assert ostack_validator.inspections
+from ostack_validator.json import openstack_for_json
+from flask import json
 
 
 def indent_prefix(indent=0):
@@ -83,7 +85,8 @@ def main():
         x = inspection()
         x.inspect(openstack)
 
-    print_openstack(openstack)
+    # print_openstack(openstack)
+    print(json.dumps(openstack_for_json(openstack)))
 
 if __name__ == '__main__':
     main()

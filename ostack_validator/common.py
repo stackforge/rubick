@@ -152,7 +152,7 @@ class Issue(object):
         )
 
     def __str__(self):
-        return '%s: %s' % (self.type, self.message)
+        return '[%s] %s' % (self.type, self.message)
 
 
 class MarkedIssue(Issue):

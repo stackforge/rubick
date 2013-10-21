@@ -8,10 +8,12 @@ import wtforms_json
 from pymongo import MongoClient
 from recordtype import recordtype
 
-from ostack_validator.celery import app as celery, ostack_inspect_task, InspectionRequest
+from ostack_validator.celery import app as celery, \
+    ostack_inspect_task, InspectionRequest
 from ostack_validator.common import Inspection, Issue
 from ostack_validator.model import Openstack
 from ostack_validator.discovery import OpenstackDiscovery
+from ostack_validator.json import openstack_for_json
 
 app = Flask(__name__,
             static_folder='config-validator-ui-concept',
@@ -177,7 +179,7 @@ def job(id):
         openstack = job.result.value
 
         if isinstance(openstack, Openstack):
-            return json.dumps(openstack)
+            return json.dumps(openstack_for_json(openstack))
         else:
             return json.dumps({'error': openstack})
     else:
