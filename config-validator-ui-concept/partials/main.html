@@ -197,9 +197,13 @@
                 Diagnostics Results
             </h2>
 
+            <div>
+                <small>Show only components with issues:</small> <input type="checkbox" ng-model="componentFilter">
+            </div>
+
             <div ng-repeat="host in results.hosts">
 
-                <div class="event" ng-repeat="component in host.components">
+                <div class="event" ng-repeat="component in host.components" ng-show="toggleEmptyComponents(component)">
                     <div class="label">
                         <i class="circular icon"
                             ng-class="{'ok sign': !component.issues , 'attention': component.issues.length > 0}"></i>

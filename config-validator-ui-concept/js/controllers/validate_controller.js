@@ -117,4 +117,10 @@ angular.module('rubick.controllers', []).
             $scope.results = data;
         });
     }
+
+    //$scope.componentFilter = false;
+
+    $scope.toggleEmptyComponents = function(component) {
+        return !$scope.componentFilter || component.issues;
+    }
 }])
