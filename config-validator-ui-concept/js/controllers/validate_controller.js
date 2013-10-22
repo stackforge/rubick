@@ -2,7 +2,7 @@
 /* Controllers */
 
 angular.module('rubick.controllers', []).
-    controller('ValidateCtrl', ['$scope', '$http', function($scope, $http) {
+    controller('ValidateCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     $scope.currentStep = "cluster";
     $scope.ruleGroup = "valid";
     $scope.ipPattern = 
@@ -113,9 +113,35 @@ angular.module('rubick.controllers', []).
     }
 
     $scope.runValidation = function() {
-        $http.get('/static/data/validate_stub.json').success(function(data) {
-            $scope.results = data;
+        var postData = { cluster_id: $scope.selectedCluster.id }
+
+        $http.post('/validation', data).success(function(job) {
+            $scope.currentJobId = job.id;
+
+            var poll = function() {
+                $timeout(function() {
+                    $http.get('/validation' + $scope.currentJobId).success(function(jobData) {
+                        switch (jobData.state) {
+                            case "completed":
+                                $scope.results = jobData.results;
+                                break;
+                            case "running":
+                                poll();
+                                break;
+                            default:
+                                $scope.jobError = jobData.error;
+                                break;
+                        }
+                    });
+                }, 2000);
+            };     
+            poll();
+
         });
+
+        //$http.get('/static/data/validate_stub.json').success(function(data) {
+            //$scope.results = data;
+        //});
     }
 
     //$scope.componentFilter = false;
