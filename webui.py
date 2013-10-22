@@ -20,9 +20,7 @@ from rubick.model import Openstack
 from rubick.discovery import OpenstackDiscovery
 from rubick.json import openstack_for_json
 
-app = Flask(__name__,
-            static_folder='config-validator-ui-concept',
-            static_url_path='/static')
+app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3fooN]LWX/,?RT'
 
 wtforms_json.init()
