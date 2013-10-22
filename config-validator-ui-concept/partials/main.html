@@ -129,7 +129,7 @@
                         <div class="ui error message">
                             <div class="header">We noticed some issues</div>
                         </div>
-                        <div class="ui blue submit button">Test Connection</div>
+                        <!--<div class="ui blue submit button">Test Connection</div>-->
                     </div>
 
                 </div>
@@ -196,16 +196,18 @@
             </div>
         </div>
 
-        <div class="ui feed segment" ng-show="diagnosticsFinished">
-            <h2 class="ui header">
-                Diagnostics Results
-            </h2>
+        <h2>Diagnostics Results</h2>
+
+        <div class="ui feed segment" ng-show="diagnosticsFinished"  ng-repeat="host in results.hosts">
+            <h4 class="ui header">
+                {{host.name}}
+            </h4>
 
             <div>
                 <small>Show only components with issues:</small> <input type="checkbox" ng-model="componentFilter">
             </div>
 
-            <div ng-repeat="host in results.hosts">
+            <div>
 
                 <div class="event" ng-repeat="component in host.components" ng-show="toggleEmptyComponents(component)">
                     <div class="label">
