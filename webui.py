@@ -1,4 +1,5 @@
 import os.path
+from StringIO import StringIO
 
 from flask import Flask, request, json, send_file
 from flask_wtf import Form
@@ -8,6 +9,9 @@ import wtforms_json
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from recordtype import recordtype
+from paramiko.rsakey import RSAKey
+from paramiko.dsskey import DSSKey
+from paramiko.ssh_exception import SSHException
 
 from ostack_validator.celery import app as celery, \
     ostack_inspect_task, InspectionRequest
@@ -33,6 +37,17 @@ def connect_to_db():
 def get_db():
     db = connect_to_db()
     return db
+
+
+def is_key_valid(private_key):
+    for key_klass in [RSAKey, DSSKey]:
+        try:
+            key_klass.from_private_key(StringIO(private_key))
+            return True
+        except SSHException:
+            pass
+
+    return False
 
 
 class Cluster(recordtype('Cluster',
@@ -100,6 +115,8 @@ def add_cluster():
         errors['nodes'] = ['At least one cluster node is required']
     if not 'private_key' in data:
         errors['private_key'] = ['Private key for accessing nodes is required']
+    elif not is_key_valid(data['private_key']):
+        errors['private_key'] = ['Private key format is unknown']
 
     if len(errors) == 0:
         cluster = Cluster(**data)
@@ -124,6 +141,8 @@ def test_cluster():
         errors['nodes'] = ['At least one cluster node is required']
     if not 'private_key' in data:
         errors['private_key'] = ['Private key for accessing nodes is required']
+    elif not is_key_valid(data['private_key']):
+        errors['private_key'] = ['Private key format is unknown']
 
     if len(errors) == 0:
         d = OpenstackDiscovery()
