@@ -1,9 +1,10 @@
-import sys
-import logging
 import argparse
+import logging
+import sys
 
-from ostack_validator.model_parser import ModelParser
+
 from ostack_validator.inspection import MainConfigValidationInspection
+from ostack_validator.model_parser import ModelParser
 
 
 def main(args):

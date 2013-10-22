@@ -1,4 +1,3 @@
-import os.path
 import lettuce
 import lettuce.fs
 

@@ -58,13 +58,15 @@ nova.param(
     'user_cert_subject',
     type='string',
     default='/CUS/STCalifornia/OOpenStack/OUNovaDev/CN%.16s-%.16s-%s',
-    description="Subject for certificate for users, %s for project, user, timestamp")
+    description="Subject for certificate for users, %s for project, user, "
+                "timestamp")
 
 nova.param(
     'project_cert_subject',
     type='string',
     default='/CUS/STCalifornia/OOpenStack/OUNovaDev/CNproject-ca-%.16s-%s',
-    description="Subject for certificate for projects, %s for project, timestamp")
+    description="Subject for certificate for projects, %s for project, "
+                "timestamp")
 
 nova.param(
     'fatal_exception_format_errors',
@@ -82,7 +84,10 @@ nova.param(
     'host',
     type='string',
     default='nova',
-    description="Name of this node.  This can be an opaque identifier.  It is not necessarily a hostname, FQDN, or IP address. However, the node name must be valid within an AMQP key, and if using ZeroMQ, a valid hostname, FQDN, or IP address")
+    description="Name of this node.  This can be an opaque identifier. "
+                "It is not necessarily a hostname, FQDN, or IP address. "
+                "However, the node name must be valid within an AMQP key, "
+                "and if using ZeroMQ, a valid hostname, FQDN, or IP address")
 
 nova.param('use_ipv6', type='boolean', default=False, description="use ipv6")
 
@@ -90,13 +95,18 @@ nova.param(
     'notify_on_state_change',
     type='string',
     default=None,
-    description="If set, send compute.instance.update notifications on instance state changes.  Valid values are None for no notifications, 'vm_state' for notifications on VM state changes, or 'vm_and_task_state' for notifications on VM and task state changes.")
+    description="If set, send compute.instance.update notifications on "
+                "instance state changes.  Valid values are None for no "
+                "notifications, 'vm_state' for notifications on VM state "
+                "changes, or 'vm_and_task_state' for notifications on VM and "
+                "task state changes.")
 
 nova.param(
     'notify_api_faults',
     type='boolean',
     default=False,
-    description="If set, send api.fault notifications on caught exceptions in the API service.")
+    description="If set, send api.fault notifications on caught exceptions in "
+                "the API service.")
 
 nova.param(
     'pybasedir',
@@ -240,7 +250,8 @@ nova.param(
     'periodic_fuzzy_delay',
     type='integer',
     default=60,
-    description="range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding.")
+    description="range of seconds to randomly delay when starting the "
+                "periodic task scheduler to reduce stampeding.")
 
 nova.param(
     'enabled_apis',
@@ -365,7 +376,8 @@ nova.param(
 nova.param(
     'monkey_patch_modules',
     type='list',
-    default='nova.api.ec2.cloud:nova.notifications.notify_decorator,nova.compute.api:nova.notifications.notify_decorator',
+    default='nova.api.ec2.cloud:nova.notifications.notify_decorator,nova.'
+            'compute.api:nova.notifications.notify_decorator',
     description="List of modules/decorators to monkey patch")
 
 nova.param(
@@ -378,13 +390,15 @@ nova.param(
     'instance_usage_audit_period',
     type='string',
     default='month',
-    description="time period to generate instance usages for.  Time period must be hour, day, month or year")
+    description="time period to generate instance usages for.  Time period "
+                "must be hour, day, month or year")
 
 nova.param(
     'rootwrap_config',
     type='string',
     default='/etc/nova/rootwrap.conf',
-    description="Path to the rootwrap configuration file to use for running commands as root")
+    description="Path to the rootwrap configuration file to use for running "
+                "commands as root")
 
 nova.param(
     'tempdir',
@@ -401,8 +415,12 @@ nova.param(
 nova.param(
     'wsgi_log_format',
     type='string',
-    default='%(client_ip)s "%(request_line)s" status: %(status_code)s len: %(body_length)s time: %(wall_seconds).7f',
-    description="A python format string that is used as the template to generate log lines. The following values can be formatted into it: client_ip, date_time, request_line, status_code, body_length, wall_seconds.")
+    default='%(client_ip)s "%(request_line)s" status: %(status_code)s len: '
+            '%(body_length)s time: %(wall_seconds).7f',
+    description="A python format string that is used as the template to "
+                "generate log lines. The following values can be formatted "
+                "into it: client_ip, date_time, request_line, status_code, "
+                "body_length, wall_seconds.")
 
 nova.param(
     'ssl_ca_file',
@@ -426,7 +444,8 @@ nova.param(
     'tcp_keepidle',
     type='integer',
     default=600,
-    description="Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X.")
+    description="Sets the value of TCP_KEEPIDLE in seconds for each server "
+                "socket. Not supported on OS X.")
 
 nova.param(
     'api_rate_limit',
@@ -444,7 +463,8 @@ nova.param(
     'use_forwarded_for',
     type='boolean',
     default=False,
-    description="Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy.")
+    description="Treat X-Forwarded-For as the canonical remote address. Only "
+                "enable this if you have a sanitizing proxy.")
 
 nova.param(
     'lockout_attempts',
@@ -474,7 +494,8 @@ nova.param(
     'ec2_private_dns_show_ip',
     type='boolean',
     default=False,
-    description="Return the IP address as private dns hostname in describe instances")
+    description="Return the IP address as private dns hostname in describe "
+                "instances")
 
 nova.param(
     'ec2_strict_validation',
@@ -527,8 +548,10 @@ nova.param(
 nova.param(
     'config_drive_skip_versions',
     type='string',
-    default='1.0 2007-01-19 2007-03-01 2007-08-29 2007-10-10 2007-12-15 2008-02-01 2008-09-01',
-    description="List of metadata versions to skip placing into the config drive")
+    default='1.0 2007-01-19 2007-03-01 2007-08-29 2007-10-10 2007-12-15 '
+            '2008-02-01 2008-09-01',
+    description="List of metadata versions to skip placing into the config "
+                "drive")
 
 nova.param(
     'vendordata_driver',
@@ -540,7 +563,8 @@ nova.param(
     'service_neutron_metadata_proxy',
     type='boolean',
     default=False,
-    description="Set flag to indicate Neutron will proxy metadata requests and resolve instance ids.")
+    description="Set flag to indicate Neutron will proxy metadata requests "
+                "and resolve instance ids.")
 
 nova.param(
     'neutron_metadata_proxy_shared_secret',
@@ -558,19 +582,22 @@ nova.param(
     'osapi_max_limit',
     type='integer',
     default=1000,
-    description="the maximum number of items returned in a single response from a collection resource")
+    description="the maximum number of items returned in a single response "
+                "from a collection resource")
 
 nova.param(
     'osapi_compute_link_prefix',
     type='string',
     default=None,
-    description="Base URL that will be presented to users in links to the OpenStack Compute API")
+    description="Base URL that will be presented to users in links to the "
+                "OpenStack Compute API")
 
 nova.param(
     'osapi_glance_link_prefix',
     type='string',
     default=None,
-    description="Base URL that will be presented to users in links to glance resources")
+    description="Base URL that will be presented to users in links to glance "
+                "resources")
 
 nova.param(
     'allow_instance_snapshots',
@@ -582,7 +609,9 @@ nova.param(
     'osapi_compute_ext_list',
     type='list',
     default='',
-    description="Specify list of extensions to load when using osapi_compute_extension option with nova.api.openstack.compute.contrib.select_extensions")
+    description="Specify list of extensions to load when using osapi_"
+                "compute_extension option with nova.api.openstack.compute."
+                "contrib.select_extensions")
 
 nova.param(
     'fping_path',
@@ -746,13 +775,15 @@ nova.param(
     'allow_resize_to_same_host',
     type='boolean',
     default=False,
-    description="Allow destination machine to match source for resize. Useful when testing in single-host environments.")
+    description="Allow destination machine to match source for resize. "
+                "Useful when testing in single-host environments.")
 
 nova.param(
     'allow_migrate_to_same_host',
     type='boolean',
     default=False,
-    description="Allow migrate machine to the same host. Useful when testing in single-host environments.")
+    description="Allow migrate machine to the same host. Useful when "
+                "testing in single-host environments.")
 
 nova.param(
     'default_schedule_zone',
@@ -764,37 +795,50 @@ nova.param(
     'non_inheritable_image_properties',
     type='list',
     default='cache_in_nova,bittorrent',
-    description="These are image properties which a snapshot should not inherit from an instance")
+    description="These are image properties which a snapshot should not "
+                "inherit from an instance")
 
 nova.param(
     'null_kernel',
     type='string',
     default='nokernel',
-    description="kernel image that indicates not to use a kernel, but to use a raw disk image instead")
+    description="kernel image that indicates not to use a kernel, but to "
+                "use a raw disk image instead")
 
 nova.param(
     'multi_instance_display_name_template',
     type='string',
     default='%(name)s-%(uuid)s',
-    description="When creating multiple instances with a single request using the os-multiple-create API extension, this template will be used to build the display name for each instance. The benefit is that the instances end up with different hostnames. To restore legacy behavior of every instance having the same name, set this option to '%(name)s'.  Valid keys for the template are: name, uuid, count.")
+    description="When creating multiple instances with a single request "
+                "using the os-multiple-create API extension, this template "
+                "will be used to build the display name for each instance. "
+                "The benefit is that the instances end up with different "
+                "hostnames. To restore legacy behavior of every instance "
+                "having the same name, set this option to '%(name)s'.  Valid "
+                "keys for the template are: name, uuid, count.")
 
 nova.param(
     'max_local_block_devices',
     type='integer',
     default=3,
-    description="Maximum number of devices that will result in a local image being created on the hypervisor node. Setting this to 0 means nova will allow only boot from volume. A negative number means unlimited.")
+    description="Maximum number of devices that will result in a local image "
+                "being created on the hypervisor node. Setting this to 0 "
+                "means nova will allow only boot from volume. A negative "
+                "number means unlimited.")
 
 nova.param(
     'default_flavor',
     type='string',
     default='m1.small',
-    description="default flavor to use for the EC2 API only. The Nova API does not support a default flavor.")
+    description="default flavor to use for the EC2 API only. The Nova API "
+                "does not support a default flavor.")
 
 nova.param(
     'console_host',
     type='string',
     default='nova',
-    description="Console proxy host to use to connect to instances on this host.")
+    description="Console proxy host to use to connect to instances on this"
+                " host.")
 
 nova.param(
     'default_access_ip_network_name',
@@ -806,7 +850,9 @@ nova.param(
     'defer_iptables_apply',
     type='boolean',
     default=False,
-    description="Whether to batch up the application of IPTables rules during a host restart and apply all at the end of the init phase")
+    description="Whether to batch up the application of IPTables rules "
+                "during a host restart and apply all at the end of the init "
+                "phase")
 
 nova.param(
     'instances_path',
@@ -830,7 +876,8 @@ nova.param(
     'resume_guests_state_on_host_boot',
     type='boolean',
     default=False,
-    description="Whether to start guests that were running before the host rebooted")
+    description="Whether to start guests that were running before the host "
+                "rebooted")
 
 nova.param(
     'network_allocate_retries',
@@ -854,13 +901,15 @@ nova.param(
     'sync_power_state_interval',
     type='integer',
     default=600,
-    description="interval to sync power states between the database and the hypervisor")
+    description="interval to sync power states between the database and the "
+                "hypervisor")
 
 nova.param(
     'heal_instance_info_cache_interval',
     type='integer',
     default=60,
-    description="Number of seconds between instance info_cache self healing updates")
+    description="Number of seconds between instance info_cache self healing "
+                "updates")
 
 nova.param(
     'host_state_interval',
@@ -872,7 +921,8 @@ nova.param(
     'image_cache_manager_interval',
     type='integer',
     default=2400,
-    description="Number of seconds to wait between runs of the image cache manager")
+    description="Number of seconds to wait between runs of the image cache "
+                "manager")
 
 nova.param(
     'reclaim_instance_interval',
@@ -896,19 +946,24 @@ nova.param(
     'shelved_offload_time',
     type='integer',
     default=0,
-    description="Time in seconds before a shelved instance is eligible for removing from a host.  -1 never offload, 0 offload when shelved")
+    description="Time in seconds before a shelved instance is eligible for "
+                "removing from a host.  -1 never offload, 0 offload when "
+                "shelved")
 
 nova.param(
     'instance_delete_interval',
     type='integer',
     default=300,
-    description="Interval in seconds for retrying failed instance file deletes")
+    description="Interval in seconds for retrying failed instance file "
+                "deletes")
 
 nova.param(
     'running_deleted_instance_action',
     type='string',
     default='log',
-    description="Action to take if a running deleted instance is detected.Valid options are 'noop', 'log' and 'reap'. Set to 'noop' to disable.")
+    description="Action to take if a running deleted instance is detected."
+                "Valid options are 'noop', 'log' and 'reap'. Set to 'noop' "
+                "to disable.")
 
 nova.param(
     'running_deleted_instance_poll_interval',
@@ -920,31 +975,37 @@ nova.param(
     'running_deleted_instance_timeout',
     type='integer',
     default=0,
-    description="Number of seconds after being deleted when a running instance should be considered eligible for cleanup.")
+    description="Number of seconds after being deleted when a running "
+                "instance should be considered eligible for cleanup.")
 
 nova.param(
     'reboot_timeout',
     type='integer',
     default=0,
-    description="Automatically hard reboot an instance if it has been stuck in a rebooting state longer than N seconds. Set to 0 to disable.")
+    description="Automatically hard reboot an instance if it has been stuck "
+                "in a rebooting state longer than N seconds. Set to 0 to"
+                " disable.")
 
 nova.param(
     'instance_build_timeout',
     type='integer',
     default=0,
-    description="Amount of time in seconds an instance can be in BUILD before going into ERROR status.Set to 0 to disable.")
+    description="Amount of time in seconds an instance can be in BUILD "
+                "before going into ERROR status.Set to 0 to disable.")
 
 nova.param(
     'rescue_timeout',
     type='integer',
     default=0,
-    description="Automatically unrescue an instance after N seconds. Set to 0 to disable.")
+    description="Automatically unrescue an instance after N seconds. Set "
+                "to 0 to disable.")
 
 nova.param(
     'resize_confirm_window',
     type='integer',
     default=0,
-    description="Automatically confirm resizes after N seconds. Set to 0 to disable.")
+    description="Automatically confirm resizes after N seconds. Set to 0 to "
+                "disable.")
 
 nova.param(
     'reserved_host_disk_mb',
@@ -974,7 +1035,9 @@ nova.param(
     'migrate_max_retries',
     type='integer',
     default=-1,
-    description="Number of times to retry live-migration before failing. If == -1, try until out of hosts. If == 0, only try once, no retries.")
+    description="Number of times to retry live-migration before failing. "
+                "If == -1, try until out of hosts. If == 0, only try once, "
+                "no retries.")
 
 nova.param(
     'console_driver',
@@ -1088,7 +1151,9 @@ nova.param(
     'osapi_compute_unique_server_name_scope',
     type='string',
     default='',
-    description="When set, compute API will consider duplicate hostnames invalid within the specified scope, regardless of case. Should be empty, 'project' or 'global'.")
+    description="When set, compute API will consider duplicate hostnames "
+                "invalid within the specified scope, regardless of case. "
+                "Should be empty, 'project' or 'global'.")
 
 nova.param(
     'glance_host',
@@ -1106,13 +1171,15 @@ nova.param(
     'glance_protocol',
     type='string',
     default='http',
-    description="Default protocol to use when connecting to glance. Set to https for SSL.")
+    description="Default protocol to use when connecting to glance. Set to "
+                "https for SSL.")
 
 nova.param(
     'glance_api_servers',
     type='list',
     default='$glance_host:$glance_port',
-    description="A list of the glance api servers available to nova. Prefix with https:// for ssl-based glance api servers.")
+    description="A list of the glance api servers available to nova. Prefix"
+                " with https:// for ssl-based glance api servers.")
 
 nova.param(
     'glance_api_insecure',
@@ -1130,7 +1197,8 @@ nova.param(
     'allowed_direct_url_schemes',
     type='list',
     default='',
-    description="A list of url scheme that can be downloaded directly via the direct_url.  Currently supported schemes: [file].")
+    description="A list of url scheme that can be downloaded directly via"
+                " the direct_url.  Currently supported schemes: [file].")
 
 nova.param(
     'image_decryption_dir',
@@ -1142,7 +1210,8 @@ nova.param(
     's3_host',
     type='string',
     default='$my_ip',
-    description="hostname or ip for OpenStack to use when accessing the s3 api")
+    description="hostname or ip for OpenStack to use when accessing the s3 "
+                "api")
 
 nova.param(
     's3_port',
@@ -1172,7 +1241,8 @@ nova.param(
     's3_affix_tenant',
     type='boolean',
     default=False,
-    description="whether to affix the tenant id to the access key when downloading from s3")
+    description="whether to affix the tenant id to the access key when "
+                "downloading from s3")
 
 nova.param(
     'ipv6_backend',
@@ -1328,13 +1398,15 @@ nova.param(
     'dns_server',
     type='multi',
     default='',
-    description="if set, uses specific dns server for dnsmasq. Canbe specified multiple times.")
+    description="if set, uses specific dns server for dnsmasq. Canbe "
+                "specified multiple times.")
 
 nova.param(
     'use_network_dns_servers',
     type='boolean',
     default=False,
-    description="if set, uses the dns1 and dns2 from the network ref.as dns servers.")
+    description="if set, uses the dns1 and dns2 from the network ref.as "
+                "dns servers.")
 
 nova.param(
     'dmz_cidr',
@@ -1346,7 +1418,9 @@ nova.param(
     'force_snat_range',
     type='multi',
     default='',
-    description="Traffic to this range will always be snatted to the fallback ip, even if it would normally be bridged out of the node. Can be specified multiple times.")
+    description="Traffic to this range will always be snatted to the "
+                "fallback ip, even if it would normally be bridged out of "
+                "the node. Can be specified multiple times.")
 
 nova.param(
     'dnsmasq_config_file',
@@ -1382,13 +1456,16 @@ nova.param(
     'use_single_default_gateway',
     type='boolean',
     default=False,
-    description="Use single default gateway. Only first nic of vm will get default gateway from dhcp server")
+    description="Use single default gateway. Only first nic of vm will "
+                "get default gateway from dhcp server")
 
 nova.param(
     'forward_bridge_interface',
     type='multi',
     default='all',
-    description="An interface that bridges can forward to. If this is set to all then all traffic will be forwarded. Can be specified multiple times.")
+    description="An interface that bridges can forward to. If this is set "
+                "to all then all traffic will be forwarded. Can be specified "
+                "multiple times.")
 
 nova.param(
     'metadata_host',
@@ -1406,19 +1483,22 @@ nova.param(
     'iptables_top_regex',
     type='string',
     default='',
-    description="Regular expression to match iptables rule that should always be on the top.")
+    description="Regular expression to match iptables rule that should "
+                "always be on the top.")
 
 nova.param(
     'iptables_bottom_regex',
     type='string',
     default='',
-    description="Regular expression to match iptables rule that should always be on the bottom.")
+    description="Regular expression to match iptables rule that should "
+                "always be on the bottom.")
 
 nova.param(
     'iptables_drop_action',
     type='string',
     default='DROP',
-    description="The table that iptables to jump to when a packet is to be dropped.")
+    description="The table that iptables to jump to when a packet is to "
+                "be dropped.")
 
 nova.param(
     'flat_network_bridge',
@@ -1550,19 +1630,25 @@ nova.param(
     'share_dhcp_address',
     type='boolean',
     default=False,
-    description="If True in multi_host mode, all compute hosts share the same dhcp address. The same IP address used for DHCP will be added on each nova-network node which is only visible to the vms on the same host.")
+    description="If True in multi_host mode, all compute hosts share the "
+                "same dhcp address. The same IP address used for DHCP will "
+                "be added on each nova-network node which is only visible "
+                "to the vms on the same host.")
 
 nova.param(
     'update_dns_entries',
     type='boolean',
     default=False,
-    description="If True, when a DNS entry must be updated, it sends a fanout cast to all network hosts to update their DNS entries in multi host mode")
+    description="If True, when a DNS entry must be updated, it sends a "
+                "fanout cast to all network hosts to update their DNS "
+                "entries in multi host mode")
 
 nova.param(
     'dns_update_periodic_interval',
     type='integer',
     default=-1,
-    description="Number of seconds to wait between runs of updates to DNS entries.")
+    description="Number of seconds to wait between runs of updates to "
+                "DNS entries.")
 
 nova.param(
     'dhcp_domain',
@@ -1646,7 +1732,8 @@ nova.param(
     'neutron_ca_certificates_file',
     type='string',
     default=None,
-    description="Location of ca certicates file to use for neutronclient requests.")
+    description="Location of ca certicates file to use for neutronclient "
+                "requests.")
 
 nova.param(
     'dhcp_options_enabled',
@@ -1664,7 +1751,8 @@ nova.param(
     'multi_host',
     type='boolean',
     default=False,
-    description="Default value for multi_host in networks. Also, if set, some rpc network calls will be sent directly to host.")
+    description="Default value for multi_host in networks. Also, if set, some "
+                "rpc network calls will be sent directly to host.")
 
 nova.param(
     'security_group_api',
@@ -1706,7 +1794,14 @@ nova.param(
     'backdoor_port',
     type='string',
     default=None,
-    description="Enable eventlet backdoor. Acceptable values are 0, <port> and <start>:<end>, where 0 results in listening on a random tcp port number, <port> results in listening on the specified port number and not enabling backdoorif it is in use and <start>:<end> results in listening on the smallest unused port number within the specified range of port numbers. The chosen port is displayed in the service's log file.")
+    description="Enable eventlet backdoor. Acceptable values are 0, <port> "
+                "and <start>:<end>, where 0 results in listening on a random "
+                "tcp port number, <port> results in listening on the "
+                "specified port number and not enabling backdoorif it is "
+                "in use and <start>:<end> results in listening on the "
+                "smallest unused port number within the specified range of "
+                "port numbers. The chosen port is displayed in the service's "
+                "log file.")
 
 nova.param(
     'disable_process_locking',
@@ -1741,13 +1836,15 @@ nova.param(
 nova.param(
     'logging_context_format_string',
     type='string',
-    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s',
+    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s '
+            '[%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s',
     description="format string to use for log messages with context")
 
 nova.param(
     'logging_default_format_string',
     type='string',
-    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s',
+    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] '
+            '%(instance)s%(message)s',
     description="format string to use for log messages without context")
 
 nova.param(
@@ -1765,7 +1862,8 @@ nova.param(
 nova.param(
     'default_log_levels',
     type='list',
-    default='amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,eventlet.wsgi.serverWARN',
+    default='amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,'
+            'eventlet.wsgi.serverWARN',
     description="list of logger=LEVEL pairs")
 
 nova.param(
@@ -1784,43 +1882,55 @@ nova.param(
     'instance_format',
     type='string',
     default='"[instance: %(uuid)s] "',
-    description="If an instance is passed with the log message, format it like this")
+    description="If an instance is passed with the log message, "
+                "format it like this")
 
 nova.param(
     'instance_uuid_format',
     type='string',
     default='"[instance: %(uuid)s] "',
-    description="If an instance UUID is passed with the log message, format it like this")
+    description="If an instance UUID is passed with the log message, "
+                "format it like this")
 
 nova.param(
     'log_config',
     type='string',
     default=None,
-    description="If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.")
+    description="If this option is specified, the logging configuration "
+                "file specified is used and overrides any other logging "
+                "options specified. Please see the Python logging module "
+                "documentation for details on logging configuration files.")
 
 nova.param(
     'log_format',
     type='string',
     default=None,
-    description="DEPRECATED. A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead.")
+    description="DEPRECATED. A logging.Formatter log message format string "
+                "which may use any of the available logging.LogRecord "
+                "attributes. This option is deprecated.  Please use logging_"
+                "context_format_string and logging_default_format_string "
+                "instead.")
 
 nova.param(
     'log_date_format',
     type='string',
     default='%Y-%m-%d %H:%M:%S',
-    description="Format string for %%(asctime)s in log records. Default: %(default)s")
+    description="Format string for %%(asctime)s in log records. Default: "
+                "%(default)s")
 
 nova.param(
     'log_file',
     type='string',
     default=None,
-    description="(Optional) Name of log file to output to. If no default is set, logging will go to stdout.")
+    description="(Optional) Name of log file to output to. If no default "
+                "is set, logging will go to stdout.")
 
 nova.param(
     'log_dir',
     type='string',
     default=None,
-    description="(Optional) The base directory used for relative --log-file paths")
+    description="(Optional) The base directory used for relative --log-file"
+                " paths")
 
 nova.param(
     'use_syslog',
@@ -1868,7 +1978,8 @@ nova.param(
     'run_external_periodic_tasks',
     type='boolean',
     default=True,
-    description="Some periodic tasks can be run in a separate process. Should we run them here?")
+    description="Some periodic tasks can be run in a separate process. "
+                "Should we run them here?")
 
 nova.param(
     'rpc_backend',
@@ -1904,7 +2015,8 @@ nova.param(
     'allowed_rpc_exception_modules',
     type='list',
     default='nova.exception,cinder.exception,exceptions',
-    description="Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call.")
+    description="Modules of exceptions that are permitted to be recreatedupon"
+                " receiving exception data from an rpc call.")
 
 nova.param(
     'fake_rabbit',
@@ -2006,7 +2118,8 @@ nova.param(
     'rabbit_retry_backoff',
     type='integer',
     default=2,
-    description="how long to backoff for between retries when connecting to RabbitMQ")
+    description="how long to backoff for between retries when connecting "
+                "to RabbitMQ")
 
 nova.param(
     'rabbit_max_retries',
@@ -2078,7 +2191,11 @@ nova.param(
     'qpid_topology_version',
     type='integer',
     default=1,
-    description="The qpid topology version to use.  Version 1 is what was originally used by impl_qpid.  Version 2 includes some backwards-incompatible changes that allow broker federation to work.  Users should update to version 2 when they are able to take everything down, as it requires a clean break.")
+    description="The qpid topology version to use.  Version 1 is what was "
+                "originally used by impl_qpid.  Version 2 includes some "
+                "backwards-incompatible changes that allow broker federation "
+                "to work.  Users should update to version 2 when they are "
+                "able to take everything down, as it requires a clean break.")
 
 nova.param(
     'rpc_zmq_bind_address',
@@ -2108,7 +2225,8 @@ nova.param(
     'rpc_zmq_topic_backlog',
     type='integer',
     default=None,
-    description="Maximum number of ingress messages to locally buffer per topic. Default is unlimited.")
+    description="Maximum number of ingress messages to locally buffer per "
+                "topic. Default is unlimited.")
 
 nova.param(
     'rpc_zmq_ipc_dir',
@@ -2120,7 +2238,8 @@ nova.param(
     'rpc_zmq_host',
     type='string',
     default='nova',
-    description="Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova.")
+    description="Name of this node. Must be a valid hostname, FQDN, or IP "
+                "address. Must match 'host' option, if running Nova.")
 
 nova.param(
     'matchmaker_heartbeat_freq',
@@ -2138,13 +2257,21 @@ nova.param(
     'pci_alias',
     type='multi',
     default='',
-    description="An alias for a PCI passthrough device requirement. This allows users to specify the alias in the extra_spec for a flavor, without needing to repeat all the PCI property requirements. For example: pci_alias = { 'name': 'QuicAssist',   'product_id': '0443',   'vendor_id': '8086', 'device_type': 'ACCEL' } defines an alias for the Intel QuickAssist card.")
+    description="An alias for a PCI passthrough device requirement. This "
+                "allows users to specify the alias in the extra_spec for a "
+                "flavor, without needing to repeat all the PCI property "
+                "requirements. For example: pci_alias = { 'name': "
+                "'QuicAssist',   'product_id': '0443',   'vendor_id': "
+                "'8086', 'device_type': 'ACCEL' } defines an alias for the "
+                "Intel QuickAssist card.")
 
 nova.param(
     'pci_passthrough_whitelist',
     type='multi',
     default='',
-    description="White list of PCI devices available to VMs. For example: pci_passthrough_whitelist =  [{'vendor_id': '8086', 'product_id': '0443'}]")
+    description="White list of PCI devices available to VMs. For example: "
+                "pci_passthrough_whitelist =  [{'vendor_id': '8086', "
+                "'product_id': '0443'}]")
 
 nova.param(
     'scheduler_host_manager',
@@ -2162,13 +2289,21 @@ nova.param(
     'scheduler_host_subset_size',
     type='integer',
     default=1,
-    description="New instances will be scheduled on a host chosen randomly from a subset of the N best hosts. This property defines the subset size that a host is chosen from. A value of 1 chooses the first host returned by the weighing functions. This value must be at least 1. Any value less than 1 will be ignored, and 1 will be used instead")
+    description="New instances will be scheduled on a host chosen randomly "
+                "from a subset of the N best hosts. This property defines "
+                "the subset size that a host is chosen from. A value of 1 choo"
+                "ses the first host returned by the weighing functions. This v"
+                "alue must be at least 1. Any value less than 1 will be ignore"
+                "d, and 1 will be used instead")
 
 nova.param(
     'cpu_allocation_ratio',
     type='floating point',
     default='16.0',
-    description="Virtual CPU to physical CPU allocation ratio which affects all CPU filters. This configuration specifies a global ratio for CoreFilter. For AggregateCoreFilter, it will fall back to this configuration value if no per-aggregate setting found.")
+    description="Virtual CPU to physical CPU allocation ratio which affects al"
+                "l CPU filters. This configuration specifies a global ratio fo"
+                "r CoreFilter. For AggregateCoreFilter, it will fall back to t"
+                "his configuration value if no per-aggregate setting found.")
 
 nova.param(
     'disk_allocation_ratio',
@@ -2180,7 +2315,8 @@ nova.param(
     'max_io_ops_per_host',
     type='integer',
     default=8,
-    description="Ignore hosts that have too many builds/resizes/snaps/migrations")
+    description="Ignore hosts that have too many builds/resizes/snaps/"
+                "migrations")
 
 nova.param(
     'isolated_images',
@@ -2210,19 +2346,27 @@ nova.param(
     'ram_allocation_ratio',
     type='floating point',
     default='1.5',
-    description="Virtual ram to physical ram allocation ratio which affects all ram filters. This configuration specifies a global ratio for RamFilter. For AggregateRamFilter, it will fall back to this configuration value if no per-aggregate setting found.")
+    description="Virtual ram to physical ram allocation ratio which affects "
+                "all ram filters. This configuration specifies a global ratio"
+                " for RamFilter. For AggregateRamFilter, it will fall back to"
+                " this configuration value if no per-aggregate setting found.")
 
 nova.param(
     'scheduler_available_filters',
     type='multi',
     default='nova.scheduler.filters.all_filters',
-    description="Filter classes available to the scheduler which may be specified more than once.  An entry of 'nova.scheduler.filters.standard_filters' maps to all filters included with nova.")
+    description="Filter classes available to the scheduler which may be"
+                " specified more than once.  An entry of 'nova.scheduler."
+                "filters.standard_filters' maps to all filters included with"
+                " nova.")
 
 nova.param(
     'scheduler_default_filters',
     type='list',
-    default='RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter',
-    description="Which filter class names to use for filtering hosts when not specified in the request.")
+    default='RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,'
+            'ComputeCapabilitiesFilter,ImagePropertiesFilter',
+    description="Which filter class names to use for filtering hosts when"
+                " not specified in the request.")
 
 nova.param(
     'scheduler_weight_classes',
@@ -2252,7 +2396,8 @@ nova.param(
     'ram_weight_multiplier',
     type='floating point',
     default='1.0',
-    description="Multiplier used for weighing ram.  Negative numbers mean to stack vs spread.")
+    description="Multiplier used for weighing ram.  Negative numbers mean to"
+                " stack vs spread.")
 
 nova.param(
     'servicegroup_driver',
@@ -2270,7 +2415,8 @@ nova.param(
     'config_drive_tempdir',
     type='string',
     default=None,
-    description="Where to put temporary files associated with config drive creation")
+    description="Where to put temporary files associated with config drive"
+                " creation")
 
 nova.param(
     'force_config_drive',
@@ -2282,7 +2428,8 @@ nova.param(
     'mkisofs_cmd',
     type='string',
     default='genisoimage',
-    description="Name and optionally path of the tool used for ISO image creation")
+    description="Name and optionally path of the tool used for ISO image"
+                " creation")
 
 nova.param(
     'injected_network_template',
@@ -2294,7 +2441,8 @@ nova.param(
     'virt_mkfs',
     type='multi',
     default='defaultmkfs.ext3 -L %(fs_label)s -F %(target)s',
-    description="mkfs commands for ephemeral device. The format is <os_type>=<mkfs command>")
+    description="mkfs commands for ephemeral device. The format is "
+                "<os_type>=<mkfs command>")
 
 nova.param(
     'virt_mkfs',
@@ -2312,7 +2460,10 @@ nova.param(
     'resize_fs_using_block_device',
     type='boolean',
     default=True,
-    description="Attempt to resize the filesystem by accessing the image over a block device. This is done by the host and may not be necessary if the image contains a recent version of cloud- init. Possible mechanisms require the nbd driver")
+    description="Attempt to resize the filesystem by accessing the image "
+                "over a block device. This is done by the host and may not "
+                "be necessary if the image contains a recent version of "
+                "cloud- init. Possible mechanisms require the nbd driver")
 
 nova.param(
     'timeout_nbd',
@@ -2330,19 +2481,25 @@ nova.param(
     'compute_driver',
     type='string',
     default=None,
-    description="Driver to use for controlling virtualization. Options include: libvirt.LibvirtDriver, xenapi.XenAPIDriver, fake.FakeDriver, baremetal.BareMetalDriver, vmwareapi.VMwareESXDriver, vmwareapi.VMwareVCDriver")
+    description="Driver to use for controlling virtualization. Options "
+                "include: libvirt.LibvirtDriver, xenapi.XenAPIDriver, fake."
+                "FakeDriver, baremetal.BareMetalDriver, vmwareapi."
+                "VMwareESXDriver, vmwareapi.VMwareVCDriver")
 
 nova.param(
     'default_ephemeral_format',
     type='string',
     default=None,
-    description="The default format an ephemeral_volume will be formatted with on creation.")
+    description="The default format an ephemeral_volume will be formatted "
+                "with on creation.")
 
 nova.param(
     'preallocate_images',
     type='string',
     default='none',
-    description="VM image preallocation mode: 'none' => no storage provisioning is done up front, 'space' => storage is fully allocated at instance start")
+    description="VM image preallocation mode: 'none' => no storage"
+                " provisioning is done up front, 'space' => storage is "
+                "fully allocated at instance start")
 
 nova.param(
     'use_cow_images',
@@ -2437,7 +2594,8 @@ nova.param(
 nova.param(
     'block_migration_flag',
     type='string',
-    default='VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER, VIR_MIGRATE_NON_SHARED_INC',
+    default='VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER, '
+            'VIR_MIGRATE_NON_SHARED_INC',
     description="Migration flags to be set for block migration")
 
 nova.param(
@@ -2461,32 +2619,50 @@ nova.param(
 nova.param(
     'libvirt_volume_drivers',
     type='list',
-    default='iscsinova.virt.libvirt.volume.LibvirtISCSIVolumeDriver,isernova.virt.libvirt.volume.LibvirtISERVolumeDriver,localnova.virt.libvirt.volume.LibvirtVolumeDriver,fakenova.virt.libvirt.volume.LibvirtFakeVolumeDriver,rbdnova.virt.libvirt.volume.LibvirtNetVolumeDriver,sheepdognova.virt.libvirt.volume.LibvirtNetVolumeDriver,nfsnova.virt.libvirt.volume.LibvirtNFSVolumeDriver,aoenova.virt.libvirt.volume.LibvirtAOEVolumeDriver,glusterfsnova.virt.libvirt.volume.LibvirtGlusterfsVolumeDriver,fibre_channelnova.virt.libvirt.volume.LibvirtFibreChannelVolumeDriver,scalitynova.virt.libvirt.volume.LibvirtScalityVolumeDriver',
+    default='iscsinova.virt.libvirt.volume.LibvirtISCSIVolumeDriver,'
+            'isernova.virt.libvirt.volume.LibvirtISERVolumeDriver,localnova.'
+            'virt.libvirt.volume.LibvirtVolumeDriver,fakenova.virt.libvirt.'
+            'volume.LibvirtFakeVolumeDriver,rbdnova.virt.libvirt.volume.'
+            'LibvirtNetVolumeDriver,sheepdognova.virt.libvirt.volume.'
+            'LibvirtNetVolumeDriver,nfsnova.virt.libvirt.volume.'
+            'LibvirtNFSVolumeDriver,aoenova.virt.libvirt.volume.'
+            'LibvirtAOEVolumeDriver,glusterfsnova.virt.libvirt.volume.'
+            'LibvirtGlusterfsVolumeDriver,fibre_channelnova.virt.'
+            'libvirt.volume.LibvirtFibreChannelVolumeDriver,scalitynova.virt.'
+            'libvirt.volume.LibvirtScalityVolumeDriver',
     description="Libvirt handlers for remote volumes.")
 
 nova.param(
     'libvirt_disk_prefix',
     type='string',
     default=None,
-    description="Override the default disk prefix for the devices attached to a server, which is dependent on libvirt_type.")
+    description="Override the default disk prefix for the devices attached to "
+                "a server, which is dependent on libvirt_type.")
 
 nova.param(
     'libvirt_wait_soft_reboot_seconds',
     type='integer',
     default=120,
-    description="Number of seconds to wait for instance to shut down after soft reboot request is made. We fall back to hard reboot if instance does not shutdown within this window.")
+    description="Number of seconds to wait for instance to shut down after "
+                "soft reboot request is made. We fall back to hard reboot if "
+                "instance does not shutdown within this window.")
 
 nova.param(
     'libvirt_nonblocking',
     type='boolean',
     default=True,
-    description="Use a separated OS thread pool to realize non-blocking libvirt calls")
+    description="Use a separated OS thread pool to realize non-blocking "
+                "libvirt calls")
 
 nova.param(
     'libvirt_cpu_mode',
     type='string',
     default=None,
-    description="Set to 'host-model' to clone the host CPU feature flags; to 'host-passthrough' to use the host CPU model exactly; to 'custom' to use a named CPU model; to 'none' to not set any CPU model. If libvirt_type='kvm|qemu', it will default to 'host-model', otherwise it will default to 'none'")
+    description="Set to 'host-model' to clone the host CPU feature flags; to "
+                "'host-passthrough' to use the host CPU model exactly; to "
+                "'custom' to use a named CPU model; to 'none' to not set any "
+                "CPU model. If libvirt_type='kvm|qemu', it will default to "
+                "'host-model', otherwise it will default to 'none'")
 
 nova.param(
     'libvirt_cpu_model',
@@ -2498,7 +2674,8 @@ nova.param(
     'libvirt_snapshots_directory',
     type='string',
     default='$instances_path/snapshots',
-    description="Location where libvirt driver will store snapshots before uploading them to image service")
+    description="Location where libvirt driver will store snapshots before "
+                "uploading them to image service")
 
 nova.param(
     'xen_hvmloader_path',
@@ -2510,25 +2687,30 @@ nova.param(
     'disk_cachemodes',
     type='list',
     default='',
-    description="Specific cachemodes to use for different disk types e.g: ['file=directsync','block=none']")
+    description="Specific cachemodes to use for different disk types e.g: "
+                "['file=directsync','block=none']")
 
 nova.param(
     'vcpu_pin_set',
     type='string',
     default=None,
-    description="Which pcpus can be used by vcpus of instance e.g: '4-12,^8,15'")
+    description="Which pcpus can be used by vcpus of instance e.g: "
+                "'4-12,^8,15'")
 
 nova.param(
     'libvirt_images_type',
     type='string',
     default='default',
-    description="VM Images format. Acceptable values are: raw, qcow2, lvm,rbd, default. If default is specified, then use_cow_images flag is used instead of this one.")
+    description="VM Images format. Acceptable values are: raw, qcow2, lvm,rbd,"
+                " default. If default is specified, then use_cow_images flag "
+                "is used instead of this one.")
 
 nova.param(
     'libvirt_images_volume_group',
     type='string',
     default=None,
-    description="LVM Volume Group that is used for VM images, when you specify libvirt_images_type=lvm.")
+    description="LVM Volume Group that is used for VM images, when you specify"
+                " libvirt_images_type=lvm.")
 
 nova.param(
     'libvirt_sparse_logical_volumes',
@@ -2558,13 +2740,16 @@ nova.param(
     'base_dir_name',
     type='string',
     default='_base',
-    description="Where cached images are stored under $instances_path.This is NOT the full path - just a folder name.For per-compute-host cached images, set to _base_$my_ip")
+    description="Where cached images are stored under $instances_path.This is"
+                " NOT the full path - just a folder name.For per-compute-host"
+                " cached images, set to _base_$my_ip")
 
 nova.param(
     'image_info_filename_pattern',
     type='string',
     default='$instances_path/$base_dir_name/%(image)s.info',
-    description="Allows image information files to be stored in non-standard locations")
+    description="Allows image information files to be stored in non-standard"
+                " locations")
 
 nova.param(
     'remove_unused_base_images',
@@ -2576,19 +2761,23 @@ nova.param(
     'remove_unused_kernels',
     type='boolean',
     default=False,
-    description="Should unused kernel images be removed? This is only safe to enable if all compute nodes have been updated to support this option. This will enabled by default in future.")
+    description="Should unused kernel images be removed? This is only safe to"
+                " enable if all compute nodes have been updated to support"
+                " this option. This will enabled by default in future.")
 
 nova.param(
     'remove_unused_resized_minimum_age_seconds',
     type='integer',
     default=3600,
-    description="Unused resized base images younger than this will not be removed")
+    description="Unused resized base images younger than this will not be"
+                " removed")
 
 nova.param(
     'remove_unused_original_minimum_age_seconds',
     type='integer',
     default=86400,
-    description="Unused unresized base images younger than this will not be removed")
+    description="Unused unresized base images younger than this will not be"
+                " removed")
 
 nova.param(
     'checksum_base_images',
@@ -2606,7 +2795,8 @@ nova.param(
     'libvirt_snapshot_compression',
     type='boolean',
     default=False,
-    description="Compress snapshot images when possible. This currently applies exclusively to qcow2 images")
+    description="Compress snapshot images when possible. This currently"
+                " applies exclusively to qcow2 images")
 
 nova.param(
     'libvirt_ovs_bridge',
@@ -2654,7 +2844,8 @@ nova.param(
     'nfs_mount_options',
     type='string',
     default=None,
-    description="Mount options passed to the nfs client. See section of the nfs man page for details")
+    description="Mount options passed to the nfs client. See section of the"
+                " nfs man page for details")
 
 nova.param(
     'num_aoe_discover_tries',
@@ -2666,7 +2857,8 @@ nova.param(
     'glusterfs_mount_point_base',
     type='string',
     default='$state_path/mnt',
-    description="Dir where the glusterfs volume is mounted on the compute node")
+    description="Dir where the glusterfs volume is mounted on the compute"
+                " node")
 
 nova.param(
     'libvirt_iscsi_use_multipath',
@@ -2696,7 +2888,8 @@ nova.param(
     'qemu_allowed_storage_drivers',
     type='list',
     default='',
-    description="Protocols listed here will be accessed directly from QEMU. Currently supported protocols: [gluster]")
+    description="Protocols listed here will be accessed directly from QEMU."
+                " Currently supported protocols: [gluster]")
 
 nova.param(
     'powervm_mgr_type',
@@ -2726,13 +2919,15 @@ nova.param(
     'powervm_img_remote_path',
     type='string',
     default='/home/padmin',
-    description="PowerVM image remote path where images will be moved. Make sure this path can fit your biggest image in glance")
+    description="PowerVM image remote path where images will be moved. Make"
+                " sure this path can fit your biggest image in glance")
 
 nova.param(
     'powervm_img_local_path',
     type='string',
     default='/tmp',
-    description="Local directory to download glance images to. Make sure this path can fit your biggest image in glance")
+    description="Local directory to download glance images to. Make sure this"
+                " path can fit your biggest image in glance")
 
 nova.param(
     'agent_timeout',
@@ -2750,67 +2945,85 @@ nova.param(
     'agent_resetnetwork_timeout',
     type='integer',
     default=60,
-    description="number of seconds to wait for agent reply to resetnetwork request")
+    description="number of seconds to wait for agent reply to resetnetwork"
+                " request")
 
 nova.param(
     'xenapi_agent_path',
     type='string',
     default='usr/sbin/xe-update-networking',
-    description="Specifies the path in which the xenapi guest agent should be located. If the agent is present, network configuration is not injected into the image. Used if compute_driver=xenapi.XenAPIDriver and  flat_injected=True")
+    description="Specifies the path in which the xenapi guest agent should be"
+                " located. If the agent is present, network configuration is"
+                " not injected into the image. Used if compute_driver=xenapi"
+                ".XenAPIDriver and  flat_injected=True")
 
 nova.param(
     'xenapi_disable_agent',
     type='boolean',
     default=False,
-    description="Disables the use of the XenAPI agent in any image regardless of what image properties are present. ")
+    description="Disables the use of the XenAPI agent in any image regardless"
+                " of what image properties are present. ")
 
 nova.param(
     'xenapi_use_agent_default',
     type='boolean',
     default=False,
-    description="Determines if the xenapi agent should be used when the image used does not contain a hint to declare if the agent is present or not. The hint is a glance property 'xenapi_use_agent' that has the value 'true' or 'false'. Note that waiting for the agent when it is not present will significantly increase server boot times.")
+    description="Determines if the xenapi agent should be used when the image"
+                " used does not contain a hint to declare if the agent is"
+                " present or not. The hint is a glance property"
+                " 'xenapi_use_agent' that has the value 'true' or 'false'."
+                " Note that waiting for the agent when it is not present will"
+                " significantly increase server boot times.")
 
 nova.param(
     'xenapi_connection_url',
     type='string',
     default=None,
-    description="URL for connection to XenServer/Xen Cloud Platform. A special value of unix://local can be used to connect to the local unix socket.  Required if compute_driver=xenapi.XenAPIDriver")
+    description="URL for connection to XenServer/Xen Cloud Platform. A special"
+                " value of unix://local can be used to connect to the local "
+                "unix socket.  Required if compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_connection_username',
     type='string',
     default='root',
-    description="Username for connection to XenServer/Xen Cloud Platform. Used only if compute_driver=xenapi.XenAPIDriver")
+    description="Username for connection to XenServer/Xen Cloud Platform. "
+                "Used only if compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_connection_password',
     type='string',
     default=None,
-    description="Password for connection to XenServer/Xen Cloud Platform. Used only if compute_driver=xenapi.XenAPIDriver")
+    description="Password for connection to XenServer/Xen Cloud Platform. "
+                "Used only if compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_connection_concurrent',
     type='integer',
     default=5,
-    description="Maximum number of concurrent XenAPI connections. Used only if compute_driver=xenapi.XenAPIDriver")
+    description="Maximum number of concurrent XenAPI connections. Used only if"
+                " compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_vhd_coalesce_poll_interval',
     type='floating point',
     default='5.0',
-    description="The interval used for polling of coalescing vhds. Used only if compute_driver=xenapi.XenAPIDriver")
+    description="The interval used for polling of coalescing vhds. Used only"
+                " if compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_check_host',
     type='boolean',
     default=True,
-    description="Ensure compute service is running on host XenAPI connects to.")
+    description="Ensure compute service is running on host XenAPI connects "
+                "to.")
 
 nova.param(
     'xenapi_vhd_coalesce_max_attempts',
     type='integer',
     default=5,
-    description="Max number of times to poll for VHD to coalesce. Used only if compute_driver=xenapi.XenAPIDriver")
+    description="Max number of times to poll for VHD to coalesce. Used only if"
+                " compute_driver=xenapi.XenAPIDriver")
 
 nova.param(
     'xenapi_sr_base_path',
@@ -2870,13 +3083,15 @@ nova.param(
     'xenapi_torrent_seed_duration',
     type='integer',
     default=3600,
-    description="Number of seconds after downloading an image via BitTorrent that it should be seeded for other peers.")
+    description="Number of seconds after downloading an image via BitTorrent"
+                " that it should be seeded for other peers.")
 
 nova.param(
     'xenapi_torrent_max_last_accessed',
     type='integer',
     default=86400,
-    description="Cached torrent files not accessed within this number of seconds can be reaped")
+    description="Cached torrent files not accessed within this number of"
+                " seconds can be reaped")
 
 nova.param(
     'xenapi_torrent_listen_port_start',
@@ -2894,13 +3109,15 @@ nova.param(
     'xenapi_torrent_download_stall_cutoff',
     type='integer',
     default=600,
-    description="Number of seconds a download can remain at the same progress percentage w/o being considered a stall")
+    description="Number of seconds a download can remain at the same progress"
+                " percentage w/o being considered a stall")
 
 nova.param(
     'xenapi_torrent_max_seeder_processes_per_host',
     type='integer',
     default=1,
-    description="Maximum number of seeder processes to run concurrently within a given dom0.")
+    description="Maximum number of seeder processes to run concurrently within"
+                " a given dom0.")
 
 nova.param(
     'use_join_force',
@@ -2918,13 +3135,17 @@ nova.param(
     'cache_images',
     type='string',
     default='all',
-    description="Cache glance images locally. `all` will cache all images, `some` will only cache images that have the image_property `cache_in_nova=True`, and `none` turns off caching entirely")
+    description="Cache glance images locally. `all` will cache all images,"
+                " `some` will only cache images that have the image_property"
+                " `cache_in_nova=True`, and `none` turns off caching entirely")
 
 nova.param(
     'xenapi_image_compression_level',
     type='integer',
     default=None,
-    description="Compression level for images, e.g., 9 for gzip -9. Range is 1-9, 9 being most compressed but most CPU intensive on dom0.")
+    description="Compression level for images, e.g., 9 for gzip -9. Range is"
+                " 1-9, 9 being most compressed but most CPU intensive on "
+                "dom0.")
 
 nova.param(
     'default_os_type',
@@ -2948,7 +3169,14 @@ nova.param(
     'sr_matching_filter',
     type='string',
     default='default-sr:true',
-    description="Filter for finding the SR to be used to install guest instances on. To use the Local Storage in default XenServer/XCP installations set this flag to other-config :i18n-key=local-storage. To select an SR with a different matching criteria, you could set it to other- config:my_favorite_sr=true. On the other hand, to fall back on the Default SR, as displayed by XenCenter, set this flag to: default-sr:true")
+    description="Filter for finding the SR to be used to install guest"
+                " instances on. To use the Local Storage in default"
+                " XenServer/XCP installations set this flag to other-config"
+                " :i18n-key=local-storage. To select an SR with a different"
+                " matching criteria, you could set it to other- "
+                "config:my_favorite_sr=true. On the other hand, to fall back "
+                "on the Default SR, as displayed by XenCenter, set this "
+                "flag to: default-sr:true")
 
 nova.param(
     'xenapi_sparse_copy',
@@ -2984,13 +3212,15 @@ nova.param(
     'xenapi_ipxe_mkisofs_cmd',
     type='string',
     default='mkisofs',
-    description="Name and optionally path of the tool used for ISO image creation")
+    description="Name and optionally path of the tool used for ISO image "
+                "creation")
 
 nova.param(
     'xenapi_running_timeout',
     type='integer',
     default=60,
-    description="number of seconds to wait for instance to go to running state")
+    description="number of seconds to wait for instance to go to running "
+                "state")
 
 nova.param(
     'xenapi_vif_driver',
@@ -3008,13 +3238,15 @@ nova.param(
     'novncproxy_base_url',
     type='string',
     default='http://127.0.0.1:6080/vnc_auto.html',
-    description="location of vnc console proxy, in the form 'http://127.0.0.1:6080/vnc_auto.html'")
+    description="location of vnc console proxy, in the form "
+                "'http://127.0.0.1:6080/vnc_auto.html'")
 
 nova.param(
     'xvpvncproxy_base_url',
     type='string',
     default='http://127.0.0.1:6081/console',
-    description="location of nova xvp vnc console proxy, in the form 'http://127.0.0.1:6081/console'")
+    description="location of nova xvp vnc console proxy, in the form "
+                "'http://127.0.0.1:6081/console'")
 
 nova.param(
     'vncserver_listen',
@@ -3062,13 +3294,16 @@ nova.param(
     'cinder_catalog_info',
     type='string',
     default='volume:cinder:publicURL',
-    description="Info to match when looking for cinder in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type>")
+    description="Info to match when looking for cinder in the service catalog."
+                " Format is : separated values of the form: <service_type>:"
+                "<service_name>:<endpoint_type>")
 
 nova.param(
     'cinder_endpoint_template',
     type='string',
     default=None,
-    description="Override service catalog lookup with template for cinder endpoint e.g. http://localhost:8776/v1/%(project_id)s")
+    description="Override service catalog lookup with template for cinder "
+                "endpoint e.g. http://localhost:8776/v1/%(project_id)s")
 
 nova.param(
     'os_region_name',
@@ -3080,7 +3315,8 @@ nova.param(
     'cinder_ca_certificates_file',
     type='string',
     default=None,
-    description="Location of ca certicates file to use for cinder client requests.")
+    description="Location of ca certicates file to use for cinder client "
+                "requests.")
 
 nova.param(
     'cinder_http_retries',
@@ -3098,14 +3334,17 @@ nova.param(
     'cinder_cross_az_attach',
     type='boolean',
     default=True,
-    description="Allow attach between instance and volume in different availability zones.")
+    description="Allow attach between instance and volume in different "
+                "availability zones.")
 
 nova.param(
     'sql_connection',
     type='string',
     default='sqlite:////nova/openstack/common/db/$sqlite_db',
-    description="The SQLAlchemy connection string used to connect to the database",
-    deprecation_message='Deprecated in favor of "[database]connection" parameter')
+    description="The SQLAlchemy connection string used to connect to the "
+                "database",
+    deprecation_message='Deprecated in favor of "[database]connection" '
+                        'parameter')
 
 nova.section('hyperv')
 
@@ -3113,7 +3352,11 @@ nova.param(
     'instances_path_share',
     type='string',
     default='',
-    description="The name of a Windows share name mapped to the 'instances_path' dir and used by the resize feature to copy files to the target host. If left blank, an administrative share will be used, looking for the same 'instances_path' used locally")
+    description="The name of a Windows share name mapped to the "
+                "'instances_path' dir and used by the resize feature to copy "
+                "files to the target host. If left blank, an administrative "
+                "share will be used, looking for the same 'instances_path' "
+                "used locally")
 
 nova.param(
     'force_hyperv_utils_v1',
@@ -3131,13 +3374,15 @@ nova.param(
     'vswitch_name',
     type='string',
     default=None,
-    description="External virtual switch Name, if not provided, the first external virtual switch is used")
+    description="External virtual switch Name, if not provided, the first "
+                "external virtual switch is used")
 
 nova.param(
     'limit_cpu_features',
     type='boolean',
     default=False,
-    description="Required for live migration among hosts with different CPU features")
+    description="Required for live migration among hosts with different CPU "
+                "features")
 
 nova.param(
     'config_drive_inject_password',
@@ -3155,13 +3400,17 @@ nova.param(
     'config_drive_cdrom',
     type='boolean',
     default=False,
-    description="Attaches the Config Drive image as a cdrom drive instead of a disk drive")
+    description="Attaches the Config Drive image as a cdrom drive instead of a"
+                " disk drive")
 
 nova.param(
     'enable_instance_metrics_collection',
     type='boolean',
     default=False,
-    description="Enables metrics collections for an instance by using Hyper-V's metric APIs. Collected data can by retrieved by other apps and services, e.g.: Ceilometer. Requires Hyper-V / Windows Server 2012 and above")
+    description="Enables metrics collections for an instance by using "
+                "Hyper-V's metric APIs. Collected data can by retrieved by "
+                "other apps and services, e.g.: Ceilometer. Requires Hyper-V "
+                "/ Windows Server 2012 and above")
 
 nova.param(
     'dynamic_memory_ratio',
@@ -3187,7 +3436,8 @@ nova.param(
     'address',
     type='string',
     default=None,
-    description="The ZooKeeper addresses for servicegroup service in the format of host1:port,host2:port,host3:port")
+    description="The ZooKeeper addresses for servicegroup service in the "
+                "format of host1:port,host2:port,host3:port")
 
 nova.param(
     'recv_timeout',
@@ -3219,13 +3469,16 @@ nova.param(
     'extensions_blacklist',
     type='list',
     default='',
-    description="A list of v3 API extensions to never load. Specify the extension aliases here.")
+    description="A list of v3 API extensions to never load. Specify the "
+                "extension aliases here.")
 
 nova.param(
     'extensions_whitelist',
     type='list',
     default='',
-    description="If the list is not empty then a v3 API extension will only be loaded if it exists in this list. Specify the extension aliases here.")
+    description="If the list is not empty then a v3 API extension will only "
+                "be loaded if it exists in this list. Specify the extension "
+                "aliases here.")
 
 nova.section('conductor')
 
@@ -3279,7 +3532,8 @@ nova.param(
     'instance_updated_at_threshold',
     type='integer',
     default=3600,
-    description="Number of seconds after an instance was updated or deleted to continue to update cells")
+    description="Number of seconds after an instance was updated or deleted to"
+                " continue to update cells")
 
 nova.param(
     'instance_update_num_instances',
@@ -3339,7 +3593,8 @@ nova.param(
     'reserve_percent',
     type='floating point',
     default='10.0',
-    description="Percentage of cell capacity to hold in reserve. Affects both memory and disk utilization")
+    description="Percentage of cell capacity to hold in reserve. Affects both "
+                "memory and disk utilization")
 
 nova.param(
     'cell_type',
@@ -3351,7 +3606,9 @@ nova.param(
     'mute_child_interval',
     type='integer',
     default=300,
-    description="Number of seconds after which a lack of capability and capacity updates signals the child cell is to be treated as a mute.")
+    description="Number of seconds after which a lack of capability and "
+                "capacity updates signals the child cell is to be treated as "
+                "a mute.")
 
 nova.param(
     'bandwidth_update_interval',
@@ -3363,19 +3620,24 @@ nova.param(
     'rpc_driver_queue_base',
     type='string',
     default='cells.intercell',
-    description="Base queue name to use when communicating between cells. Various topics by message type will be appended to this.")
+    description="Base queue name to use when communicating between cells. "
+                "Various topics by message type will be appended to this.")
 
 nova.param(
     'scheduler_filter_classes',
     type='list',
     default='nova.cells.filters.all_filters',
-    description="Filter classes the cells scheduler should use.  An entry of 'nova.cells.filters.all_filters'maps to all cells filters included with nova.")
+    description="Filter classes the cells scheduler should use.  An entry of "
+                "'nova.cells.filters.all_filters'maps to all cells filters "
+                "included with nova.")
 
 nova.param(
     'scheduler_weight_classes',
     type='list',
     default='nova.cells.weights.all_weighers',
-    description="Weigher classes the cells scheduler should use.  An entry of 'nova.cells.weights.all_weighers'maps to all cell weighers included with nova.")
+    description="Weigher classes the cells scheduler should use.  An entry of "
+                "'nova.cells.weights.all_weighers'maps to all cell weighers "
+                "included with nova.")
 
 nova.param(
     'scheduler_retries',
@@ -3399,7 +3661,8 @@ nova.param(
     'cells_config',
     type='string',
     default=None,
-    description="Configuration file from which to read cells configuration. If given, overrides reading cells from the database.")
+    description="Configuration file from which to read cells configuration. "
+                "If given, overrides reading cells from the database.")
 
 nova.param(
     'mute_weight_multiplier',
@@ -3417,7 +3680,8 @@ nova.param(
     'ram_weight_multiplier',
     type='floating point',
     default='10.0',
-    description="Multiplier used for weighing ram.  Negative numbers mean to stack vs spread.")
+    description="Multiplier used for weighing ram.  Negative numbers mean to "
+                "stack vs spread.")
 
 nova.section('database')
 
@@ -3431,19 +3695,22 @@ nova.param(
     'use_tpool',
     type='boolean',
     default=False,
-    description="Enable the experimental use of thread pooling for all DB API calls")
+    description="Enable the experimental use of thread pooling for all DB API "
+                "calls")
 
 nova.param(
     'connection',
     type='string',
     default='sqlite:////nova/openstack/common/db/$sqlite_db',
-    description="The SQLAlchemy connection string used to connect to the database")
+    description="The SQLAlchemy connection string used to connect to the "
+                "database")
 
 nova.param(
     'slave_connection',
     type='string',
     default='',
-    description="The SQLAlchemy connection string used to connect to the slave database")
+    description="The SQLAlchemy connection string used to connect to the "
+                "slave database")
 
 nova.param(
     'idle_timeout',
@@ -3485,7 +3752,8 @@ nova.param(
     'connection_debug',
     type='integer',
     default=0,
-    description="Verbosity of SQL debugging information. 0=None, 100=Everything")
+    description="Verbosity of SQL debugging information. 0=None, "
+                "100=Everything")
 
 nova.param(
     'connection_trace',
@@ -3505,7 +3773,8 @@ nova.param(
     'filesystems',
     type='list',
     default='',
-    description="A list of filesystems that will be configured in this file under the sections image_file_url:<list entry name>")
+    description="A list of filesystems that will be configured in this file "
+                "under the sections image_file_url:<list entry name>")
 
 nova.section('baremetal')
 
@@ -3519,7 +3788,8 @@ nova.param(
     'sql_connection',
     type='string',
     default='sqlite:///$state_path/baremetal_$sqlite_db',
-    description="The SQLAlchemy connection string used to connect to the bare-metal database")
+    description="The SQLAlchemy connection string used to connect to the "
+                "bare-metal database")
 
 nova.param(
     'inject_password',
@@ -3549,7 +3819,10 @@ nova.param(
     'instance_type_extra_specs',
     type='list',
     default='',
-    description="a list of additional capabilities corresponding to instance_type_extra_specs for this compute host to advertise. Valid entries are name=value, pairs For example, 'key1:val1, key2:val2'")
+    description="a list of additional capabilities corresponding to instance_"
+                "type_extra_specs for this compute host to advertise. Valid "
+                "entries are name=value, pairs For example, 'key1:val1, "
+                "key2:val2'")
 
 nova.param(
     'driver',
@@ -3633,13 +3906,15 @@ nova.param(
     'pxe_network_config',
     type='boolean',
     default=False,
-    description="If set, pass the network configuration details to the initramfs via cmdline.")
+    description="If set, pass the network configuration details to the "
+                "initramfs via cmdline.")
 
 nova.param(
     'pxe_bootfile_name',
     type='string',
     default='pxelinux.0',
-    description="This gets passed to Neutron as the bootfile dhcp parameter when the dhcp_options_enabled is set.")
+    description="This gets passed to Neutron as the bootfile dhcp parameter "
+                "when the dhcp_options_enabled is set.")
 
 nova.param(
     'tile_pdu_ip',
@@ -3675,7 +3950,8 @@ nova.param(
     'tile_power_wait',
     type='integer',
     default=9,
-    description="wait time in seconds until check the result after tilera power operations")
+    description="wait time in seconds until check the result after tilera "
+                "power operations")
 
 nova.param(
     'virtual_power_ssh_host',
@@ -3717,7 +3993,9 @@ nova.param(
     'use_unsafe_iscsi',
     type='boolean',
     default=False,
-    description="Do not set this out of dev/test environments. If a node does not have a fixed PXE IP address, volumes are exported with globally opened ACL")
+    description="Do not set this out of dev/test environments. If a node does"
+                " not have a fixed PXE IP address, volumes are exported with"
+                " globally opened ACL")
 
 nova.param(
     'iscsi_iqn_prefix',
@@ -3817,7 +4095,8 @@ nova.param(
     'baseapi',
     type='string',
     default=None,
-    description="Set a version cap for messages sent to the base api in any service")
+    description="Set a version cap for messages sent to the base api in any "
+                "service")
 
 nova.param(
     'intercell',
@@ -3887,43 +4166,55 @@ nova.param(
     'host_ip',
     type='string',
     default=None,
-    description="URL for connection to VMware ESX/VC host. Required if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.")
+    description="URL for connection to VMware ESX/VC host. Required if "
+                "compute_driver is vmwareapi.VMwareESXDriver or vmwareapi."
+                "VMwareVCDriver.")
 
 nova.param(
     'host_username',
     type='string',
     default=None,
-    description="Username for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.")
+    description="Username for connection to VMware ESX/VC host. Used only if "
+                "compute_driver is vmwareapi.VMwareESXDriver or vmwareapi."
+                "VMwareVCDriver.")
 
 nova.param(
     'host_password',
     type='string',
     default=None,
-    description="Password for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.")
+    description="Password for connection to VMware ESX/VC host. Used only if "
+                "compute_driver is vmwareapi.VMwareESXDriver or vmwareapi."
+                "VMwareVCDriver.")
 
 nova.param(
     'cluster_name',
     type='multi',
     default=None,
-    description="Name of a VMware Cluster ComputeResource. Used only if compute_driver is vmwareapi.VMwareVCDriver.")
+    description="Name of a VMware Cluster ComputeResource. Used only if "
+                "compute_driver is vmwareapi.VMwareVCDriver.")
 
 nova.param(
     'datastore_regex',
     type='string',
     default=None,
-    description="Regex to match the name of a datastore. Used only if compute_driver is vmwareapi.VMwareVCDriver.")
+    description="Regex to match the name of a datastore. Used only if "
+                "compute_driver is vmwareapi.VMwareVCDriver.")
 
 nova.param(
     'task_poll_interval',
     type='floating point',
     default='5.0',
-    description="The interval used for polling of remote tasks. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.")
+    description="The interval used for polling of remote tasks. Used only "
+                "if compute_driver is vmwareapi.VMwareESXDriver or "
+                "vmwareapi.VMwareVCDriver.")
 
 nova.param(
     'api_retry_count',
     type='integer',
     default=10,
-    description="The number of times we retry on failures, e.g., socket error, etc. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.")
+    description="The number of times we retry on failures, e.g., socket "
+                "error, etc. Used only if compute_driver is vmwareapi."
+                "VMwareESXDriver or vmwareapi.VMwareVCDriver.")
 
 nova.param(
     'vnc_port',
@@ -3959,13 +4250,21 @@ nova.param(
     'wsdl_location',
     type='string',
     default=None,
-    description="Optional VIM Service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds")
+    description="Optional VIM Service WSDL Location e.g http://<server>/"
+                "vimService.wsdl. Optional over-ride to default location for "
+                "bug work-arounds")
 
 nova.param(
     'maximum_objects',
     type='integer',
     default=100,
-    description="The maximum number of ObjectContent data objects that should be returned in a single result. A positive value will cause the operation to suspend the retrieval when the count of objects reaches the specified maximum. The server may still limit the count to something less than the configured value. Any remaining objects may be retrieved with additional requests.")
+    description="The maximum number of ObjectContent data objects that should "
+                "be returned in a single result. A positive value will cause "
+                "the operation to suspend the retrieval when the count of "
+                "objects reaches the specified maximum. The server may still "
+                "limit the count to something less than the configured value. "
+                "Any remaining objects may be retrieved with additional "
+                "requests.")
 
 nova.param(
     'integration_bridge',
@@ -3979,7 +4278,8 @@ nova.param(
     'html5proxy_base_url',
     type='string',
     default='http://127.0.0.1:6082/spice_auto.html',
-    description="location of spice html5 console proxy, in the form 'http://127.0.0.1:6082/spice_auto.html'")
+    description="location of spice html5 console proxy, in the form "
+                "'http://127.0.0.1:6082/spice_auto.html'")
 
 nova.param(
     'server_listen',

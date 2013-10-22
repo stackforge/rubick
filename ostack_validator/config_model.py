@@ -140,7 +140,8 @@ class Configuration(object):
         if section in self._normal and name in self._normal[section]:
             return True
 
-        if not ignoreDefault and section in self._defaults and name in self._defaults[section]:
+        if not ignoreDefault and section in self._defaults \
+            and name in self._defaults[section]:
             return True
 
         return False
@@ -149,8 +150,8 @@ class Configuration(object):
         section, name = self._normalize_name(name)
 
         return (
-            not (section in self._normal and name in self._normal[section]) and (
-                section in self._defaults and name in self._defaults[section])
+            not (section in self._normal and name in self._normal[section])
+            and (section in self._defaults and name in self._defaults[section])
         )
 
     def set_default(self, name, value):
@@ -223,8 +224,9 @@ class Element(object):
 
     def __eq__(self, other):
         return (
-            (self.__class__ == other.__class__) and (
-                self.start_mark == other.start_mark) and (self.end_mark == other.end_mark)
+            (self.__class__ == other.__class__)
+            and (self.start_mark == other.start_mark)
+            and (self.end_mark == other.end_mark)
         )
 
     def __ne__(self, other):

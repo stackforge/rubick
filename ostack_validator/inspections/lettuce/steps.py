@@ -35,7 +35,8 @@ def stop():
 @step(r'I use OpenStack (\w+)')
 def use_openstack_version(step, version):
     version = Version(version)
-    for component in [c for c in world.openstack.components if isinstance(c, OpenstackComponent)]:
+    for component in [c for c in world.openstack.components
+                      if isinstance(c, OpenstackComponent)]:
         if not Version(component.version) >= version:
             stop()
 
@@ -75,7 +76,8 @@ def nova_has_property(step, name, value):
     name = subst(name)
     value = subst(value)
 
-    for nova in [c for c in world.openstack.components if c.name.startswith('nova')]:
+    for nova in [c for c in world.openstack.components
+                 if c.name.startswith('nova')]:
         if not nova.config[name] == value:
             stop()
 
@@ -88,7 +90,8 @@ def nova_property_assertion(self, name, values):
     if not values:
         return
 
-    for nova in [c for c in world.openstack.components if c.name.startswith('nova')]:
+    for nova in [c for c in world.openstack.components
+                 if c.name.startswith('nova')]:
         nova_value = nova.config[name]
 
         if not (nova_value and nova_value in values):
@@ -102,7 +105,8 @@ def nova_has_property(step, component_name, parameter_name):
     component_name = subst(component_name)
     parameter_name = subst(parameter_name)
 
-    for component in [c for c in world.openstack.components if c.component.startswith('%s' % component_name)]:
+    for component in [c for c in world.openstack.components
+                      if c.component.startswith('%s' % component_name)]:
         component_value = component.config[parameter_name]
 
         if component_value is None:
@@ -117,10 +121,12 @@ def nova_has_property(step, component_name, parameter_name, value):
     parameter_name = subst(parameter_name)
     value = subst(value)
 
-    for component in [c for c in world.openstack.components if c.component.startswith('%s' % component_name)]:
+    for component in [c for c in world.openstack.components
+                      if c.component.startswith('%s' % component_name)]:
         component_value = component.config[parameter_name]
 
         if not component_value == value:
             component.report_issue(
-                Issue(Issue.ERROR, '"%s" should have parameter equals "%s"  now its "%s"' %
+                Issue(Issue.ERROR,
+                      '"%s" should have parameter equals "%s"  now its "%s"' %
                       (component_name, component_value, value)))
