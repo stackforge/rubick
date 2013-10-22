@@ -1,6 +1,5 @@
-from nodes import NodesDict,Node
+from nodes import NodesDict, Node
 #from os import remove
-import os
 
 PETYA_ENV_KEY = "-----BEGIN RSA PRIVATE KEY-----\n\
 MIIEogIBAAKCAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzI\n\
@@ -32,46 +31,59 @@ NE5OgEXk2wVfZczCZpigBKbKZHNYcelXtTt/nP3rsCuGcM4h53s=\n\
 
 #TMP_PATH="/tmp/%s"
 
+
 class Joker():
 
-    def __init__(self, key = PETYA_ENV_KEY, *args, **kwargs):
-         
+    def __init__(self, key=PETYA_ENV_KEY, *args, **kwargs):
+
         self.default_key = key
 
         self.nodes = NodesDict()
         self.keyPath = None
         self.name = "EntryPoint"
-        #self.setKey()  
-
-    
+        #self.setKey()
 
 #    def __del__(self):
-#        if (self.keyPath): 
+#        if (self.keyPath):
 #            # look at this.
 #            # epic security hole oneliner
 #            print "os.remove(self.keyPath)"
 
     def addNode(self, name, host, port, user):
-        self.entryPoint = Node(name, host, port);
-        self.entryPoint.assignCredential(user, self.default_key, None) 
+        self.entryPoint = Node(name, host, port)
+        self.entryPoint.assignCredential(user, self.default_key, None)
         return
 
     def genStub(self, hostname, ip, port, user, key, proxycommand):
         return {"name": hostname, "ip": ip, "user": user,
-                "key": key, "port": port, 
+                "key": key, "port": port,
                 "proxy_command": proxycommand
-                } 
+                }
 
     def discover(self):
         result = []
-        discoveryData = self.entryPoint.discovery() 
 
+        ep = self.entryPoint
+        discoveryData = ep.discovery()
 
         for node in discoveryData:
-            result.append(self.genStub(discoveryData[node], discoveryData[node], self.default_key , "vagrant", None, "ssh -i " + "%%PATH_TO_KEY%%" + " -p " + str(self.entryPoint.accessPort) + "  -q " + self.entryPoint.user  + "@" + self.entryPoint.hostName + " nc -q0 " + discoveryData[node] + " 22")) 
+            proxy_command = ("ssh" +
+                             " -i %%PATH_TO_KEY%%" +
+                             " -p {0}".format(ep.accessPort) +
+                             " -q {0}@{1}".format(ep.user, ep.hostName) +
+                             " nc -q0 {0} 22".format(discoveryData[node]))
+
+            result.append(
+                self.genStub(hostname=discoveryData[node],
+                             ip=discoveryData[node],
+                             port=ep.accessPort,
+                             user="vagrant",
+                             key=self.default_key,
+                             proxycommand=proxy_command))
 
         return result
 
-joker = Joker(PETYA_ENV_KEY) 
-joker.addNode("controller1", "172.18.66.112", 2301, "vagrant");
-print joker.discover() 
+if __name__ == '__main__':
+    joker = Joker(PETYA_ENV_KEY)
+    joker.addNode("controller1", "172.18.66.112", 2301, "vagrant")
+    print joker.discover()

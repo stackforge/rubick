@@ -1,6 +1,7 @@
 import os.path
 import re
 import traceback
+import tempfile
 from StringIO import StringIO
 import logging
 
@@ -71,6 +72,15 @@ class NodeClient(object):
                  private_key=None, proxy_command=None):
         super(NodeClient, self).__init__()
         self.use_sudo = (username != 'root')
+
+        if proxy_command and proxy_command.find('%%PATH_TO_KEY%%') != -1:
+            self._pkey_file = tempfile.NamedTemporaryFile(suffix='.key')
+            self._pkey_file.write(private_key)
+            self._pkey_file.flush()
+
+            proxy_command = proxy_command.replace('%%PATH_TO_KEY%%',
+                                                  self._pkey_file.name)
+
         sock = paramiko.ProxyCommand(proxy_command) if proxy_command else None
 
         self.shell = SshShell(
@@ -80,6 +90,7 @@ class NodeClient(object):
             password=password,
             private_key=private_key,
             missing_host_key=spur.ssh.MissingHostKey.accept,
+            connect_timeout=5,
             sock=sock)
 
     def run(self, command, *args, **kwargs):
@@ -148,12 +159,22 @@ class JokerNodeDiscovery(object):
         j = joker.Joker(default_key=private_key)
         count = 0
         for node in parse_nodes_info(initial_nodes):
-            j.add_node('node%d' % count,
-                       node['host'],
-                       node['port'],
-                       node['username'])
+            j.addNode('node%d' % count,
+                      node['host'],
+                      node['port'],
+                      node['username'])
 
-        nodes = j.discover()
+        nodes = []
+        for j_node_info in j.discover():
+            node = dict(
+                name=j_node_info['name'],
+                host=j_node_info['ip'],
+                port=j_node_info['port'],
+                username=j_node_info['user'],
+                private_key=j_node_info['key'],)
+                # proxy_command=j_node_info['proxy_command'])
+            node = dict((k, v) for k, v in node.iteritems() if v)
+            nodes.append(node)
 
         return nodes
 
@@ -164,7 +185,7 @@ python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
 class OpenstackDiscovery(object):
     logger = logging.getLogger('rubick.discovery')
 
-    node_discovery_klass = SimpleNodeDiscovery
+    node_discovery_klass = JokerNodeDiscovery
 
     def test_connection(self, initial_nodes, private_key):
         d = self.node_discovery_klass()

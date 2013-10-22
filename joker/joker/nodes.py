@@ -53,39 +53,38 @@ class Node():
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.setHostName(ip)
         self.setName(name)
-        self.setAccessPort(port) 
+        self.setAccessPort(port)
         self.connected = False
 
-        #self.neighbours = NodesDict() 
-        self.neighbours = {} 
-        self.debug = True 
-        
+        #self.neighbours = NodesDict()
+        self.neighbours = {}
+        self.debug = True
+
         self.hwAddr = None
 
-    def discoveryHwAddr(self): 
+    def discoveryHwAddr(self):
         try:
-            (stdout, stderr) = self.runCommand("ip link | grep -m1 -A1 BROADCAST,MULTICAST,UP,LOWER_UP | awk -F\" \" '/link/ {print $2}'"); 
+            (stdout, stderr) = self.runCommand("ip link | grep -m1 -A1 BROADCAST,MULTICAST,UP,LOWER_UP | awk -F\" \" '/link/ {print $2}'");
         except:
-            raise() 
-        return stdout[0].strip() 
+            raise()
+        return stdout[0].strip()
 
     def setUniqData(self):
-        self.hwAddr = self.discoveryHwAddr() 
+        self.hwAddr = self.discoveryHwAddr()
 
     def getUniqData(self):
         return self.hwAddr
 
-    def debugLog(self, debugData): 
+    def debugLog(self, debugData):
         if self.debug is True:
             print debugData
-        
 
     def prepare(self):
         # install arp-scan on node
         self.runCommand(
-            "[ ! -x arp-scan ] && sudo apt-get --force-yes -y install arp-scan")
-        self.setUniqData() 
-        self.debugLog("Unit data is " + self.getUniqData());
+            "which arp-scan || sudo apt-get --force-yes -y install arp-scan")
+        self.setUniqData()
+        self.debugLog("Unit data is " + self.getUniqData())
         return True
 
     def infect(self):
@@ -105,7 +104,7 @@ class Node():
         self.user = user
         self.password = password
 
-        # from paramiko? 
+        # from paramiko?
         self.origKey = key
 
         self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
@@ -118,15 +117,14 @@ class Node():
 #           except SSHException:
 #                raise "Unknown private key format"
 
-
     def setProxyCommand(self, proxyCommand):
         self.proxyCommand = proxyCommand
 
     def connect(self):
         if self.connected is True:
-            raise assertionError(self.connected is True)
+            raise AssertionError(self.connected is True)
         try:
-            print self.hostName, " ", self.accessPort, " ",  self.user, " " 
+            print self.hostName, " ", self.accessPort, " ",  self.user, " "
             self.ssh.connect(self.hostName, self.accessPort, self.user,
                              pkey=self._pkey)
             self.connected = True
@@ -143,32 +141,32 @@ class Node():
 
     def runCommand(self, command):
         if (command == ""):
-            assertionError(command == "")
+            AssertionError(command == "")
 
         if (self.connected is False):
             self.connect()
-        self.debugLog("---> " + self.hostName + " " + command) 
+        self.debugLog("---> " + self.hostName + " " + command)
         stdin, stdout, stderr = self.ssh.exec_command(command)
-        self.debugLog("OK   " + self.hostName + " " + command) 
+        self.debugLog("OK   " + self.hostName + " " + command)
 
-        return (stdout.readlines(), stderr.readlines()) 
+        return (stdout.readlines(), stderr.readlines())
 
-    def __discovery__(self): 
+    def __discovery__(self):
 
         # tuesday discovery
         (self.discovery_data, _) = self.runCommand(
             "ip link | awk -F: '/^[0-9]+?: eth/ {print $2}' |\
             sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep -E '192.168.(28|30)'.101")
-        
+
     def discovery(self):
         self.prepare()
-        node = {} 
+        node = {}
 
-        self.__discovery__() 
+        self.__discovery__()
         for n in self.discovery_data:
-            ( node['ip'], node['hwaddr'], _) = n.split("\t")
+            (node['ip'], node['hwaddr'], _) = n.split("\t")
             self.neighbours[node['hwaddr']] = node['ip']
 
         self.neighbours[self.getUniqData()] = self.hostName
-            
+
         return self.neighbours
