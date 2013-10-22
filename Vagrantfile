@@ -14,7 +14,7 @@ Vagrant.configure("2") do |config|
     web.vm.provision :chef_solo do |chef|
       chef.log_level = :debug
       chef.cookbooks_path = ["vagrant/cookbooks"]
-      chef.add_recipe "openstack-validator"
+      chef.add_recipe "rubick"
     end
   end
 

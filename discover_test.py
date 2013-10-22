@@ -1,12 +1,12 @@
 from itertools import groupby
 import logging
 
-from ostack_validator.common import MarkedIssue, Inspection
-from ostack_validator.discovery import OpenstackDiscovery
-import ostack_validator.inspections
+from rubick.common import MarkedIssue, Inspection
+from rubick.discovery import OpenstackDiscovery
+import rubick.inspections
 # Silence PEP8 "unused import"
-assert ostack_validator.inspections
-from ostack_validator.json import openstack_for_json
+assert rubick.inspections
+from rubick.json import openstack_for_json
 from flask import json
 
 
@@ -69,7 +69,7 @@ def print_openstack(openstack):
 
 def main():
     logging.basicConfig(level=logging.WARNING)
-    logging.getLogger('ostack_validator').setLevel(logging.DEBUG)
+    logging.getLogger('rubick').setLevel(logging.DEBUG)
 
     discovery = OpenstackDiscovery()
     with open('test_rsa') as f:

@@ -13,12 +13,12 @@ from paramiko.rsakey import RSAKey
 from paramiko.dsskey import DSSKey
 from paramiko.ssh_exception import SSHException
 
-from ostack_validator.celery import app as celery, \
+from rubick.celery import app as celery, \
     ostack_inspect_task, InspectionRequest
-from ostack_validator.common import Inspection, Issue
-from ostack_validator.model import Openstack
-from ostack_validator.discovery import OpenstackDiscovery
-from ostack_validator.json import openstack_for_json
+from rubick.common import Inspection, Issue
+from rubick.model import Openstack
+from rubick.discovery import OpenstackDiscovery
+from rubick.json import openstack_for_json
 
 app = Flask(__name__,
             static_folder='config-validator-ui-concept',

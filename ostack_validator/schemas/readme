@@ -1,3 +1,0 @@
-Examples for schema generator execution:
-python ostack_validator/schemas/schema_generator.py  --conf /tmp/cinder.conf.sample --project_name cinder --config_version 2013.1.3
-python ostack_validator/schemas/schema_generator.py  --conf /tmp/nova.conf.sample --project_name nova --config_version 2013.1.3
