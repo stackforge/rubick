@@ -85,7 +85,7 @@ In module ``ostack_validator/common.py`` you can find ``Inspection``, ``Issue``,
 defining. Module ``model.py`` contains Openstack model based on configuration
 schemas.
 
-.. image:: image/rules_engine_class_model.png
+.. image:: images/rules_engine_class_model.png
 
 Default rule sets
 -----------------
