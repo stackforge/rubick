@@ -1,11 +1,14 @@
 import sys
 import os.path
 import re
-import tempfile
 import traceback
+from StringIO import StringIO
+import logging
 
 import spur
 import paramiko
+from paramiko.rsakey import RSAKey
+from paramiko.dsskey import DSSKey
 import joker
 
 from ostack_validator.common import Issue, index, path_relative_to
@@ -18,19 +21,32 @@ class SshShell(spur.SshShell):
                  username=None,
                  password=None,
                  port=22,
-                 private_key_file=None,
+                 private_key=None,
                  connect_timeout=None,
                  missing_host_key=None,
                  sock=None):
-        super(SshShell, self).__init__(hostname, username, password, port,
-                                       private_key_file, connect_timeout,
-                                       missing_host_key)
+        super(SshShell, self).__init__(hostname=hostname,
+                                       username=username,
+                                       password=password,
+                                       port=port,
+                                       connect_timeout=connect_timeout,
+                                       missing_host_key=missing_host_key)
+
+        try:
+            self._pkey = RSAKey.from_private_key(StringIO(private_key))
+        except SSHException:
+            try:
+                self._pkey = DSSKey.from_private_key(StringIO(private_key))
+            except SSHException:
+                raise "Unknown private key format"
+
         self._sock = sock
 
     def _connect_ssh(self):
         if self._client is None:
             if self._closed:
                 raise RuntimeError("Shell is closed")
+
             client = paramiko.SSHClient()
             client.load_system_host_keys()
             client.set_missing_host_key_policy(self._missing_host_key)
@@ -39,7 +55,7 @@ class SshShell(spur.SshShell):
                 port=self._port,
                 username=self._username,
                 password=self._password,
-                key_filename=self._private_key_file,
+                pkey=self._pkey,
                 timeout=self._connect_timeout,
                 sock=self._sock)
 
@@ -51,24 +67,17 @@ class SshShell(spur.SshShell):
 class NodeClient(object):
 
     def __init__(self, host, port=22, username='root', password=None,
-                 private_key=None, private_key_file=None, proxy_command=None):
+                 private_key=None, proxy_command=None):
         super(NodeClient, self).__init__()
         self.use_sudo = (username != 'root')
         sock = paramiko.ProxyCommand(proxy_command) if proxy_command else None
-
-        if private_key and not private_key_file:
-            f = tempfile.NamedTemporaryFile(suffix='.key')
-            f.write(private_key)
-            f.flush()
-            self.private_key_file = f
-            private_key_file = f.name
 
         self.shell = SshShell(
             hostname=host,
             port=port,
             username=username,
             password=password,
-            private_key_file=private_key_file,
+            private_key=private_key,
             missing_host_key=spur.ssh.MissingHostKey.accept,
             sock=sock)
 
@@ -152,6 +161,8 @@ python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
 
 
 class OpenstackDiscovery(object):
+    logger = logging.getLogger('ostack_validator.discovery')
+
     node_discovery_klass = SimpleNodeDiscovery
 
     def test_connection(self, initial_nodes, private_key):
@@ -163,32 +174,20 @@ class OpenstackDiscovery(object):
         "and returns discovered openstack installation info"
         openstack = Openstack()
 
-        private_key_to_files = {}
-
         node_discovery = self.node_discovery_klass()
 
         for node_info in node_discovery.discover(initial_nodes, private_key):
             try:
-                if node_info['private_key'] and not node_info['private_key'] in private_key_to_files:
-                    f = tempfile.NamedTemporaryFile(suffix='.key')
-                    f.write(node_info['private_key'])
-                    f.flush()
-                    private_key_to_files[node_info['private_key']] = f
-                    private_key_filename = f.name
-                else:
-                    private_key_filename = None
-
                 client = NodeClient(
                     host=node_info['host'],
                     port=node_info['port'],
                     username=node_info['username'],
                     password=node_info.get('password'),
-                    private_key_file=private_key_filename)
+                    private_key=node_info['private_key'])
 
                 client.run(['echo', 'test'])
             except:
-                print(sys.exc_info())
-                traceback.print_exc()
+                self.logger.exception("Can't connect to host %s" % node_info['host'])
                 openstack.report_issue(
                     Issue(
                         Issue.WARNING,
@@ -206,9 +205,6 @@ class OpenstackDiscovery(object):
         if len(openstack.hosts) == 0:
             openstack.report_issue(
                 Issue(Issue.FATAL, "No OpenStack nodes were discovered"))
-
-        for f in private_key_to_files.values():
-            f.close()
 
         return openstack
 

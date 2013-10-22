@@ -90,6 +90,10 @@ def get_clusters():
 def add_cluster():
     data = json.loads(request.data)
     errors = {}
+    if 'nodes' in data and (isinstance(data['nodes'], str) or
+                            isinstance(data['nodes'], unicode)):
+        data['nodes'] = data['nodes'].split()
+
     if not 'name' in data or data['name'] == '':
         errors['name'] = ['Cluster name is required']
     if not 'nodes' in data or data['nodes'] == []:
@@ -156,9 +160,11 @@ def launch_validation():
     form = ValidateClusterForm()
     if form.validate_on_submit():
         db = get_db()
-        cluster_doc = db['clusters'].find_one({'_id': form.cluster_id.data})
+        cluster_doc = db['clusters'].find_one({
+            '_id': ObjectId(form.cluster_id.data)})
         if not cluster_doc:
-            return json.dumps({'errors': {'cluster_id': 'Not found'}}), 404
+            return json.dumps({'errors': {
+                'cluster_id': 'Cluster not found'}}), 404
 
         cluster = Cluster.from_doc(cluster_doc)
         request = InspectionRequest(
