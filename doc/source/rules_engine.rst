@@ -32,12 +32,12 @@ Rule-based inspection
 ---------------------
 
 All rule-based inspections are using pre-defined actions written in python,
-currently they are defined in "steps.py" file in the directory: 
+currently they are defined in "steps.py" file in the directory:
 ``ostack_validator/inspections/lettuce``. They are based on lettuce framework -
 bdd framework for python.
 
-Store, extend and reuse rules
------------------------------
+Store and reuse rules
+---------------------
 
 First version of Rubick project stores rules to text files and loads them to
 memory at runtime. You can add your own rules to the set using web UI, and those
@@ -49,13 +49,16 @@ will also support migrating existing rule set to the database.
 You can store your rules wherever you want and add it through the UI or simply
 by putting them in text files in directory
 ``ostack_validator/inspections/lettuce``.
-Rules file must have name in the following format:: 
+Rules file must have name in the following format::
 
-  \*.feature. 
-  
+  \*.feature
+
 The main requirement is that all rule conditions and actions in those files must
 be written in accordance with code of rule steps in
 ``ostack-validator/inspections/lettuce/steps.py``.
+
+Extending rules
+---------------
 
 Also you can extend rules definition by adding your own steps to steps.py. As
 an example::
@@ -66,7 +69,7 @@ an example::
       name = subst(name)
           value = subst(value)
 
-              for nova in [c for c in world.openstack.components if 
+              for nova in [c for c in world.openstack.components if
               c.name.startswith('nova')]:
                   if not nova.config[name] == value:
                       stop()
@@ -75,15 +78,14 @@ New methods can use 2 classes from the inspections framework:
 ``ostack_validator/model.py`` and ``ostack_validator/common.py``. There you can
 find many adapters to OpenStack services configuration data and all additional
 information collected from OpenStack nodes. After that you can use you brand
-new rule in the scenarios as described above. 
+new rule in the scenarios as described above.
 
-In ``common.py`` you can find ``Inspection``, ``Issue``, ``Mark``, ``Error`` and
-``Version`` classes for your convenience in rule defining. ``Model.py`` contains
-Openstack model based on configuration schemas.
+In module ``ostack_validator/common.py`` you can find ``Inspection``, ``Issue``,
+``Mark``, ``Error`` and ``Version`` classes for your convenience in rule
+defining. Module ``model.py`` contains Openstack model based on configuration
+schemas.
 
-putting it in directory ostack_validator/inspections/lettuce with name like 
-this: *.feature. The main requirement is that all you actions in those files 
-must be written according to the rules in steps.py.
+.. image:: image/rules_engine_class_model.png
 
 Default rule sets
 -----------------

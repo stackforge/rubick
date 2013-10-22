@@ -1,0 +1,23 @@
+@startuml
+
+package "common.py" {
+    class "Inspection" {
+    }
+    class "Issue" {
+    }
+    class "Mark" {
+    }
+    class "Error" {
+    }
+    class "Version" {
+    }
+}
+
+package "model.py" {
+    class "Model" {
+    }
+}
+
+Inspection --|> Issue
+
+@enduml
