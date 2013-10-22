@@ -38,7 +38,7 @@ class InspectionResult(object):
         self.value = value
 
 
-@app.task
+@app.task(max_retries=0)
 def ostack_inspect_task(request):
     logger = logging.getLogger('rubick.task.inspect')
 
