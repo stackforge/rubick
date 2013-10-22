@@ -1,0 +1,8 @@
+#reusable tcp connections
+ControlMaster auto
+ControlPath ~/.ssh/tmp/%h_%p_%r
+
+#describe tunnel
+Host node1.joker
+	User joker
+	ProxyCommand ssh -q joker@entryPoint nc -q0 node1.customer.int 22

@@ -1,0 +1,112 @@
+# online yaml2json converting tool present in http://yaml-online-parser.appspot.com/
+# Worm credentials definition
+template: 
+       interface: &interface
+           name:
+           type:
+           ip_addr: []
+           link:
+                
+       user: &user
+           name: joker
+           password: generatedByCustomer
+           private_key: 
+
+       host: &host
+           name: 
+           hw: 
+                 mac_addr: []
+           interfaces: [
+                 *interface
+           ]
+           ssh_ident: 
+           ssh_ports: 
+              - 22
+     
+customerCompute: &customerComputeTemplate 
+           dst:
+                - compute-*.customer.int
+           user:  
+                <<: *user
+                user: compute-robot
+                password: compute-password
+
+customerStorage: &customerStorageTemplate
+           dst:
+                - strangename.*
+                - goodName.*  
+           user: 
+                name: storageUser
+                password: storagePassword
+                 
+
+credentials: 
+    - *customerStorageTemplate
+    - *customerComputeTemplate
+
+       
+# entry point for deploy
+start_point: &start
+       host:
+           <<: *host
+           dst: compute42
+       user: 
+           <<: *user
+           name: 'customerUser'
+           password: 'customerPassword'          
+
+# vagrant controller from deploy env
+
+# describe controller credentials 
+controller: &controller
+       host:  
+            <<: *host
+            dst: 127.0.0.1
+            port: 2222
+       user:
+            <<: *user
+            name: 'vagrant'
+            private_key_path: '/home/ryabin/.vagrant.d/insecure_private_key'
+            l7_options: 
+                - 'LogLevel FATAL'
+                - 'IdentitiesOnly yes'
+                - 'PasswordAuthentication no'
+                - 'StrictHostKeyChecking no'
+                - 'UserKnownHostsFile /dev/null'
+
+compute1_joker: &compute1_joker
+  host:
+    <<: *host
+    dst: 127.0.0.1
+    port: 2200
+  user:
+    <<: *user
+    name: vagrant
+    private_key_path: /home/ryabin/.vagrant.d/insecure_private_key
+    l7_options: 
+      - "LogLevel FATAL"
+      - "UserKnownHostsFile /dev/null"
+      - "StrictHostKeyChecking no"
+      - "PasswordAuthentication no"
+      - "IdentitiesOnly yes"
+controller_joker: &controller_joker
+  host:
+    <<: *host
+    dst: 127.0.0.1
+    port: 2222
+  user:
+    <<: *user
+    name: vagrant
+    private_key_path: /home/ryabin/.vagrant.d/insecure_private_key
+    l7_options: 
+      - "LogLevel FATAL"
+      - "UserKnownHostsFile /dev/null"
+      - "StrictHostKeyChecking no"
+      - "PasswordAuthentication no"
+      - "IdentitiesOnly yes"
+
+
+#must be updated through discovering  process new network nodes 
+
+
+nodes: [ *controller_joker, *compute1_joker ] 

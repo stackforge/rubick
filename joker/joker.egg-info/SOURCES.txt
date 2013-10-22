@@ -1,0 +1,8 @@
+setup.py
+joker/__init__.py
+joker/nodes.py
+joker.egg-info/PKG-INFO
+joker.egg-info/SOURCES.txt
+joker.egg-info/dependency_links.txt
+joker.egg-info/not-zip-safe
+joker.egg-info/top_level.txt

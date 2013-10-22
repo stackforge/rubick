@@ -1,0 +1,62 @@
+templates:
+    tcp_socket: &tcp_socket # we accept ip4 and ipv6
+        host: 
+        port: 22
+
+    proxy_command: &proxy_command
+        cmd: 
+
+    password: &password 
+        pass: 
+        
+    public_key: &public_key
+        path: 
+
+    connection_layer: &connection_layer
+        type: "HostName"
+
+    access_method:
+        type: # ssh || telnet 
+        method: j
+        
+    node: &node
+        #we suppose, mac address is unique key-property inside ethernet segment
+        hwaddr: 
+        
+    ssh_entry: &ssh_entry
+        name: 
+        connection_layer:
+            #ProxyCommand, or HostName
+            type:   
+            # connection data == ( *tcp_socket || *proxyCommand )
+            data: 
+        authentication_layer: &authentication_layer 
+            user:
+            type: # password || public_key
+            data: # *password || *public_key
+        transport_layer: # XXX stub 
+
+dkenv_entry: &dkenv_entry
+    <<: *ssh_entry
+    authentication_layer: &dkenv_authentication_layer
+        <<: *authentication_layer
+        user: "vagrant"
+        type: "public_key"
+        data:
+            path: "~/.vagrant.d/insecure_private_key"
+    connection_layer: &dkenv_connection_layer
+        <<: *connection_layer
+        type: "HostName" 
+        data: &dkenv_connection_layer_data
+            <<: *tcp_socket
+            host: "127.0.0.1"
+        
+controller: &controller_joker
+    <<: *dkenv_entry
+    name: "controller.joker"
+    connection_layer: 
+        <<: *dkenv_connection_layer  
+
+
+nodes: 
+    - *controller_joker
