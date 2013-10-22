@@ -1,5 +1,5 @@
-import os.path
 import lettuce
+import os.path
 
 from ostack_validator.common import Inspection, Issue
 
@@ -16,7 +16,8 @@ class LettuceRunnerInspection(Inspection):
         del lettuce.world.openstack
 
         for feature_result in result.feature_results:
-            for scenario_result in [s for s in feature_result.scenario_results if not s.passed]:
+            for scenario_result in [s for s in feature_result.scenario_results
+                                    if not s.passed]:
                 for step in scenario_result.steps_undefined:
                     openstack.report_issue(
                         Issue(

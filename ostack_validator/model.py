@@ -127,8 +127,8 @@ class OpenstackComponent(Service):
         schema = ConfigSchemaRegistry.get_schema(self.component, self.version)
         if not schema:
             self.logger.debug(
-                'No schema for component "%s" main config version %s. Skipping it' %
-                (self.component, self.version))
+                'No schema for component "%s" main config version %s. '
+                'Skipping it' % (self.component, self.version))
             return None
 
         return self._parse_config_resources(self.config_files, schema)
@@ -216,15 +216,19 @@ class OpenstackComponent(Service):
                         if not (parameter_schema or unknown_section):
                             report_issue(
                                 MarkedIssue(
-                                    Issue.WARNING, 'Unknown parameter: section "%s" name "%s"' %
-                                    (section_name, parameter.name.text), parameter.start_mark))
+                                    Issue.WARNING,
+                                    'Unknown parameter: section "%s" name "%s"'
+                                    % (section_name, parameter.name.text),
+                                    parameter.start_mark))
                             continue
 
                     if parameter.name.text in seen_parameters:
                         report_issue(
                             MarkedIssue(
-                                Issue.WARNING, 'Parameter "%s" in section "%s" redeclared' %
-                                (parameter.name.text, section_name), parameter.start_mark))
+                                Issue.WARNING,
+                                'Parameter "%s" in section "%s" redeclared' %
+                                (parameter.name.text, section_name),
+                                parameter.start_mark))
                     else:
                         seen_parameters.add(parameter.name.text)
 
@@ -241,8 +245,10 @@ class OpenstackComponent(Service):
                         if isinstance(type_validation_result, Issue):
                             type_validation_result.mark = parameter.value.start_mark.merge(
                                 type_validation_result.mark)
-                            type_validation_result.message = 'Property "%s" in section "%s": %s' % (
-                                parameter.name.text, section_name, type_validation_result.message)
+                            type_validation_result.message = \
+                                'Property "%s" in section "%s": %s' % (
+                                parameter.name.text, section_name,
+                                type_validation_result.message)
                             report_issue(type_validation_result)
 
                             config.set(
@@ -258,8 +264,12 @@ class OpenstackComponent(Service):
                         if parameter_schema.deprecation_message:
                             report_issue(
                                 MarkedIssue(
-                                    Issue.WARNING, 'Deprecated parameter: section "%s" name "%s". %s' %
-                                    (section_name, parameter.name.text, parameter_schema.deprecation_message), parameter.start_mark))
+                                    Issue.WARNING,
+                                    'Deprecated parameter: section "%s" name '
+                                    '"%s". %s' %
+                                    (section_name, parameter.name.text,
+                                     parameter_schema.deprecation_message),
+                                    parameter.start_mark))
                     else:
                         config.set(parameter_fullname, parameter.value.text)
 

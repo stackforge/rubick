@@ -1,7 +1,8 @@
 
 from ostack_validator.common import Inspection, Issue, find
 
-KEYSTONE_AUTHTOKEN_FILTER_FACTORY = 'keystoneclient.middleware.auth_token:filter_factory'
+KEYSTONE_AUTHTOKEN_FILTER_FACTORY = 'keystoneclient.middleware.' \
+                                    'auth_token:filter_factory'
 
 
 class KeystoneAuthtokenSettingsInspection(Inspection):
@@ -30,8 +31,9 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
 
             (authtoken_section, _) = find(
                 nova.paste_config.items(),
-                lambda name_values: name_values[0].startswith('filter:') and name_values[
-                    1].get('paste.filter_factory') == KEYSTONE_AUTHTOKEN_FILTER_FACTORY
+                lambda name_values: name_values[0].startswith('filter:')
+                and name_values[1].get('paste.filter_factory') ==
+                                    KEYSTONE_AUTHTOKEN_FILTER_FACTORY
             )
 
             if not authtoken_section:
@@ -63,46 +65,53 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' miss "auth_host" setting in keystone authtoken config'))
+                        ' miss "auth_host" setting in keystone authtoken'
+                        ' config'))
             elif not auth_host in keystone_addresses:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' has incorrect "auth_host" setting in keystone authtoken config'))
+                        ' has incorrect "auth_host" setting in keystone'
+                        ' authtoken config'))
 
             if not auth_port:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' miss "auth_port" setting in keystone authtoken config'))
+                        ' miss "auth_port" setting in keystone authtoken'
+                        ' config'))
             elif auth_port != keystone.config['admin_port']:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' has incorrect "auth_port" setting in keystone authtoken config'))
+                        ' has incorrect "auth_port" setting in keystone'
+                        ' authtoken config'))
 
             if not auth_protocol:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' miss "auth_protocol" setting in keystone authtoken config'))
+                        ' miss "auth_protocol" setting in keystone authtoken'
+                        ' config'))
             elif not auth_protocol in ['http', 'https']:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' has incorrect "auth_protocol" setting in keystone authtoken config'))
+                        ' has incorrect "auth_protocol" setting in keystone '
+                        'authtoken config'))
 
             if not admin_user:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' miss "admin_user" setting in keystone authtoken config'))
+                        ' miss "admin_user" setting in keystone authtoken '
+                        'config'))
             else:
                 user = find(
                     keystone.db['users'],
@@ -112,14 +121,16 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
                         Issue(
                             Issue.ERROR,
                             msg_prefix +
-                            ' has "admin_user" that is missing in Keystone catalog'))
+                            ' has "admin_user" that is missing in Keystone '
+                            'catalog'))
 
             if not admin_tenant_name:
                 nova.report_issue(
                     Issue(
                         Issue.ERROR,
                         msg_prefix +
-                        ' miss "admin_tenant_name" setting in keystone authtoken config'))
+                        ' miss "admin_tenant_name" setting in keystone '
+                        'authtoken config'))
             else:
                 tenant = find(
                     keystone.db['tenants'],
@@ -129,7 +140,8 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
                         Issue(
                             Issue.ERROR,
                             msg_prefix +
-                            ' has "admin_tenant_name" that is missing in Keystone catalog'))
+                            ' has "admin_tenant_name" that is missing in '
+                            'Keystone catalog'))
 
             if admin_token:
                 nova.report_issue(

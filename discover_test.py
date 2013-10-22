@@ -1,5 +1,5 @@
-import logging
 from itertools import groupby
+import logging
 
 from ostack_validator.common import MarkedIssue, Inspection
 from ostack_validator.discovery import OpenstackDiscovery

@@ -1,6 +1,6 @@
 from __future__ import absolute_import
-import os
 import logging
+import os
 import traceback
 
 from celery import Celery
@@ -63,7 +63,8 @@ def ostack_inspect_task(request):
             openstack.report_issue(
                 Issue(
                     Issue.ERROR,
-                    'Unexpected error running inspection "%s". See log for details' %
+                    'Unexpected error running inspection "%s". See log for '
+                    'details' %
                     inspection.name))
 
     return InspectionResult(request, openstack)

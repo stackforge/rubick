@@ -6,7 +6,8 @@ import logging
 
 import spur
 
-from ostack_validator.common import Issue, Mark, MarkedIssue, index, path_relative_to
+from ostack_validator.common import Issue, Mark, MarkedIssue, index, \
+    path_relative_to
 from ostack_validator.model import *
 
 
@@ -34,7 +35,10 @@ host_port_re = re.compile('(\d+\.\d+\.\d+\.\d+):(\d+)')
 class OpenstackDiscovery(object):
 
     def discover(self, initial_nodes, username, private_key):
-        "Takes a list of node addresses and returns discovered openstack installation info"
+        """
+        Takes a list of node addresses and returns discovered openstack
+        installation info
+        """
         openstack = Openstack()
 
         private_key_file = None
@@ -114,16 +118,19 @@ class OpenstackDiscovery(object):
     def _find_python_process(self, client, name):
         processes = self._get_processes(client)
         for line in processes:
-            if len(line) > 0 and (line[0] == name or line[0].endswith('/' + name)):
+            if len(line) > 0 and (line[0] == name
+                                  or line[0].endswith('/' + name)):
                 return line
-            if len(line) > 1 and python_re.match(line[0]) and (line[1] == name or line[1].endswith('/' + name)):
+            if len(line) > 1 and python_re.match(line[0]) \
+                and (line[1] == name or line[1].endswith('/' + name)):
                 return line
 
         return None
 
     def _find_python_package_version(self, client, package):
         result = client.run(
-            ['python', '-c', 'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' %
+            ['python', '-c',
+             'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' %
              package])
 
         s = result.output.strip()
@@ -169,8 +176,8 @@ class OpenstackDiscovery(object):
             return None
 
         line = ls.output.split("\n")[0]
-        perm, links, owner, group, size, date, time, timezone, name = line.split(
-        )
+        perm, links, owner, group, size, date, time, timezone, name = \
+            line.split()
         permissions = self._permissions_string_to_number(perm)
 
         with client.open(path) as f:
@@ -440,7 +447,8 @@ class OpenstackDiscovery(object):
 
         mysql.config_files = []
         config_locations_result = client.run(
-            ['bash', '-c', 'mysqld --help --verbose | grep "Default options are read from the following files in the given order" -A 1'])
+            ['bash', '-c',
+             'mysqld --help --verbose | grep "Default options are read from the following files in the given order" -A 1'])
         config_locations = config_locations_result.output.strip().split(
             "\n")[-1].split()
         for path in config_locations:

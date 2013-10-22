@@ -34,15 +34,8 @@ Rule-based inspection
 All rule-based inspections are using pre-defined actions written on python, for 
 now they defined in "steps.py" file in the directory: 
 ostack_validator/inspections/lettuce. As you can see they are based on lettuce 
-framework - bdd framework for python. 
-
-Store and reuse rules
----------------------
-You can store your rules wherever you want and add it through the UI or simply 
-putting it in directory ostack_validator/inspections/lettuce with name like 
-this: *.feature. The main requirement is that all you actions in those files 
-must be written according to the rules in steps.py.
-Also you can expand the rules definition by adding your own steps.py. As example:
+framework - bdd framework for python.
+You can expand the rules definition by adding your own steps.py. As example:
 
 #This decorator is for defining step for using them in the scenario.
 @step(r'Nova has "(.+)" equal to "(.*)"')
@@ -50,16 +43,26 @@ def nova_has_property(step, name, value):
     name = subst(name)
         value = subst(value)
 
-            for nova in [c for c in world.openstack.components if 
+            for nova in [c for c in world.openstack.components if
             c.name.startswith('nova')]:
                     if not nova.config[name] == value:
                                 stop()
 
 New methods can use 2 classes from the inspections framework:
-ostack_validator.model and ostack_validator.common. There are you can find many
-adapters to the services configuration data and all additional information
-collected from OpenStack nodes. After that you can use you brand new rule in
-the scenarios as described above. 
+ostack_validator/model.py and ostack_validator/common.py. There are you can
+find many adapters to the services configuration data and all additional
+information collected from OpenStack nodes. After that you can use you brand
+new rule in the scenarios as described above. In common.py you can find
+Inspection, Issue, Mark, Error and Version classes for your comfortability in
+rule defining. Model.py contains Openstack model based on configuration
+schemas.
+
+Store and reuse rules
+---------------------
+You can store your rules wherever you want and add it through the UI or simply 
+putting it in directory ostack_validator/inspections/lettuce with name like 
+this: *.feature. The main requirement is that all you actions in those files 
+must be written according to the rules in steps.py.
 
 Sanity checks vs best practices
 -------------------------------
