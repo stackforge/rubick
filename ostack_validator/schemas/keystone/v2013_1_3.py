@@ -10,7 +10,8 @@ keystone.param(
     'admin_token',
     type='string',
     default='ADMIN',
-    description="A 'shared secret' between keystone and other openstack services")
+    description="A 'shared secret' between keystone and other openstack "
+                "services")
 
 keystone.param(
     'bind_host',
@@ -34,7 +35,9 @@ keystone.param(
     'public_endpoint',
     type='string',
     default='http://localhost:%(public_port)s/',
-    description="The base endpoint URLs for keystone that are advertised to clients (NOTE: this does NOT affect how keystone listens for connections)")
+    description="The base endpoint URLs for keystone that are advertised to "
+                "clients (NOTE: this does NOT affect how keystone listens for "
+                "connections)")
 
 keystone.param(
     'admin_endpoint',
@@ -46,7 +49,8 @@ keystone.param(
     'compute_port',
     type='port',
     default='8774',
-    description="The port number which the OpenStack Compute service listens on")
+    description="The port number which the OpenStack Compute service "
+                "listens on")
 
 keystone.param(
     'policy_file',
@@ -58,13 +62,20 @@ keystone.param(
     'policy_default_rule',
     type='string',
     default='admin_required',
-    description="Rule to check if no matching policy definition is found FIXME(dolph): This should really be defined as [policy] default_rule")
+    description="Rule to check if no matching policy definition is found "
+                "FIXME(dolph): This should really be defined as [policy] "
+                "default_rule")
 
 keystone.param(
     'member_role_id',
     type='string',
     default='9fe2ff9ee4384b1894a90878d3e92bab',
-    description="Role for migrating membership relationships During a SQL upgrade, the following values will be used to create a new role that will replace records in the user_tenant_membership table with explicit role grants.  After migration, the member_role_id will be used in the API add_user_to_project, and member_role_name will be ignored.")
+    description="Role for migrating membership relationships During a SQL "
+                "upgrade, the following values will be used to create a new "
+                "role that will replace records in the user_tenant_membership "
+                "table with explicit role grants.  After migration, the "
+                "member_role_id will be used in the API add_user_to_project, "
+                "and member_role_name will be ignored.")
 
 keystone.param(
     'member_role_name',
@@ -76,7 +87,8 @@ keystone.param(
     'max_request_body_size',
     type='string',
     default='114688',
-    description="enforced by optional sizelimit middleware (keystone.middleware:RequestBodySizeLimiter)")
+    description="enforced by optional sizelimit middleware "
+                "(keystone.middleware:RequestBodySizeLimiter)")
 
 keystone.param(
     'max_param_size',
@@ -88,13 +100,15 @@ keystone.param(
     'max_token_size',
     type='integer',
     default=8192,
-    description="similar to max_param_size, but provides an exception for token values")
+    description="similar to max_param_size, but provides an exception for "
+                "token values")
 
 keystone.param(
     'debug',
     type='boolean',
     default=False,
-    description="=== Logging Options === Print debugging output (includes plaintext request logging, potentially including passwords)")
+    description="=== Logging Options === Print debugging output (includes "
+                "plaintext request logging, potentially including passwords)")
 
 keystone.param(
     'verbose',
@@ -106,13 +120,15 @@ keystone.param(
     'log_file',
     type='string',
     default='keystone.log',
-    description="Name of log file to output to. If not set, logging will go to stdout.")
+    description="Name of log file to output to. If not set, logging will go "
+                "to stdout.")
 
 keystone.param(
     'log_dir',
     type='string',
     default='/var/log/keystone',
-    description="The directory to keep log files in (will be prepended to --logfile)")
+    description="The directory to keep log files in (will be prepended to "
+                "--logfile)")
 
 keystone.param(
     'use_syslog',
@@ -130,13 +146,17 @@ keystone.param(
     'log_config',
     type='string',
     default='logging.conf',
-    description="If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.")
+    description="If this option is specified, the logging configuration file "
+                "specified is used and overrides any other logging options "
+                "specified. Please see the Python logging module documentation"
+                " for details on logging configuration files.")
 
 keystone.param(
     'log_format',
     type='string',
     default='%(asctime)s %(levelname)8s [%(name)s] %(message)s',
-    description="A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes.")
+    description="A logging.Formatter log message format string which may use "
+                "any of the available logging.LogRecord attributes.")
 
 keystone.param(
     'log_date_format',
@@ -148,7 +168,10 @@ keystone.param(
     'onready',
     type='string',
     default='keystone.common.systemd',
-    description="onready allows you to send a notification when the process is ready to serve For example, to have it notify using systemd, one could set shell command: onready = systemd-notify --ready or a module with notify() method:")
+    description="onready allows you to send a notification when the process "
+                "is ready to serve For example, to have it notify using "
+                "systemd, one could set shell command: onready = "
+                "systemd-notify --ready or a module with notify() method:")
 
 keystone.param(
     'default_notification_level',
@@ -160,7 +183,8 @@ keystone.param(
     'default_publisher_id',
     type='string',
     default='',
-    description="Default publisher_id for outgoing notifications; included in the payload.")
+    description="Default publisher_id for outgoing notifications; included in "
+                "the payload.")
 
 keystone.param(
     'rpc_backend',
@@ -190,7 +214,8 @@ keystone.param(
     'rpc_cast_timeout',
     type='integer',
     default=30,
-    description="Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.")
+    description="Seconds to wait before a cast expires (TTL). Only supported "
+                "by impl_zmq.")
 
 keystone.param(
     'fake_rabbit',
@@ -210,7 +235,8 @@ keystone.param(
     'connection',
     type='string',
     default='sqlite:///keystone.db',
-    description="The SQLAlchemy connection string used to connect to the database")
+    description="The SQLAlchemy connection string used to connect to the "
+                "database")
 
 keystone.param(
     'idle_timeout',
@@ -230,13 +256,22 @@ keystone.param(
     'default_domain_id',
     type='string',
     default='default',
-    description="This references the domain to use for all Identity API v2 requests (which are not aware of domains). A domain with this ID will be created for you by keystone-manage db_sync in migration 008.  The domain referenced by this ID cannot be deleted on the v3 API, to prevent accidentally breaking the v2 API. There is nothing special about this domain, other than the fact that it must exist to order to maintain support for your v2 clients.")
+    description="This references the domain to use for all Identity API v2 "
+                "requests (which are not aware of domains). A domain with "
+                "this ID will be created for you by keystone-manage db_sync "
+                "in migration 008.  The domain referenced by this ID cannot "
+                "be deleted on the v3 API, to prevent accidentally breaking "
+                "the v2 API. There is nothing special about this domain, "
+                "other than the fact that it must exist to order to "
+                "maintain support for your v2 clients.")
 
 keystone.param(
     'domain_specific_drivers_enabled',
     type='boolean',
     default=False,
-    description="A subset (or all) of domains can have their own identity driver, each with their own partial configuration file in a domain configuration directory. Only")
+    description="A subset (or all) of domains can have their own identity "
+                "driver, each with their own partial configuration file in a "
+                "domain configuration directory. Only")
 
 keystone.param(
     'domain_config_dir',
@@ -248,7 +283,8 @@ keystone.param(
     'max_password_length',
     type='integer',
     default=4096,
-    description="Maximum supported length for user passwords; decrease to improve performance.")
+    description="Maximum supported length for user passwords; decrease to "
+                "improve performance.")
 
 keystone.section('credential')
 
@@ -264,7 +300,8 @@ keystone.param(
     'enabled',
     type='boolean',
     default=True,
-    description="delegation and impersonation features can be optionally disabled")
+    description="delegation and impersonation features can be optionally "
+                "disabled")
 
 keystone.section('os_inherit')
 
@@ -272,7 +309,8 @@ keystone.param(
     'enabled',
     type='boolean',
     default=False,
-    description="role-assignment inheritance to projects from owning domain can be optionally enabled")
+    description="role-assignment inheritance to projects from owning domain "
+                "can be optionally enabled")
 
 keystone.section('catalog')
 
@@ -280,13 +318,15 @@ keystone.param(
     'driver',
     type='string',
     default='keystone.catalog.backends.sql.Catalog',
-    description="dynamic, sql-based backend (supports API/CLI-based management commands)")
+    description="dynamic, sql-based backend (supports API/CLI-based "
+                "management commands)")
 
 keystone.param(
     'driver',
     type='string',
     default='keystone.catalog.backends.templated.TemplatedCatalog',
-    description="static, file-based backend (does *NOT* support any management commands)")
+    description="static, file-based backend (does *NOT* support any "
+                "management commands)")
 
 keystone.param(
     'template_file',
@@ -300,7 +340,9 @@ keystone.param(
     'driver',
     type='string',
     default='keystone.contrib.endpoint_filter.backends.sql.EndpointFilter',
-    description="extension for creating associations between project and endpoints in order to provide a tailored catalog for project-scoped token requests.")
+    description="extension for creating associations between project and "
+                "endpoints in order to provide a tailored catalog for "
+                "project-scoped token requests.")
 
 keystone.param(
     'return_all_endpoints_if_no_filter',
@@ -320,7 +362,9 @@ keystone.param(
     'provider',
     type='string',
     default='',
-    description="Controls the token construction, validation, and revocation operations. Core providers are keystone.token.providers.[pki|uuid].Provider")
+    description="Controls the token construction, validation, and revocation "
+                "operations. Core providers are keystone.token.providers."
+                "[pki|uuid].Provider")
 
 keystone.param(
     'expiration',
@@ -332,19 +376,24 @@ keystone.param(
     'bind',
     type='string',
     default='',
-    description="External auth mechanisms that should add bind information to token. eg kerberos, x509")
+    description="External auth mechanisms that should add bind information to "
+                "token. eg kerberos, x509")
 
 keystone.param(
     'enforce_token_bind',
     type='string',
     default='permissive',
-    description="Enforcement policy on tokens presented to keystone with bind information. One of disabled, permissive, strict, required or a specifically required bind mode e.g. kerberos or x509 to require binding to that authentication.")
+    description="Enforcement policy on tokens presented to keystone with bind "
+                "information. One of disabled, permissive, strict, required "
+                "or a specifically required bind mode e.g. kerberos or x509 "
+                "to require binding to that authentication.")
 
 keystone.param(
     'caching',
     type='boolean',
     default=True,
-    description="Token specific caching toggle. This has no effect unless the global caching option is set to True")
+    description="Token specific caching toggle. This has no effect unless the "
+                "global caching option is set to True")
 
 keystone.param(
     'cache_time',
@@ -356,7 +405,8 @@ keystone.param(
     'revocation_cache_time',
     type='integer',
     default=3600,
-    description="Revocation-List specific cache time-to-live (TTL) in seconds.")
+    description="Revocation-List specific cache time-to-live (TTL) "
+                "in seconds.")
 
 keystone.section('cache')
 
@@ -370,37 +420,55 @@ keystone.param(
     'config_prefix',
     type='string',
     default='cache.keystone',
-    description="Prefix for building the configuration dictionary for the cache region. This should not need to be changed unless there is another dogpile.cache region with the same configuration name")
+    description="Prefix for building the configuration dictionary for the "
+                "cache region. This should not need to be changed unless there"
+                " is another dogpile.cache region with the same configuration "
+                "name")
 
 keystone.param(
     'backend',
     type='string',
     default='keystone.common.cache.noop',
-    description="Dogpile.cache backend module. It is recommended that Memcache (dogpile.cache.memcache) or Redis (dogpile.cache.redis) be used in production deployments.  Small workloads (single process) like devstack can use the dogpile.cache.memory backend.")
+    description="Dogpile.cache backend module. It is recommended that "
+                "Memcache (dogpile.cache.memcache) or Redis "
+                "(dogpile.cache.redis) be used in production deployments.  "
+                "Small workloads (single process) like devstack can use the "
+                "dogpile.cache.memory backend.")
 
 keystone.param(
     'backend_argument',
     type='string',
     default='',
-    description="Arguments supplied to the backend module. Specify this option once per argument to be passed to the dogpile.cache backend. Example format: <argname>:<value>")
+    description="Arguments supplied to the backend module. Specify this "
+                "option once per argument to be passed to the "
+                "dogpile.cache backend. Example format: <argname>:<value>")
 
 keystone.param(
     'proxies',
     type='string',
     default='',
-    description="Proxy Classes to import that will affect the way the dogpile.cache backend functions.  See the dogpile.cache documentation on changing-backend-behavior. Comma delimited list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2")
+    description="Proxy Classes to import that will affect the way the "
+                "dogpile.cache backend functions.  See the dogpile.cache "
+                "documentation on changing-backend-behavior. Comma delimited "
+                "list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2")
 
 keystone.param(
     'use_key_mangler',
     type='boolean',
     default=True,
-    description="Use a key-mangling function (sha1) to ensure fixed length cache-keys. This is toggle-able for debugging purposes, it is highly recommended to always leave this set to True.")
+    description="Use a key-mangling function (sha1) to ensure fixed length "
+                "cache-keys. This is toggle-able for debugging purposes, "
+                "it is highly recommended to always leave this set to True.")
 
 keystone.param(
     'debug_cache_backend',
     type='boolean',
     default=False,
-    description="Extra debugging from the cache backend (cache keys, get/set/delete/etc calls) This is only really useful if you need to see the specific cache-backend get/set/delete calls with the keys/values.  Typically this should be left set to False.")
+    description="Extra debugging from the cache backend (cache keys, "
+                "get/set/delete/etc calls) This is only really useful if you "
+                "need to see the specific cache-backend get/set/delete calls "
+                "with the keys/values.  Typically this should be left set to "
+                "False.")
 
 keystone.section('policy')
 
@@ -426,7 +494,8 @@ keystone.param(
     'caching',
     type='boolean',
     default=True,
-    description="Assignment specific caching toggle. This has no effect unless the global caching option is set to True")
+    description="Assignment specific caching toggle. This has no effect "
+                "unless the global caching option is set to True")
 
 keystone.param(
     'cache_time',
@@ -446,13 +515,17 @@ keystone.param(
     'request_token_duration',
     type='integer',
     default=28800,
-    description="The Identity service may include expire attributes. If no such attribute is included, then the token lasts indefinitely. Specify how quickly the request token will expire (in seconds)")
+    description="The Identity service may include expire attributes. If no "
+                "such attribute is included, then the token lasts "
+                "indefinitely. Specify how quickly the request token will "
+                "expire (in seconds)")
 
 keystone.param(
     'access_token_duration',
     type='integer',
     default=86400,
-    description="Specify how quickly the access token will expire (in seconds)")
+    description="Specify how quickly the access token will expire "
+                "(in seconds)")
 
 keystone.section('ssl')
 
@@ -500,7 +573,8 @@ keystone.param(
     'token_format',
     type='string',
     default='',
-    description="Deprecated in favor of provider in the [token] section Allowed values are PKI or UUID")
+    description="Deprecated in favor of provider in the [token] section "
+                "Allowed values are PKI or UUID")
 
 keystone.param(
     'certfile',
@@ -580,19 +654,24 @@ keystone.param(
     'page_size',
     type='integer',
     default=0,
-    description="Maximum results per page; a value of zero ('0') disables paging (default)")
+    description="Maximum results per page; a value of zero ('0') disables "
+                "paging (default)")
 
 keystone.param(
     'alias_dereferencing',
     type='string',
     default='default',
-    description="The LDAP dereferencing option for queries. This can be either 'never', 'searching', 'always', 'finding' or 'default'. The 'default' option falls back to using default dereferencing configured by your ldap.conf.")
+    description="The LDAP dereferencing option for queries. This can be "
+                "either 'never', 'searching', 'always', 'finding' or "
+                "'default'. The 'default' option falls back to using "
+                "default dereferencing configured by your ldap.conf.")
 
 keystone.param(
     'query_scope',
     type='string',
     default='one',
-    description="The LDAP scope for queries, this can be either 'one' (onelevel/singleLevel) or 'sub' (subtree/wholeSubtree)")
+    description="The LDAP scope for queries, this can be either 'one' "
+                "(onelevel/singleLevel) or 'sub' (subtree/wholeSubtree)")
 
 keystone.param(
     'user_tree_dn',
@@ -892,7 +971,10 @@ keystone.param(
     'use_tls',
     type='boolean',
     default=False,
-    description="ldap TLS options if both tls_cacertfile and tls_cacertdir are set then tls_cacertfile will be used and tls_cacertdir is ignored valid options for tls_req_cert are demand, never, and allow")
+    description="ldap TLS options if both tls_cacertfile and tls_cacertdir "
+                "are set then tls_cacertfile will be used and tls_cacertdir "
+                "is ignored valid options for tls_req_cert are demand, never, "
+                "and allow")
 
 keystone.param('tls_cacertfile', type='string', default='', description="")
 
@@ -904,7 +986,11 @@ keystone.param(
     'user_additional_attribute_mapping',
     type='string',
     default='description:name, gecos:name',
-    description="Additional attribute mappings can be used to map ldap attributes to internal keystone attributes. This allows keystone to fulfill ldap objectclass requirements. An example to map the description and gecos attributes to a user's name would be:")
+    description="Additional attribute mappings can be used to map ldap "
+                "attributes to internal keystone attributes. This allows "
+                "keystone to fulfill ldap objectclass requirements. An "
+                "example to map the description and gecos attributes to a "
+                "user's name would be:")
 
 keystone.param(
     'domain_additional_attribute_mapping',
@@ -974,6 +1060,7 @@ keystone.param(
     'config_file',
     type='string',
     default='keystone-paste.ini',
-    description="Name of the paste configuration file that defines the available pipelines")
+    description="Name of the paste configuration file that defines the "
+                "available pipelines")
 
 keystone.commit()

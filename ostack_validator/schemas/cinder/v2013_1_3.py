@@ -92,7 +92,8 @@ cinder.param(
     'periodic_fuzzy_delay',
     type='integer',
     default='60',
-    description="range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding.")
+    description="range of seconds to randomly delay when starting the "
+                "periodic task scheduler to reduce stampeding.")
 
 cinder.param(
     'osapi_volume_listen',
@@ -128,7 +129,8 @@ cinder.param(
     'tcp_keepidle',
     type='integer',
     default='600',
-    description="Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X.")
+    description="Sets the value of TCP_KEEPIDLE in seconds for each server "
+                "socket. Not supported on OS X.")
 
 cinder.param(
     'ssl_ca_file',
@@ -152,19 +154,22 @@ cinder.param(
     'osapi_max_limit',
     type='integer',
     default='1000',
-    description="the maximum number of items returned in a single response from a collection resource")
+    description="the maximum number of items returned in a single response "
+                "from a collection resource")
 
 cinder.param(
     'osapi_volume_base_URL',
     type='string',
     default='<None>',
-    description="Base URL that will be presented to users in links to the OpenStack Volume API")
+    description="Base URL that will be presented to users in links to the "
+                "OpenStack Volume API")
 
 cinder.param(
     'use_forwarded_for',
     type='boolean',
     default='false',
-    description="Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy.")
+    description="Treat X-Forwarded-For as the canonical remote address. "
+                "Only enable this if you have a sanitizing proxy.")
 
 cinder.param(
     'osapi_max_request_body_size',
@@ -188,7 +193,8 @@ cinder.param(
     'backup_ceph_chunk_size',
     type='integer',
     default='134217728',
-    description="the chunk size in bytes that a backup will be broken into before transfer to backup store")
+    description="the chunk size in bytes that a backup will be broken into "
+                "before transfer to backup store")
 
 cinder.param(
     'backup_ceph_pool',
@@ -320,13 +326,16 @@ cinder.param(
     'lio_initiator_iqns',
     type='string',
     default='',
-    description="Comma-separatd list of initiator IQNs allowed to connect to the iSCSI target.")
+    description="Comma-separatd list of initiator IQNs allowed to connect to "
+                "the iSCSI target.")
 
 cinder.param(
     'iscsi_iotype',
     type='string',
     default='fileio',
-    description="Sets the behavior of the iSCSI target to either perform blockio or fileio optionally, auto can be set and Cinder will autodetect type of backing device")
+    description="Sets the behavior of the iSCSI target to either perform "
+                "blockio or fileio optionally, auto can be set and Cinder "
+                "will autodetect type of backing device")
 
 cinder.param(
     'iser_helper',
@@ -350,7 +359,8 @@ cinder.param(
     'nfs_mount_options',
     type='string',
     default='<None>',
-    description="Mount options passed to the nfs client. See section of the nfs man page for details")
+    description="Mount options passed to the nfs client. See section of the "
+                "nfs man page for details")
 
 cinder.param(
     'glusterfs_mount_point_base',
@@ -362,7 +372,8 @@ cinder.param(
     'connection_type',
     type='string',
     default='<None>',
-    description="Virtualization api connection type : libvirt, xenapi, or fake")
+    description="Virtualization api connection type : libvirt, xenapi, or "
+                "fake")
 
 cinder.param(
     'api_paste_config',
@@ -434,7 +445,8 @@ cinder.param(
     'glance_api_ssl_compression',
     type='boolean',
     default='false',
-    description="Whether to attempt to negotiate SSL layer compression when using SSL")
+    description="Whether to attempt to negotiate SSL layer compression when "
+                "using SSL")
 
 cinder.param(
     'glance_request_timeout',
@@ -482,7 +494,8 @@ cinder.param(
     'osapi_volume_ext_list',
     type='list',
     default='',
-    description="Specify list of extensions to load when using osapi_volume_extension option with cinder.api.contrib.select_extensions")
+    description="Specify list of extensions to load when using osapi_volume_"
+                "extension option with cinder.api.contrib.select_extensions")
 
 cinder.param(
     'osapi_volume_extension',
@@ -512,7 +525,8 @@ cinder.param(
     'host',
     type='string',
     default='cinder',
-    description="Name of this node.  This can be an opaque identifier.  It is not necessarily a hostname, FQDN, or IP address.")
+    description="Name of this node.  This can be an opaque identifier.  "
+                "It is not necessarily a hostname, FQDN, or IP address.")
 
 cinder.param(
     'storage_availability_zone',
@@ -524,7 +538,10 @@ cinder.param(
     'default_availability_zone',
     type='string',
     default='<None>',
-    description="default availability zone to use when creating a new volume. If this is not set then we use the value from the storage_availability_zone option as the default availability_zone for new volumes.")
+    description="default availability zone to use when creating a new volume. "
+                "If this is not set then we use the value from the "
+                "storage_availability_zone option as the "
+                "default availability_zone for new volumes.")
 
 cinder.param(
     'memcached_servers',
@@ -542,7 +559,8 @@ cinder.param(
     'volume_usage_audit_period',
     type='string',
     default='month',
-    description="time period to generate volume usages for.  Time period must be hour, day, month or year")
+    description="time period to generate volume usages for.  Time period "
+                "must be hour, day, month or year")
 
 cinder.param(
     'root_helper',
@@ -554,7 +572,8 @@ cinder.param(
     'rootwrap_config',
     type='string',
     default='/etc/cinder/rootwrap.conf',
-    description="Path to the rootwrap configuration file to use for running commands as root")
+    description="Path to the rootwrap configuration file to use for "
+                "running commands as root")
 
 cinder.param(
     'monkey_patch',
@@ -590,13 +609,15 @@ cinder.param(
     'auth_strategy',
     type='string',
     default='noauth',
-    description="The strategy to use for auth. Supports noauth, keystone, and deprecated.")
+    description="The strategy to use for auth. Supports noauth, keystone, "
+                "and deprecated.")
 
 cinder.param(
     'enabled_backends',
     type='list',
     default='<None>',
-    description="A list of backend names to use. These backend names should be backed by a unique [CONFIG] group with its options")
+    description="A list of backend names to use. These backend names "
+                "should be backed by a unique [CONFIG] group with its options")
 
 cinder.param(
     'no_snapshot_gb_quota',
@@ -620,7 +641,9 @@ cinder.param(
     'nova_catalog_info',
     type='string',
     default='compute:nova:publicURL',
-    description="Info to match when looking for nova in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type>")
+    description="Info to match when looking for nova in the service catalog. "
+                "Format is : separated values of the form: "
+                "<service_type>:<service_name>:<endpoint_type>")
 
 cinder.param(
     'nova_catalog_admin_info',
@@ -632,7 +655,8 @@ cinder.param(
     'nova_endpoint_template',
     type='string',
     default='<None>',
-    description="Override service catalog lookup with template for nova endpoint e.g. http://localhost:8774/v2/%(tenant_id)s")
+    description="Override service catalog lookup with template for nova "
+                "endpoint e.g. http://localhost:8774/v2/%(tenant_id)s")
 
 cinder.param(
     'nova_endpoint_admin_template',
@@ -650,7 +674,8 @@ cinder.param(
     'nova_ca_certificates_file',
     type='string',
     default='<None>',
-    description="Location of ca certicates file to use for nova client requests.")
+    description="Location of ca certicates file to use for nova client "
+                "requests.")
 
 cinder.param(
     'nova_api_insecure',
@@ -698,7 +723,8 @@ cinder.param(
     'allowed_direct_url_schemes',
     type='list',
     default='',
-    description="A list of url schemes that can be downloaded directly via the direct_url.  Currently supported schemes: [file].")
+    description="A list of url schemes that can be downloaded directly "
+                "via the direct_url.  Currently supported schemes: [file].")
 
 cinder.param(
     'image_conversion_dir',
@@ -722,20 +748,24 @@ cinder.param(
     'use_tpool',
     type='boolean',
     default='false',
-    description="Enable the experimental use of thread pooling for all DB API calls")
+    description="Enable the experimental use of thread pooling for all "
+                "DB API calls")
 
 cinder.param(
     'connection',
     type='string',
     default='sqlite:////cinder/openstack/common/db/$sqlite_db',
-    description="The SQLAlchemy connection string used to connect to the database")
+    description="The SQLAlchemy connection string used to connect to "
+                "the database")
 
 cinder.param(
     'sql_connection',
     type='string',
     default='sqlite:////nova/openstack/common/db/$sqlite_db',
-    description="The SQLAlchemy connection string used to connect to the database",
-    deprecation_message='Deprecated in favor of "[DEFAULT]connection" parameter')
+    description="The SQLAlchemy connection string used to connect to "
+                "the database",
+    deprecation_message='Deprecated in favor of "[DEFAULT]connection" '
+                        'parameter')
 
 cinder.param(
     'idle_timeout',
@@ -777,7 +807,8 @@ cinder.param(
     'connection_debug',
     type='integer',
     default='0',
-    description="Verbosity of SQL debugging information. 0=None, 100=Everything")
+    description="Verbosity of SQL debugging information. 0=None, "
+                "100=Everything")
 
 cinder.param(
     'connection_trace',
@@ -836,13 +867,16 @@ cinder.param(
 cinder.param(
     'logging_context_format_string',
     type='string',
-    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s',
+    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+            '%(name)s [%(request_id)s %(user)s %(tenant)s] '
+            '%(instance)s%(message)s',
     description="format string to use for log messages with context")
 
 cinder.param(
     'logging_default_format_string',
     type='string',
-    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s',
+    default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s '
+            '[-] %(instance)s%(message)s',
     description="format string to use for log messages without context")
 
 cinder.param(
@@ -860,7 +894,8 @@ cinder.param(
 cinder.param(
     'default_log_levels',
     type='list',
-    default='amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,eventlet.wsgi.serverWARN',
+    default='amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,'
+            'eventlet.wsgi.serverWARN',
     description="list of logger=LEVEL pairs")
 
 cinder.param(
@@ -879,43 +914,55 @@ cinder.param(
     'instance_format',
     type='string',
     default='"[instance: %(uuid)s] "',
-    description="If an instance is passed with the log message, format it like this")
+    description="If an instance is passed with the log message, "
+                "format it like this")
 
 cinder.param(
     'instance_uuid_format',
     type='string',
     default='"[instance: %(uuid)s] "',
-    description="If an instance UUID is passed with the log message, format it like this")
+    description="If an instance UUID is passed with the log message, "
+                "format it like this")
 
 cinder.param(
     'log_config',
     type='string',
     default='<None>',
-    description="If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.")
+    description="If this option is specified, the logging configuration "
+                "file specified is used and overrides any other logging "
+                "options specified. Please see the Python logging module "
+                "documentation for details on logging configuration files.")
 
 cinder.param(
     'log_format',
     type='string',
     default='<None>',
-    description="A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead.")
+    description="A logging.Formatter log message format string which may use "
+                "any of the available logging.LogRecord attributes. This "
+                "option is deprecated.  Please use "
+                "logging_context_format_string and logging_default_"
+                "format_string instead.")
 
 cinder.param(
     'log_date_format',
     type='string',
     default='%Y-%m-%d %H:%M:%S',
-    description="Format string for %%(asctime)s in log records. Default: %(default)s")
+    description="Format string for %%(asctime)s in log records. "
+                "Default: %(default)s")
 
 cinder.param(
     'log_file',
     type='string',
     default='<None>',
-    description="(Optional) Name of log file to output to. If no default is set, logging will go to stdout.")
+    description="(Optional) Name of log file to output to. If no default is "
+                "set, logging will go to stdout.")
 
 cinder.param(
     'log_dir',
     type='string',
     default='<None>',
-    description="(Optional) The base directory used for relative --log-file paths")
+    description="(Optional) The base directory used for relative --log-file "
+                "paths")
 
 cinder.param(
     'use_syslog',
@@ -957,7 +1004,8 @@ cinder.param(
     'run_external_periodic_tasks',
     type='boolean',
     default='true',
-    description="Some periodic tasks can be run in a separate process. Should we run them here?")
+    description="Some periodic tasks can be run in a separate process. "
+                "Should we run them here?")
 
 cinder.param(
     'rpc_backend',
@@ -992,8 +1040,10 @@ cinder.param(
 cinder.param(
     'allowed_rpc_exception_modules',
     type='list',
-    default='cinder.openstack.common.exception,nova.exception,cinder.exception,exceptions',
-    description="Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call.")
+    default='cinder.openstack.common.exception,nova.exception,'
+            'cinder.exception,exceptions',
+    description="Modules of exceptions that are permitted to be recreatedupon "
+                "receiving exception data from an rpc call.")
 
 cinder.param(
     'fake_rabbit',
@@ -1011,7 +1061,8 @@ cinder.param(
     'amqp_rpc_single_reply_queue',
     type='boolean',
     default='false',
-    description="Enable a fast single reply queue if using AMQP based RPC like RabbitMQ or Qpid.")
+    description="Enable a fast single reply queue if using AMQP based "
+                "RPC like RabbitMQ or Qpid.")
 
 cinder.param(
     'amqp_durable_queues',
@@ -1101,7 +1152,8 @@ cinder.param(
     'rabbit_retry_backoff',
     type='integer',
     default='2',
-    description="how long to backoff for between retries when connecting to RabbitMQ")
+    description="how long to backoff for between retries when connecting "
+                "to RabbitMQ")
 
 cinder.param(
     'rabbit_max_retries',
@@ -1173,7 +1225,11 @@ cinder.param(
     'qpid_topology_version',
     type='integer',
     default='1',
-    description="The qpid topology version to use.  Version 1 is what was originally used by impl_qpid.  Version 2 includes some backwards-incompatible changes that allow broker federation to work.  Users should update to version 2 when they are able to take everything down, as it requires a clean break.")
+    description="The qpid topology version to use.  Version 1 is what "
+                "was originally used by impl_qpid.  Version 2 includes some "
+                "backwards-incompatible changes that allow broker federation "
+                "to work.  Users should update to version 2 when they are "
+                "able to take everything down, as it requires a clean break.")
 
 cinder.param(
     'rpc_zmq_bind_address',
@@ -1203,7 +1259,8 @@ cinder.param(
     'rpc_zmq_topic_backlog',
     type='integer',
     default='<None>',
-    description="Maximum number of ingress messages to locally buffer per topic. Default is unlimited.")
+    description="Maximum number of ingress messages to locally buffer per "
+                "topic. Default is unlimited.")
 
 cinder.param(
     'rpc_zmq_ipc_dir',
@@ -1215,7 +1272,8 @@ cinder.param(
     'rpc_zmq_host',
     type='string',
     default='cinder',
-    description="Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova.")
+    description="Name of this node. Must be a valid hostname, FQDN, or IP"
+                " address. Must match 'host' option, if running Nova.")
 
 cinder.param(
     'matchmaker_ringfile',
@@ -1269,7 +1327,8 @@ cinder.param(
     'scheduler_default_filters',
     type='list',
     default='AvailabilityZoneFilter,CapacityFilter,CapabilitiesFilter',
-    description="Which filter class names to use for filtering hosts when not specified in the request.")
+    description="Which filter class names to use for filtering hosts when "
+                "not specified in the request.")
 
 cinder.param(
     'scheduler_default_weighers',
@@ -1299,7 +1358,8 @@ cinder.param(
     'capacity_weight_multiplier',
     type='floating point',
     default='1.0',
-    description="Multiplier used for weighing volume capacity. Negative numbers mean to stack vs spread.")
+    description="Multiplier used for weighing volume capacity. Negative "
+                "numbers mean to stack vs spread.")
 
 cinder.param(
     'volume_transfer_salt_length',
@@ -1317,13 +1377,15 @@ cinder.param(
     'snapshot_same_host',
     type='boolean',
     default='true',
-    description="Create volume from snapshot at the host where snapshot resides")
+    description="Create volume from snapshot at the host where snapshot "
+                "resides")
 
 cinder.param(
     'cloned_volume_same_az',
     type='boolean',
     default='true',
-    description="Ensure that the new volumes are the same AZ as snapshot or source volume")
+    description="Ensure that the new volumes are the same AZ as snapshot "
+                "or source volume")
 
 cinder.param(
     'num_shell_tries',
@@ -1365,7 +1427,8 @@ cinder.param(
     'num_iser_scan_tries',
     type='integer',
     default='3',
-    description="The maximum number of times to rescan iSER targetto find volume")
+    description="The maximum number of times to rescan iSER targetto "
+                "find volume")
 
 cinder.param(
     'iser_num_targets',
@@ -1401,7 +1464,8 @@ cinder.param(
     'use_multipath_for_image_xfer',
     type='boolean',
     default='false',
-    description="Do we attach/detach volumes in cinder using multipath for volume to image and image to volume transfers?")
+    description="Do we attach/detach volumes in cinder using multipath "
+                "for volume to image and image to volume transfers?")
 
 cinder.param(
     'volume_clear',
@@ -1509,7 +1573,9 @@ cinder.param(
     'glusterfs_sparsed_volumes',
     type='boolean',
     default='true',
-    description="Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.")
+    description="Create volumes as sparsed files which take no space.If set "
+                "to False volume is created as regular file.In such case "
+                "volume creation takes a lot of time.")
 
 cinder.param(
     'glusterfs_qcow2_volumes',
@@ -1521,7 +1587,8 @@ cinder.param(
     'gpfs_mount_point_base',
     type='string',
     default='<None>',
-    description="Path to the directory on GPFS mount point where volumes are stored")
+    description="Path to the directory on GPFS mount point where volumes "
+                "are stored")
 
 cinder.param(
     'gpfs_images_dir',
@@ -1533,19 +1600,28 @@ cinder.param(
     'gpfs_images_share_mode',
     type='string',
     default='<None>',
-    description="Set this if Glance image repo is on GPFS as well so that the image bits can be transferred efficiently between Glance and Cinder.  Valid values are copy or copy_on_write. copy performs a full copy of the image, copy_on_write efficiently shares unmodified blocks of the image.")
+    description="Set this if Glance image repo is on GPFS as well so that "
+                "the image bits can be transferred efficiently between Glance "
+                "and Cinder.  Valid values are copy or copy_on_write. copy "
+                "performs a full copy of the image, copy_on_write efficiently "
+                "shares unmodified blocks of the image.")
 
 cinder.param(
     'gpfs_max_clone_depth',
     type='integer',
     default='0',
-    description="A lengthy chain of copy-on-write snapshots or clones could have impact on performance.  This option limits the number of indirections required to reach a specific block. 0 indicates unlimited.")
+    description="A lengthy chain of copy-on-write snapshots or clones could "
+                "have impact on performance.  This option limits the number "
+                "of indirections required to reach a specific block. 0 "
+                "indicates unlimited.")
 
 cinder.param(
     'gpfs_sparse_volumes',
     type='boolean',
     default='true',
-    description="Create volumes as sparse files which take no space. If set to False volume is created as regular file. In this case volume creation may take a significantly longer time.")
+    description="Create volumes as sparse files which take no space. If set "
+                "to False volume is created as regular file. In this case "
+                "volume creation may take a significantly longer time.")
 
 cinder.param(
     'hds_cinder_config_file',
@@ -1575,7 +1651,8 @@ cinder.param(
     'lvm_mirrors',
     type='integer',
     default='0',
-    description="If set, create lvms with multiple mirrors. Note that this requires lvm_mirrors + 2 pvs with available space")
+    description="If set, create lvms with multiple mirrors. Note that this "
+                "requires lvm_mirrors + 2 pvs with available space")
 
 cinder.param(
     'lvm_type',
@@ -1737,7 +1814,9 @@ cinder.param(
     'nexenta_sparsed_volumes',
     type='boolean',
     default='true',
-    description="Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.")
+    description="Create volumes as sparsed files which take no space.If set "
+                "to False volume is created as regular file.In such case "
+                "volume creation takes a lot of time.")
 
 cinder.param(
     'nexenta_volume_compression',
@@ -1749,19 +1828,23 @@ cinder.param(
     'nexenta_mount_options',
     type='string',
     default='<None>',
-    description="Mount options passed to the nfs client. See section of the nfs man page for details")
+    description="Mount options passed to the nfs client. See section of "
+                "the nfs man page for details")
 
 cinder.param(
     'nexenta_used_ratio',
     type='floating point',
     default='0.95',
-    description="Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.")
+    description="Percent of ACTUAL usage of the underlying volume before "
+                "no new volumes can be allocated to the volume destination.")
 
 cinder.param(
     'nexenta_oversub_ratio',
     type='floating point',
     default='1.0',
-    description="This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.")
+    description="This will compare the allocated to available space on the "
+                "volume destination.  If the ratio exceeds this number, the "
+                "destination will no longer be valid.")
 
 cinder.param(
     'nexenta_blocksize',
@@ -1785,19 +1868,24 @@ cinder.param(
     'nfs_sparsed_volumes',
     type='boolean',
     default='true',
-    description="Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.")
+    description="Create volumes as sparsed files which take no space.If set "
+                "to False volume is created as regular file.In such case "
+                "volume creation takes a lot of time.")
 
 cinder.param(
     'nfs_used_ratio',
     type='floating point',
     default='0.95',
-    description="Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.")
+    description="Percent of ACTUAL usage of the underlying volume before no "
+                "new volumes can be allocated to the volume destination.")
 
 cinder.param(
     'nfs_oversub_ratio',
     type='floating point',
     default='1.0',
-    description="This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.")
+    description="This will compare the allocated to available space on the "
+                "volume destination.  If the ratio exceeds this number, the "
+                "destination will no longer be valid.")
 
 cinder.param(
     'rbd_pool',
@@ -1809,7 +1897,8 @@ cinder.param(
     'rbd_user',
     type='string',
     default='<None>',
-    description="the RADOS client name for accessing rbd volumes - only set when using cephx authentication")
+    description="the RADOS client name for accessing rbd volumes - only set "
+                "when using cephx authentication")
 
 cinder.param(
     'rbd_ceph_conf',
@@ -1833,13 +1922,16 @@ cinder.param(
     'volume_tmp_dir',
     type='string',
     default='<None>',
-    description="where to store temporary image files if the volume driver does not write them directly to the volume")
+    description="where to store temporary image files if the volume driver "
+                "does not write them directly to the volume")
 
 cinder.param(
     'rbd_max_clone_depth',
     type='integer',
     default='5',
-    description="maximum number of nested clones that can be taken of a volume before enforcing a flatten prior to next clone. A value of zero disables cloning")
+    description="maximum number of nested clones that can be taken of a "
+                "volume before enforcing a flatten prior to next clone. A "
+                "value of zero disables cloning")
 
 cinder.param(
     'hp3par_api_url',
@@ -1863,7 +1955,8 @@ cinder.param(
     'hp3par_domain',
     type='string',
     default='<None>',
-    description="This option is DEPRECATED and no longer used. The 3par domain name to use.")
+    description="This option is DEPRECATED and no longer used. The 3par "
+                "domain name to use.")
 
 cinder.param(
     'hp3par_cpg',
@@ -1875,19 +1968,22 @@ cinder.param(
     'hp3par_cpg_snap',
     type='string',
     default='',
-    description="The CPG to use for Snapshots for volumes. If empty hp3par_cpg will be used")
+    description="The CPG to use for Snapshots for volumes. If empty "
+                "hp3par_cpg will be used")
 
 cinder.param(
     'hp3par_snapshot_retention',
     type='string',
     default='',
-    description="The time in hours to retain a snapshot.  You can't delete it before this expires.")
+    description="The time in hours to retain a snapshot.  You can't delete "
+                "it before this expires.")
 
 cinder.param(
     'hp3par_snapshot_expiration',
     type='string',
     default='',
-    description="The time in hours when a snapshot expires  and is deleted. This must be larger than expiration")
+    description="The time in hours when a snapshot expires  and is deleted."
+                " This must be larger than expiration")
 
 cinder.param(
     'hp3par_debug',
@@ -1947,7 +2043,8 @@ cinder.param(
     'san_is_local',
     type='boolean',
     default='false',
-    description="Execute commands locally instead of over SSH; use if the volume service is running on the SAN device")
+    description="Execute commands locally instead of over SSH; use if "
+                "the volume service is running on the SAN device")
 
 cinder.param(
     'ssh_conn_timeout',
@@ -2013,7 +2110,8 @@ cinder.param(
     'sf_api_port',
     type='integer',
     default='443',
-    description="SolidFire API port. Useful if the device api is behind a proxy on a different port.")
+    description="SolidFire API port. Useful if the device api is behind a "
+                "proxy on a different port.")
 
 cinder.param(
     'storwize_svc_volpool_name',
@@ -2067,7 +2165,8 @@ cinder.param(
     'storwize_svc_flashcopy_timeout',
     type='integer',
     default='120',
-    description="Maximum number of seconds to wait for FlashCopy to be prepared. Maximum value is 600 seconds")
+    description="Maximum number of seconds to wait for FlashCopy to be"
+                " prepared. Maximum value is 600 seconds")
 
 cinder.param(
     'storwize_svc_connection_protocol',
@@ -2109,31 +2208,37 @@ cinder.param(
     'vmware_wsdl_location',
     type='string',
     default='<None>',
-    description="Optional VIM service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds.")
+    description="Optional VIM service WSDL Location e.g "
+                "http://<server>/vimService.wsdl. Optional over-ride to "
+                "default location for bug work-arounds.")
 
 cinder.param(
     'vmware_api_retry_count',
     type='integer',
     default='10',
-    description="Number of times VMware ESX/VC server API must be retried upon connection related issues.")
+    description="Number of times VMware ESX/VC server API must be retried "
+                "upon connection related issues.")
 
 cinder.param(
     'vmware_task_poll_interval',
     type='integer',
     default='5',
-    description="The interval used for polling remote tasks invoked on VMware ESX/VC server.")
+    description="The interval used for polling remote tasks invoked on "
+                "VMware ESX/VC server.")
 
 cinder.param(
     'vmware_volume_folder',
     type='string',
     default='cinder-volumes',
-    description="Name for the folder in the VC datacenter that will contain cinder volumes.")
+    description="Name for the folder in the VC datacenter that will contain "
+                "cinder volumes.")
 
 cinder.param(
     'vmware_image_transfer_timeout_secs',
     type='integer',
     default='7200',
-    description="Timeout in seconds for VMDK volume transfer between Cinder and Glance.")
+    description="Timeout in seconds for VMDK volume transfer between Cinder "
+                "and Glance.")
 
 cinder.param(
     'windows_iscsi_lun_path',
@@ -2277,7 +2382,8 @@ cinder.param(
     'migration_create_volume_timeout_secs',
     type='integer',
     default='300',
-    description="Timeout for creating the volume to migrate to when performing volume migration")
+    description="Timeout for creating the volume to migrate to when "
+                "performing volume migration")
 
 cinder.param(
     'volume_dd_blocksize',

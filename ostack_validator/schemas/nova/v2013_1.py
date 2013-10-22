@@ -45,11 +45,13 @@ nova.param('default_availability_zone', type='string', default='nova')
 
 # Subject for certificate for users, %s for project, user,
 # timestamp (string value)
-# user_cert_subject=/C=US/ST=California/O=OpenStack/OU=NovaDev/CN=%.16s-%.16s-%s
+# user_cert_subject=/C=US/ST=California/O=OpenStack/OU=NovaDev/
+# CN=%.16s-%.16s-%s
 
 # Subject for certificate for projects, %s for project,
 # timestamp (string value)
-# project_cert_subject=/C=US/ST=California/O=OpenStack/OU=NovaDev/CN=project-ca-%.16s-%s
+# project_cert_subject=/C=US/ST=California/O=OpenStack/OU=NovaDev/
+# CN=project-ca-%.16s-%s
 
 
 #
@@ -269,7 +271,8 @@ nova.param('use_ipv6', type='boolean')
 # monkey_patch=false
 
 # List of modules/decorators to monkey patch (list value)
-# monkey_patch_modules=nova.api.ec2.cloud:nova.notifications.notify_decorator,nova.compute.api:nova.notifications.notify_decorator
+# monkey_patch_modules=nova.api.ec2.cloud:nova.notifications.notify_decorator
+# ,nova.compute.api:nova.notifications.notify_decorator
 
 # Length of generated instance admin passwords (integer value)
 # password_length=12
@@ -486,11 +489,13 @@ nova.param('use_ipv6', type='boolean')
 #
 
 # osapi compute extension to load (multi valued)
-# osapi_compute_extension=nova.api.openstack.compute.contrib.standard_extensions
+# osapi_compute_extension=nova.api.openstack.compute.contrib.
+# standard_extensions
 
 
 #
-# Options defined in nova.api.openstack.compute.plugins.v3.hide_server_addresses
+# Options defined in nova.api.openstack.compute.plugins.v3.
+# hide_server_addresses
 #
 
 # List of instance states that should hide network info (list
@@ -1385,7 +1390,8 @@ nova.param(
     'verbose',
     type='boolean',
     default=False,
-    description='Print more verbose output (set logging level to INFO instead of default WARNING level)')
+    description='Print more verbose output (set logging level to INFO instead'
+                ' of default WARNING level)')
 
 # Log output to standard error (boolean value)
 # use_stderr=true
@@ -1416,7 +1422,8 @@ nova.param(
 # %(name)s %(instance)s
 
 # list of logger=LEVEL pairs (list value)
-# default_log_levels=amqplib=WARN,sqlalchemy=WARN,boto=WARN,suds=INFO,keystone=INFO,eventlet.wsgi.server=WARN
+# default_log_levels=amqplib=WARN,sqlalchemy=WARN,boto=WARN,suds=INFO,
+# keystone=INFO,eventlet.wsgi.server=WARN
 
 # publish error events (boolean value)
 # publish_errors=false
@@ -1832,7 +1839,8 @@ nova.param('rabbit_retry_interval', type='integer', default=1)
 
 # Which filter class names to use for filtering hosts when not
 # specified in the request. (list value)
-# scheduler_default_filters=RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter
+# scheduler_default_filters=RetryFilter,AvailabilityZoneFilter,
+# RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter
 
 # Which weight class names to use for weighing hosts (list
 # value)
@@ -2031,7 +2039,8 @@ nova.param('rabbit_retry_interval', type='integer', default=1)
 #live_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER
 
 # Migration flags to be set for block migration (string value)
-#block_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER, VIR_MIGRATE_NON_SHARED_INC
+#block_migration_flag=VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER,
+# VIR_MIGRATE_NON_SHARED_INC
 
 # Maximum bandwidth to be used during migration, in Mbps
 # (integer value)
@@ -2045,7 +2054,18 @@ nova.param('rabbit_retry_interval', type='integer', default=1)
 # libvirt_vif_driver=nova.virt.libvirt.vif.LibvirtGenericVIFDriver
 
 # Libvirt handlers for remote volumes. (list value)
-# libvirt_volume_drivers=iscsi=nova.virt.libvirt.volume.LibvirtISCSIVolumeDriver,iser=nova.virt.libvirt.volume.LibvirtISERVolumeDriver,local=nova.virt.libvirt.volume.LibvirtVolumeDriver,fake=nova.virt.libvirt.volume.LibvirtFakeVolumeDriver,rbd=nova.virt.libvirt.volume.LibvirtNetVolumeDriver,sheepdog=nova.virt.libvirt.volume.LibvirtNetVolumeDriver,nfs=nova.virt.libvirt.volume.LibvirtNFSVolumeDriver,aoe=nova.virt.libvirt.volume.LibvirtAOEVolumeDriver,glusterfs=nova.virt.libvirt.volume.LibvirtGlusterfsVolumeDriver,fibre_channel=nova.virt.libvirt.volume.LibvirtFibreChannelVolumeDriver,scality=nova.virt.libvirt.volume.LibvirtScalityVolumeDriver
+# libvirt_volume_drivers=iscsi=nova.virt.libvirt.volume
+# .LibvirtISCSIVolumeDriver,iser=nova.virt.libvirt.volume
+# .LibvirtISERVolumeDriver,local=nova.virt.libvirt.volume
+# .LibvirtVolumeDriver,fake=nova.virt.libvirt.volume
+# .LibvirtFakeVolumeDriver,rbd=nova.virt.libvirt.volume
+# .LibvirtNetVolumeDriver,sheepdog=nova.virt.libvirt.volume
+# .LibvirtNetVolumeDriver,nfs=nova.virt.libvirt.volume
+# .LibvirtNFSVolumeDriver,aoe=nova.virt.libvirt.volume
+# .LibvirtAOEVolumeDriver,glusterfs=nova.virt.libvirt.volume
+# .LibvirtGlusterfsVolumeDriver,fibre_channel=nova.virt.libvirt.volume
+# .LibvirtFibreChannelVolumeDriver,scality=nova.virt.libvirt.volume
+# .LibvirtScalityVolumeDriver
 
 # Override the default disk prefix for the devices attached to
 # a server, which is dependent on libvirt_type. (valid options

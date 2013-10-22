@@ -60,7 +60,8 @@ class SchemaParser(object):
 
                     wrk_str = str(line).strip('#[]\n')
                     f.write(
-                        "%s.param('%s', type='%s', default='%s', description=\"%s\")\n\n" % (
+                        "%s.param('%s', type='%s', "
+                        "default='%s', description=\"%s\")\n\n" % (
                             self.prj_name,
                             wrk_str.split('=')[0].rstrip(' ').lstrip(' '),
                             var_type.rstrip(' ').lstrip(' '),
