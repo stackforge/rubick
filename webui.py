@@ -177,14 +177,16 @@ def launch_validation():
 def job(id):
     job = celery.AsyncResult(id)
     if job.ready():
-        openstack = job.result.value
+        result = job.result.value
 
-        if isinstance(openstack, Openstack):
-            return json.dumps(openstack_for_json(openstack))
+        if isinstance(result, Openstack):
+            return json.dumps({
+                'state': 'success',
+                'result': openstack_for_json(result)})
         else:
-            return json.dumps({'error': openstack})
+            return json.dumps({'state': 'failure', 'message': result})
     else:
-        return json.dumps({'state': job.state})
+        return json.dumps({'state': str(job.state).lower()})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)
