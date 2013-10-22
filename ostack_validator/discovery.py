@@ -13,6 +13,7 @@ import joker
 
 from ostack_validator.common import Issue, index, path_relative_to
 from ostack_validator.model import *
+from ostack_validator.exceptions import ValidatorException
 
 
 class SshShell(spur.SshShell):
@@ -38,7 +39,7 @@ class SshShell(spur.SshShell):
             try:
                 self._pkey = DSSKey.from_private_key(StringIO(private_key))
             except SSHException:
-                raise "Unknown private key format"
+                raise ValidatorException("Unknown private key format")
 
         self._sock = sock
 
