@@ -146,7 +146,7 @@
 
     </div>
 
-    <div ng-show="currentStep == 'rules'" style="margin-top: 40px;">
+    <div ng-show="currentStep == 'rules' && selectedCluster" style="margin-top: 40px;">
 
         <div class="ui pointing menu">
             <a class="item"
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    <div ng-show="currentStep == 'validate'" style="margin-top: 40px;">
+    <div ng-show="currentStep == 'validate' && selectedCluster" style="margin-top: 40px;">
         <div class="ui segment">
             <div class="ui list">
                 <div><strong>Cluster Name: </strong>{{selectedCluster.name}}</div>
