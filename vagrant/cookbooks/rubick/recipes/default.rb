@@ -11,8 +11,8 @@ end
 
 bash 'Run application' do
   code <<-EOS
-    echo "webui: python webui.py" > ProcfileHonchoLocal
-    echo "worker: celery worker --app=rubick.celery:app" >> ProcfileHonchoLocal
+    echo "webui: PYTHONPATH=joker: python webui.py" > ProcfileHonchoLocal
+    echo "worker: PYTHONPATH=joker: celery worker --app=rubick.celery:app" >> ProcfileHonchoLocal
     if ! tmux has-session -t dev; then
       tmux new-session -d -s dev "honcho -f ProcfileHonchoLocal start"
     fi
