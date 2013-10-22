@@ -8,6 +8,7 @@ import spur
 import paramiko
 from paramiko.rsakey import RSAKey
 from paramiko.dsskey import DSSKey
+from paramiko.ssh_exception import SSHException
 import joker
 
 from ostack_validator.common import Issue, index, path_relative_to
