@@ -54,7 +54,6 @@ angular.module('rubick.controllers', []).
     }
 
     $scope.showAddClusterModal = function() {
-        $('#add-cluster-modal').modal();
         $('#add-cluster-modal').modal('show');
     }
 
@@ -94,11 +93,19 @@ angular.module('rubick.controllers', []).
         $scope.diagnosticsFinished = false;
     }
 
-    $scope.removeCluster = function(clusterId) {
-        $('#remove-cluster-confirm-modal').modal();
-        $('#remove-cluster-confirm-modal').modal('show');
+    $scope.unselectCluster = function() {
+        if (!$scope.runningValidation) {
+            $scope.selectedCluster = undefined;
+        }
+    }
 
-        $scope.clusterIdToRemove = clusterId;
+
+    $scope.removeCluster = function(clusterId) {
+        if (!$scope.runningValidation) {
+            $('#remove-cluster-confirm-modal').modal('show');
+
+            $scope.clusterIdToRemove = clusterId;
+        }
     }
 
     $scope.removeConfirm = function() {
@@ -106,6 +113,7 @@ angular.module('rubick.controllers', []).
         $scope.clusterIdToRemove = undefined;
 
         $http.delete(url).success(function() {
+            $scope.selectedCluster = undefined;
             $scope.fetchClusters();
             $('#remove-cluster-confirm-modal').modal('hide');
         }).error(function() {
