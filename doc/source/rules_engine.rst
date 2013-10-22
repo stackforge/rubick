@@ -1,7 +1,7 @@
 Production Rules Engine
 =======================
 
-This document describes rules engine used for inspection and diagnostics of
+This document describes rule engine used for inspection and diagnostics of
 OpenStack configuration.
 
 Summary
