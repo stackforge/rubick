@@ -29,7 +29,9 @@ class IniConfigParser:
 
             line_number += 1
 
-            if current_param_name and (current_param_value.quotechar or (line == '' or not line[0].isspace())):
+            if current_param_name \
+                and (current_param_value.quotechar
+                     or (line == '' or not line[0].isspace())):
                 param = ConfigParameter(
                     current_param_name.start_mark,
                     current_param_value.end_mark,
@@ -55,28 +57,32 @@ class IniConfigParser:
                     continue
                 else:
                     errors.append(
-                        ParseError('Unexpected multiline value continuation', mark(line_number)))
+                        ParseError('Unexpected multiline value continuation',
+                                   mark(line_number)))
                     continue
 
             if line[0] == '[':
                 end_index = line.find(']')
                 if end_index == -1:
                     errors.append(
-                        ParseError('Unclosed section', mark(line_number, len(line))))
+                        ParseError('Unclosed section', mark(line_number,
+                                                            len(line))))
 
                     end_index = len(line)
                     while line[end_index - 1].isspace():
                         end_index -= 1
                     if end_index <= 1:
                         errors.append(
-                            ParseError('Missing section name', mark(line_number)))
+                            ParseError('Missing section name',
+                                       mark(line_number)))
                         continue
                 else:
                     i = end_index + 1
                     while i < len(line):
                         if not line[i].isspace():
                             errors.append(
-                                ParseError('Extra chars after section name', mark(line_number, i)))
+                                ParseError('Extra chars after section name',
+                                           mark(line_number, i)))
                             break
                         i += 1
 
@@ -111,7 +117,8 @@ class IniConfigParser:
                     # Unquote value
                     value = m.group(3)
                     quotechar = None
-                    if len(value) > 0 and (value[0] == value[-1] and value[0] in "\"'"):
+                    if len(value) > 0 and (value[0] == value[-1]
+                                           and value[0] in "\"'"):
                         quotechar = value[0]
                         value = value[1:-1]
 

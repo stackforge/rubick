@@ -35,6 +35,7 @@ Deployment
 3. After that you can access application on http://<host_machine_ip>:8000/validation
 
 ### Heroku deployment
+This steps is already depricated, because of mongo-db usage.
 1. $ git clone git@github.com:MirantisLabs/rubick.git
 2. $ cd rubick
 3. $ heroku git:remote -a <name_of_the_heroku_app>

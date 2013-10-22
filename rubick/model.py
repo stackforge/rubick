@@ -1,5 +1,5 @@
-import logging
 from itertools import groupby
+import logging
 
 from rubick.common import Mark, Issue, MarkedIssue
 from rubick.schema import ConfigSchemaRegistry, TypeValidatorRegistry
@@ -243,7 +243,8 @@ class OpenstackComponent(Service):
                         type_validation_result = type_validator.validate(
                             parameter.value.text)
                         if isinstance(type_validation_result, Issue):
-                            type_validation_result.mark = parameter.value.start_mark.merge(
+                            type_validation_result.mark = parameter\
+                                .value.start_mark.merge(
                                 type_validation_result.mark)
                             type_validation_result.message = \
                                 'Property "%s" in section "%s": %s' % (
@@ -260,7 +261,10 @@ class OpenstackComponent(Service):
                             config.set(parameter_fullname, value)
 
                             # if value == parameter_schema.default:
-                            #   report_issue(MarkedIssue(Issue.INFO, 'Explicit value equals default: section "%s" parameter "%s"' % (section_name, parameter.name.text), parameter.start_mark))
+                            #   report_issue(MarkedIssue(Issue.INFO,
+                            # 'Explicit value equals default: section "%s"
+                            # parameter "%s"' % (section_name,
+                            # parameter.name.text), parameter.start_mark))
                         if parameter_schema.deprecation_message:
                             report_issue(
                                 MarkedIssue(

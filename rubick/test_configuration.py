@@ -124,7 +124,8 @@ class ConfigurationTests(unittest.TestCase):
         c.set_default('%s.param2' % self.section, 'value2')
 
         self.assertEqual(
-            [('param1', 'value1'), ('param2', 'value2')], sorted(c.section(self.section).items()))
+            [('param1', 'value1'), ('param2', 'value2')],
+            sorted(c.section(self.section).items()))
 
     def test_subsection_get(self):
         c = Configuration()

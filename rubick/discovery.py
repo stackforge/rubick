@@ -188,7 +188,8 @@ class OpenstackDiscovery(object):
 
                 client.run(['echo', 'test'])
             except:
-                self.logger.exception("Can't connect to host %s" % node_info['host'])
+                self.logger.exception("Can't connect to host %s"
+                                      % node_info['host'])
                 openstack.report_issue(
                     Issue(
                         Issue.WARNING,
@@ -253,7 +254,9 @@ class OpenstackDiscovery(object):
     def _find_python_package_version(self, client, package):
         result = client.run(
             ['python', '-c',
-             'import pkg_resources; version = pkg_resources.get_provider(pkg_resources.Requirement.parse("%s")).version; print(version)' %
+             'import pkg_resources; version = pkg_resources'
+             '.get_provider(pkg_resources.Requirement.parse("%s"))'
+             '.version; print(version)' %
              package])
 
         s = result.output.strip()
@@ -271,7 +274,8 @@ class OpenstackDiscovery(object):
     def _get_processes(self, client):
         return (
             [line.split()
-             for line in client.run(['ps', '-Ao', 'cmd', '--no-headers']).output.split("\n")]
+             for line in client.run(['ps', '-Ao', 'cmd',
+                                     '--no-headers']).output.split("\n")]
         )
 
     def _collect_host_id(self, client):
@@ -571,7 +575,9 @@ class OpenstackDiscovery(object):
         mysql.config_files = []
         config_locations_result = client.run(
             ['bash', '-c',
-             'mysqld --help --verbose | grep "Default options are read from the following files in the given order" -A 1'])
+             'mysqld --help --verbose '
+             '| grep "Default options are read from the following files in '
+             'the given order" -A 1'])
         config_locations = config_locations_result.output.strip().split(
             "\n")[-1].split()
         for path in config_locations:

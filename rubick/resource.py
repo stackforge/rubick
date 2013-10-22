@@ -113,7 +113,8 @@ class FilesystemSnapshot(object):
                         group=group,
                         permissions=permissions)
                 elif resource_type == 'file':
-                    source_path, local_path, owner, group, permissions = line.split('|')[1:]
+                    source_path, local_path, owner, group, \
+                    permissions = line.split('|')[1:]
                     self._resources[source_path] = FileResource(
                         os.path.basename(source_path),
                         path=os.path.join(self.basedir,
@@ -147,7 +148,8 @@ class ConfigSnapshotResourceLocator(object):
             else:
                 return (
                     [HostResource(os.path.basename(host_path), self)
-                     for host_path in glob.glob(os.path.join(self.basedir, '*')) if os.path.isdir(host_path)]
+                     for host_path in glob.glob(os.path.join(
+                        self.basedir, '*')) if os.path.isdir(host_path)]
                 )
         if resource_type == Resource.FILE:
             if not host:

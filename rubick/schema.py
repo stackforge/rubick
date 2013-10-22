@@ -91,7 +91,8 @@ class SchemaBuilder(object):
     def _ensure_version(self):
         if not self.current_version:
             raise Error(
-                'Schema version is not specified. Please call version() method first')
+                'Schema version is not specified. Please call version() '
+                'method first')
 
 
 class ConfigSchemaRegistry:
@@ -118,7 +119,8 @@ class ConfigSchemaRegistry:
         records = self.__schemas[fullname]
         i = len(records) - 1
         # Find latest checkpoint prior given version
-        while i >= 0 and not (records[i].operation == 'checkpoint' and records[i].version <= version):
+        while i >= 0 and not (records[i].operation == 'checkpoint'
+                              and records[i].version <= version):
             i -= 1
 
         if i < 0:
@@ -203,8 +205,14 @@ class ConfigParameterSchema:
 
     def __repr__(self):
         return (
-            '<ConfigParameterSchema %s>' % ' '.join(['%s=%s' % (attr, getattr(self, attr))
-                                                    for attr in ['section', 'name', 'type', 'description', 'default', 'required']])
+            '<ConfigParameterSchema %s>' % ' '.join(
+                ['%s=%s' % (attr, getattr(self, attr))
+                                                    for attr in ['section',
+                                                                 'name',
+                                                                 'type',
+                                                                 'description',
+                                                                 'default',
+                                                                 'required']])
         )
 
 
@@ -304,7 +312,8 @@ def validate_ipv4_network(s):
     if len(parts) != 2:
         return (
             InvalidValueError(
-                'Should have "/" character separating address and prefix length')
+                'Should have "/" character separating address and prefix '
+                'length')
         )
 
     address, prefix = parts
@@ -339,8 +348,8 @@ def validate_host_label(s):
     if not s[0].isalpha():
         return (
             InvalidValueError(
-                'Host label should start with a letter, but it starts with "%s"' %
-                s[0])
+                'Host label should start with a letter, but it starts with '
+                '"%s"' % s[0])
         )
 
     if len(s) == 1:
@@ -349,7 +358,8 @@ def validate_host_label(s):
     if not (s[-1].isdigit() or s[-1].isalpha()):
         return (
             InvalidValueError(
-                'Host label should end with letter or digit, but it ends with "%s"' %
+                'Host label should end with letter or digit, but it ends '
+                'with "%s"' %
                 s[-1], Mark('', 0, len(s) - 1))
         )
 
@@ -360,7 +370,8 @@ def validate_host_label(s):
         if not (c.isalpha() or c.isdigit() or c == '-'):
             return (
                 InvalidValueError(
-                    'Host label should contain only letters, digits or hypens, but it contains "%s"' %
+                    'Host label should contain only letters, digits or hypens,'
+                    ' but it contains "%s"' %
                     c, Mark('', 0, i + 1))
             )
 
@@ -426,7 +437,8 @@ def validate_string(s):
 @type_validator('integer')
 def validate_integer(s, min=None, max=None):
     leading_whitespace_len = 0
-    while leading_whitespace_len < len(s) and s[leading_whitespace_len].isspace():
+    while leading_whitespace_len < len(s) \
+        and s[leading_whitespace_len].isspace():
         leading_whitespace_len += 1
 
     s = s.strip()

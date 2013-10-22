@@ -83,7 +83,8 @@ class IntegerTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
         self.assertEqual(123, v)
 
 
-class HostAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+class HostAddressTypeValidatorTests(TypeValidatorTestHelper,
+                                    unittest.TestCase):
     type_name = 'host_address'
 
     def test_ipv4_address(self):
@@ -135,7 +136,8 @@ class HostAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
         self.assertEqual(8, e.mark.column)
 
 
-class NetworkAddressTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+class NetworkAddressTypeValidatorTests(TypeValidatorTestHelper,
+                                       unittest.TestCase):
     type_name = 'network_address'
 
     def test_ipv4_network(self):
@@ -200,7 +202,8 @@ class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
         self.assertEqual(123, v)
 
 
-class HostAndPortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+class HostAndPortTypeValidatorTests(TypeValidatorTestHelper,
+                                    unittest.TestCase):
     type_name = 'host_and_port'
 
     def test_ipv4_address(self):
