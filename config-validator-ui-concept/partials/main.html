@@ -187,7 +187,10 @@
                 <div><strong>Cluster Name: </strong>{{selectedCluster.name}}</div>
                 <div><strong>Rules selected: </strong>{{rules.length}}</div>
                 <div style="margin-top: 15px;">
-                    <a class="ui blue button" ng-click="runValidation()">Run Validation</a>
+                    <a class="ui blue button"
+                        ng-click="runValidation()"
+                        ng-class="{'loading': runningValidation}"
+                        ng-disabled="runningValidation">Run Validation</a>
                 </div>
             </div>
         </div>

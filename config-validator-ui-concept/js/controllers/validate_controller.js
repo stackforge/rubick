@@ -115,6 +115,7 @@ angular.module('rubick.controllers', []).
 
     $scope.runValidation = function() {
         var postData = { cluster_id: $scope.selectedCluster.id }
+        $scope.runningValidation = true;
 
         $http.post('/validation', postData).success(function(job) {
             $scope.currentJobId = job.id;
@@ -127,9 +128,11 @@ angular.module('rubick.controllers', []).
                             case "success":
                                 $scope.results = jobData.result;
                                 $scope.diagnosticsFinished = true;
+                                $scope.runningValidation = false;
                                 break;
                             case "failure":
                                 $scope.jobError = jobData.message;
+                                $scope.runningValidation = false;
                                 break;
                             default:
                                 poll();
