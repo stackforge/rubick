@@ -90,6 +90,8 @@ angular.module('rubick.controllers', []).
         $scope.selectedCluster = _.find($scope.clusters, function(c) {
             return c.id == clusterId;
         });
+
+        $scope.diagnosticsFinished = false;
     }
 
     $scope.removeCluster = function(clusterId) {
@@ -113,8 +115,6 @@ angular.module('rubick.controllers', []).
 
     $scope.runValidation = function() {
         var postData = { cluster_id: $scope.selectedCluster.id }
-        console.log($scope.selectedCluster);
-        console.log(postData);
 
         $http.post('/validation', postData).success(function(job) {
             $scope.currentJobId = job.id;
@@ -126,6 +126,7 @@ angular.module('rubick.controllers', []).
                         switch (jobData.state) {
                             case "success":
                                 $scope.results = jobData.result;
+                                $scope.diagnosticsFinished = true;
                                 break;
                             case "failure":
                                 $scope.jobError = jobData.message;
