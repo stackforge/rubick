@@ -5,7 +5,6 @@ angular.module('rubick.controllers', []).
     controller('ValidateCtrl', ['$scope', '$http', '$timeout', function($scope, $http, $timeout) {
     $scope.currentStep = "cluster";
     $scope.ruleGroup = "valid";
-    $scope.ipPattern = 
 
     $scope.setStep = function(step) {
         $scope.currentStep = step;
@@ -78,10 +77,11 @@ angular.module('rubick.controllers', []).
 
     $scope.addCluster = function() {
         $http.post('/clusters', $scope.newCluster).success(function() {
-            $scope.clusters.push($scope.newCluster);
+            $scope.fetchClusters();
+            $scope.newCluster = undefined;
+            $('#add-cluster-modal').modal('hide');
+            $scope.$apply();
         });
-        $scope.newCluster = undefined;
-        $('#add-cluster-modal').modal('hide');
     }
 
     $scope.selectedCluster = undefined;
@@ -102,7 +102,6 @@ angular.module('rubick.controllers', []).
     $scope.removeConfirm = function() {
         var url = '/clusters/' + $scope.clusterIdToRemove;
         $scope.clusterIdToRemove = undefined;
-        console.log(url);
 
         $http.delete(url).success(function() {
             $scope.fetchClusters();
