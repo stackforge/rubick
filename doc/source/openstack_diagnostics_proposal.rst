@@ -34,10 +34,11 @@ cause of such failures. To do so, he must check if his OpenStack configuration
 is sane and consistent. These checks could be thought of as rules of diagnostic
 system.
 
-Currently OpenStack ecosystem lacks projects aimed to increase reliability and
-resilience of the cloud. With this proposal we want to introduce a project which
-will help operators to diagnose their OpenStack platform, reduce response time
-to known and unknown failures and effectively support the desired SLA.
+There are not many projects in OpenStack ecosystem aimed to increase reliability
+and resilience of the cloud at the operation stage. With this proposal we want
+to introduce a project which will help operators to diagnose their OpenStack
+platform, reduce response time to known and unknown failures and effectively
+support the desired SLA.
 
 Mission
 -------
@@ -47,7 +48,7 @@ minimize time and effort needed to identify and fix errors in operations
 maintenance phase of cloud life cycle.**
 
 User Stories
-------------
+-----------
 
 - As a **cloud operator**, I want to make sure that my OpenStack architecture
   and configuration is sane and consistent across all platform components and
