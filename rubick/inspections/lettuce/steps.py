@@ -97,7 +97,7 @@ def nova_property_assertion(self, name, values):
         if not (nova_value and nova_value in values):
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova should have "%s" in %s' %
-                      (nova_value, values)))
+                      (name, values)))
 
 
 @step(r'"(.+)" component must have "(.+)" parameter')
