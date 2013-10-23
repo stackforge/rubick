@@ -33,7 +33,7 @@ Rule-based inspection
 
 All rule-based inspections are using pre-defined actions written in python,
 currently they are defined in "steps.py" file in the directory:
-``ostack_validator/inspections/lettuce``. They are based on lettuce framework -
+``rubick/inspections/lettuce``. They are based on lettuce framework -
 bdd framework for python.
 
 Store and reuse rules
@@ -48,7 +48,7 @@ will also support migrating existing rule set to the database.
 
 You can store your rules wherever you want and add it through the UI or simply
 by putting them in text files in directory
-``ostack_validator/inspections/lettuce``.
+``rubick/inspections/lettuce``.
 Rules file must have name in the following format::
 
   \*.feature
@@ -75,12 +75,12 @@ an example::
                       stop()
 
 New methods can use 2 classes from the inspections framework:
-``ostack_validator/model.py`` and ``ostack_validator/common.py``. There you can
+``rubick/model.py`` and ``rubick/common.py``. There you can
 find many adapters to OpenStack services configuration data and all additional
 information collected from OpenStack nodes. After that you can use you brand
 new rule in the scenarios as described above.
 
-In module ``ostack_validator/common.py`` you can find ``Inspection``, ``Issue``,
+In module ``rubick/common.py`` you can find ``Inspection``, ``Issue``,
 ``Mark``, ``Error`` and ``Version`` classes for your convenience in rule
 defining. Module ``model.py`` contains Openstack model based on configuration
 schemas.
