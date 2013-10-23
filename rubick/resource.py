@@ -1,6 +1,6 @@
 import glob
-import os.path
 import json
+import os.path
 
 from rubick.common import Error, Version
 

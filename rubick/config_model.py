@@ -1,7 +1,5 @@
 import string
 
-from rubick.common import Mark
-
 
 class ConfigurationSection(object):
 

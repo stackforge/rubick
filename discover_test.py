@@ -1,3 +1,4 @@
+from flask import json
 from itertools import groupby
 import logging
 
@@ -7,7 +8,6 @@ import rubick.inspections
 # Silence PEP8 "unused import"
 assert rubick.inspections
 from rubick.json import openstack_for_json
-from flask import json
 
 
 def indent_prefix(indent=0):

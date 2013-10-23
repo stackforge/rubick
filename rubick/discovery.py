@@ -1,20 +1,19 @@
-import os.path
-import re
-import traceback
-import tempfile
-from StringIO import StringIO
 import logging
+from StringIO import StringIO
+import tempfile
+import traceback
 
-import spur
-import paramiko
-from paramiko.rsakey import RSAKey
-from paramiko.dsskey import DSSKey
-from paramiko.ssh_exception import SSHException
 import joker
-
+import os.path
+import paramiko
+from paramiko.dsskey import DSSKey
+from paramiko.rsakey import RSAKey
+from paramiko.ssh_exception import SSHException
+import re
 from rubick.common import Issue, index, path_relative_to
-from rubick.model import *
 from rubick.exceptions import ValidatorException
+from rubick.model import *
+import spur
 
 
 class SshShell(spur.SshShell):

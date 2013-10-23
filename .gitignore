@@ -2,8 +2,10 @@
 *.pyc
 .idea
 ProcfileHonchoLocal
-venv
+.venv
+.tox
 tags
+.testrepository
 
 # Vim stuff
 .swp

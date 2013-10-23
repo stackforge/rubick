@@ -1,9 +1,8 @@
 import collections
 import paramiko
 
-from StringIO import StringIO
 from paramiko.rsakey import RSAKey
-from paramiko.dsskey import DSSKey
+from StringIO import StringIO
 
 
 class TransformedDict(collections.MutableMapping):
@@ -64,7 +63,10 @@ class Node():
 
     def discoveryHwAddr(self):
         try:
-            (stdout, stderr) = self.runCommand("ip link | grep -m1 -A1 BROADCAST,MULTICAST,UP,LOWER_UP | awk -F\" \" '/link/ {print $2}'");
+            (stdout, stderr) = self.runCommand("ip link | grep -m1 -A1 "
+                                               "BROADCAST,MULTICAST,UP,"
+                                               "LOWER_UP | awk -F\" \" "
+                                               "'/link/ {print $2}'");
         except:
             raise()
         return stdout[0].strip()
@@ -156,7 +158,8 @@ class Node():
         # tuesday discovery
         (self.discovery_data, _) = self.runCommand(
             "ip link | awk -F: '/^[0-9]+?: eth/ {print $2}' |\
-            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep -E '192.168.(28|30)'.101")
+            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep"
+            " -E '192.168.(28|30)'.101")
 
     def discovery(self):
         self.prepare()

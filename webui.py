@@ -1,24 +1,23 @@
-import os.path
 from StringIO import StringIO
 
+from bson.objectid import ObjectId
+import os.path
 from flask import Flask, request, json, send_file
 from flask_wtf import Form
-from wtforms import StringField, SelectMultipleField
-from wtforms.validators import DataRequired
-import wtforms_json
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from recordtype import recordtype
-from paramiko.rsakey import RSAKey
 from paramiko.dsskey import DSSKey
+from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-
+from pymongo import MongoClient
+from recordtype import recordtype
 from rubick.celery import app as celery, \
     ostack_inspect_task, InspectionRequest
 from rubick.common import Inspection, Issue
-from rubick.model import Openstack
 from rubick.discovery import OpenstackDiscovery
 from rubick.json import openstack_for_json
+from rubick.model import Openstack
+from wtforms import StringField, SelectMultipleField
+from wtforms.validators import DataRequired
+import wtforms_json
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3fooN]LWX/,?RT'

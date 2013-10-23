@@ -2,10 +2,9 @@ from itertools import groupby
 import logging
 
 from rubick.common import Mark, Issue, MarkedIssue
-from rubick.schema import ConfigSchemaRegistry, TypeValidatorRegistry
-from rubick.config_model import Configuration
-import rubick.schemas
 from rubick.config_formats import IniConfigParser
+from rubick.config_model import Configuration
+from rubick.schema import ConfigSchemaRegistry, TypeValidatorRegistry
 from rubick.utils import memoized
 
 
