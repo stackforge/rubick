@@ -2,115 +2,86 @@ from rubick.schema import ConfigSchemaRegistry
 
 keystone = ConfigSchemaRegistry.register_schema(project='keystone')
 
-keystone.version('2013.1.4')
+with keystone.version('2013.1.4') as keystone_2013_1_4:
 
-keystone.section('DEFAULT')
+    keystone_2013_1_4.section('ssl')
 
-keystone.section('sql')
+    keystone_2013_1_4.param('enable', type='boolean', default=True)
 
-keystone.section('identity')
+    keystone_2013_1_4.param('certfile', type='string',
+                            default='/etc/keystone/pki/certs/ssl_cert.pem')
 
-keystone.section('credential')
+    keystone_2013_1_4.param('keyfile', type='string',
+                            default='/etc/keystone/pki/private/ssl_key.pem')
 
-keystone.section('trust')
+    keystone_2013_1_4.param('ca_certs', type='string',
+                            default='/etc/keystone/pki/certs/cacert.pem')
 
-keystone.section('os_inherit')
+    keystone_2013_1_4.param('ca_key', type='string',
+                            default='/etc/keystone/pki/private/cakey.pem')
 
-keystone.section('catalog')
+    keystone_2013_1_4.param('key_size', type='integer', default=1024)
 
-keystone.section('endpoint_filter')
+    keystone_2013_1_4.param('valid_days', type='integer', default=3650)
 
-keystone.section('token')
+    keystone_2013_1_4.param('cert_required', type='boolean', default=False)
 
-keystone.section('cache')
+    keystone_2013_1_4.param('cert_subject', type='string',
+                            default='/CUS/STUnset/LUnset/OUnset/CNlocalhost')
 
-keystone.section('policy')
+    keystone_2013_1_4.section('signing')
 
-keystone.section('ec2')
+    keystone_2013_1_4.param(
+        'token_format', type='string', default='',
+        description="Deprecated in favor of provider in the [token] "
+        "section Allowed values are PKI or UUID")
 
-keystone.section('assignment')
+    keystone_2013_1_4.param('certfile', type='string',
+                            default='/etc/keystone/pki/certs/signing_cert.pem')
 
-keystone.section('oauth1')
+    keystone_2013_1_4.param(
+        'keyfile', type='string',
+        default='/etc/keystone/pki/private/signing_key.pem')
 
-keystone.section('ssl')
+    keystone_2013_1_4.param('ca_certs', type='string',
+                            default='/etc/keystone/pki/certs/cacert.pem')
 
-keystone.param('enable', type='string', default='True', description="")
+    keystone_2013_1_4.param('ca_key', type='string',
+                            default='/etc/keystone/pki/private/cakey.pem')
 
-keystone.param('certfile', type='string',
-               default='/etc/keystone/pki/certs/ssl_cert.pem', description="")
+    keystone_2013_1_4.param('key_size', type='integer', default=2048)
 
-keystone.param('keyfile', type='string',
-               default='/etc/keystone/pki/private/ssl_key.pem', description="")
+    keystone_2013_1_4.param('valid_days', type='integer', default=3650)
 
-keystone.param('ca_certs', type='string',
-               default='/etc/keystone/pki/certs/cacert.pem', description="")
+    keystone_2013_1_4.param(
+        'cert_subject', type='string',
+        default='/CUS/STUnset/LUnset/OUnset/CNwww.example.com')
 
-keystone.param('ca_key', type='string',
-               default='/etc/keystone/pki/private/cakey.pem', description="")
+    keystone_2013_1_4.section('auth')
 
-keystone.param('key_size', type='string', default='1024', description="")
+    keystone_2013_1_4.param('methods', type='string',
+                            default='external,password,token,oauth1')
 
-keystone.param('valid_days', type='string', default='3650', description="")
+    keystone_2013_1_4.param(
+        'external', type='string',
+        default='keystone_2013_1_4.auth.plugins.external.ExternalDefault')
 
-keystone.param('cert_required', type='string', default='False', description="")
+    keystone_2013_1_4.param(
+        'password', type='string',
+        default='keystone_2013_1_4.auth.plugins.password.Password')
 
-keystone.param('cert_subject', type='string',
-               default='/CUS/STUnset/LUnset/OUnset/CNlocalhost',
-               description="")
+    keystone_2013_1_4.param(
+        'token', type='string',
+        default='keystone_2013_1_4.auth.plugins.token.Token')
 
-keystone.section('signing')
+    keystone_2013_1_4.param(
+        'oauth1', type='string',
+        default='keystone_2013_1_4.auth.plugins.oauth1.OAuth')
 
-keystone.param('token_format', type='string', default='',
-               description="Deprecated in favor of provider in the [token] "
-                           "section Allowed values are PKI or UUID")
+    keystone_2013_1_4.section('paste_deploy')
 
-keystone.param('certfile', type='string',
-               default='/etc/keystone/pki/certs/signing_cert.pem',
-               description="")
-
-keystone.param('keyfile', type='string',
-               default='/etc/keystone/pki/private/signing_key.pem',
-               description="")
-
-keystone.param('ca_certs', type='string',
-               default='/etc/keystone/pki/certs/cacert.pem', description="")
-
-keystone.param('ca_key', type='string',
-               default='/etc/keystone/pki/private/cakey.pem', description="")
-
-keystone.param('key_size', type='string', default='2048', description="")
-
-keystone.param('valid_days', type='string', default='3650', description="")
-
-keystone.param('cert_subject', type='string',
-               default='/CUS/STUnset/LUnset/OUnset/CNwww.example.com',
-               description="")
-
-keystone.section('ldap')
-
-keystone.section('auth')
-
-keystone.param('methods', type='string',
-               default='external,password,token,oauth1', description="")
-
-keystone.param('external', type='string',
-               default='keystone.auth.plugins.external.ExternalDefault',
-               description="")
-
-keystone.param('password', type='string',
-               default='keystone.auth.plugins.password.Password',
-               description="")
-
-keystone.param('token', type='string',
-               default='keystone.auth.plugins.token.Token', description="")
-
-keystone.param('oauth1', type='string',
-               default='keystone.auth.plugins.oauth1.OAuth', description="")
-
-keystone.section('paste_deploy')
-
-keystone.param('config_file', type='string', default='keystone-paste.ini',
-               description="Name of the paste configuration file that defines "
-                           "the available pipelines")
-
-keystone.commit()
+    keystone_2013_1_4.param(
+        'config_file', type='string',
+        default='keystone-paste.ini',
+        description="Name of the paste configuration file that defines "
+        "the available pipelines")

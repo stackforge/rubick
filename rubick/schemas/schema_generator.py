@@ -3,82 +3,109 @@ import re
 import sys
 
 
-class SchemaParser(object):
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('project',
+                        help='Name of the project (e.g. "nova")')
+    parser.add_argument('version',
+                        help='Version of the project (e.g. "2013.1.3")')
+    parser.add_argument('config_file',
+                        help='Config file sample to process')
+    args = parser.parse_args(argv[1:])
+    return args
 
-    def parse_args(self, argv):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('--conf', dest='conf_file', default=None,
-                            help='Path to configuration file sample')
-        parser.add_argument('--project_name', dest='prj_name', default='nova',
-                            help='Name of the configurations project')
-        parser.add_argument('--config_version', dest='conf_ver',
-                            default='2013.1.3', help='Version of the package')
-        args = parser.parse_args(argv[1:])
-        return args
 
-    def generate_schema(self, file_to_open, file_to_generate='/tmp/sample.py'):
-        with open(file_to_open, 'r') as f:
-            content = f.readlines()
-        with open(file_to_generate, 'w') as f:
-            f.write("""from rubick.schema import ConfigSchemaRegistry
+def generate_schema(project, version, config_file, schema_file=None):
+    if not schema_file:
+        schema_file = '%s_%s.py' % (project, version.replace('.', '_'))
 
-%s = ConfigSchemaRegistry.register_schema(project='%s')
+    with open(config_file, 'r') as f:
+        config_lines = f.readlines()
 
-%s.version('%s')
+    conf_variable = '%s_%s' % (project, version.replace('.', '_'))
+    with open(schema_file, 'w') as f:
+        f.write("""from rubick.schema import ConfigSchemaRegistry
 
-""" % (self.prj_name, self.prj_name, self.prj_name, self.conf_ver)
-            )
-            for index, line in enumerate(content):
-                if str(line).startswith('['):
-                    f.write("%s.section('%s')\n\n" % (
-                        self.prj_name, str(line).strip('[]\n')))
-                    continue
-                if str(line).startswith('# ') or str(line).startswith(
-                        '\n') or str(line).startswith('#\n'):
-                    continue
+{0} = ConfigSchemaRegistry.register_schema(project='{0}')
+
+with {0}.version('{1}') as {2}:""".format(project, version, conf_variable)
+        )
+
+        description_lines = []
+        for line in config_lines:
+            if line.startswith('['):
+                section_name = line.strip('[]\n')
+                f.write("\n\n    %s.section('%s')" % (
+                    conf_variable, section_name))
+                description_lines = []
+                continue
+
+            if line.strip() in ['', '#']:
+                description_lines = []
+                continue
+
+            if line.startswith('# '):
+                description_lines.append(line[2:].strip())
+                continue
+
+            description = ' '.join(description_lines)
+            match = re.search('^(.*)\((.*?) value\)$', description)
+            if match:
+                description = match.group(1)
+                param_type = match.group(2).strip()
+                if param_type == 'floating point':
+                    param_type = 'float'
+            else:
+                param_type = 'string'
+
+            line = line.strip('#\n')
+            param_name, param_value = [
+                s.strip() for s in re.split('[:=]', line, 1)]
+
+            # Normalizing param value and type
+            if param_value == '<None>':
+                param_value = None
+            elif param_type == 'boolean':
+                if param_value.lower() == 'false':
+                    param_value = False
+                elif param_value.lower() == 'true':
+                    param_value = True
+            elif param_type == 'integer':
+                param_value = int(param_value)
+                if param_name.endswith('_port'):
+                    param_type = 'port'
+            elif param_type == 'float':
+                param_value = float(param_value)
+            elif param_type == 'list':
+                param_type = 'string_list'
+                if param_value == '':
+                    param_value = []
                 else:
-                    revers_list = content[0:index]
-                    revers_list.reverse()
-                    comments = []
-                    for comment in revers_list:
-                        if str(comment).startswith('# '):
-                            comments.append(comment)
-                        else:
-                            break
-                    comments.reverse()
+                    param_value = param_value.split(',')
+            elif (param_type == 'string' and
+                  param_name.endswith('_host') and
+                  param_value in ['0.0.0.0', 'localhost', '127.0.0.1']):
+                param_type = 'host'
+            elif param_type == 'string' and param_name.endswith('_listen'):
+                param_type = 'host'
 
-                    comment_str = ''.join(comments).replace('#', '').replace(
-                        '\n', '').replace('\"', '\'').rstrip(' ').lstrip(' ')
-                    regex = re.search('^.*\((.*?) value.*$', comment_str)
+            f.write("\n\n    %s.param('%s', type='%s', default=%s" % (
+                conf_variable, param_name, param_type, repr(param_value)))
+            f.write(", description=\"%s\"" % (
+                description.replace('"', '\"')))
+            f.write(")")
 
-                    if regex:
-                        var_type = regex.group(1)
-                    else:
-                        var_type = 'string'
 
-                    comment_str = re.sub(r' \((.*?) value.*$', '', comment_str)
+def main(argv):
+    args = parse_args(argv)
+    params = vars(args)
 
-                    wrk_str = str(line).strip('#[]\n')
-                    f.write(
-                        "%s.param('%s', type='%s', "
-                        "default='%s', description=\"%s\")\n\n" % (
-                            self.prj_name,
-                            wrk_str.split('=')[0].rstrip(' ').lstrip(' '),
-                            var_type.rstrip(' ').lstrip(' '),
-                            ''.join(wrk_str.split('=')[1:]).rstrip(' ').lstrip(
-                                ' '),
-                            comment_str))
-                    continue
+    project = params.pop('project')
+    version = params.pop('version')
+    config_file = params.pop('config_file')
 
-    def run(self, argv):
-        args = self.parse_args(argv)
-        params = vars(args)
-        self.conf_file = params.pop('conf_file')
-        self.prj_name = params.pop('prj_name')
-        self.conf_ver = params.pop('conf_ver')
-        self.generate_schema(self.conf_file)
+    generate_schema(project, version, config_file)
 
 
 if __name__ == '__main__':
-    runner = SchemaParser()
-    runner.run(sys.argv)
+    main(sys.argv)

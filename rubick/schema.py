@@ -1,98 +1,61 @@
-import sys
+from contextlib import contextmanager
 
 from rubick.common import Issue, MarkedIssue, Mark, Version, find, index
+from rubick.exceptions import RubickException
 
 
-class SchemaUpdateRecord(object):
+class SchemaError(RubickException):
+    pass
+
+
+class SchemaVersionRecord(object):
     # checkpoint's data is version number
+    def __init__(self, version, checkpoint):
+        super(SchemaVersionRecord, self).__init__()
 
-    def __init__(self, version, operation, data=None):
-        super(SchemaUpdateRecord, self).__init__()
-        if not operation in ['checkpoint', 'add', 'remove']:
-            raise Error('Unknown operation "%s"' % operation)
-        version = Version(version)
-        self.version = version
-        self.operation = operation
-        self.data = data
+        self.version = Version(version)
+        self.checkpoint = checkpoint
+
+        self.adds = []
+        self.removals = []
+        self._current_section = 'DEFAULT'
 
     def __repr__(self):
         return (
-            '<SchemaUpdateRecord %s %s %s' % (
-                self.version,
-                self.operation,
-                self.data)
+            '<SchemaVersionRecord %s%s>' % (
+                self.version, ' (checkpoint)' if self.checkpoint else '')
         )
 
-
-class SchemaBuilder(object):
-
-    def __init__(self, name, data):
-        super(SchemaBuilder, self).__init__()
-        self.name = name
-        self.data = data
-
-        self.current_version = None
-        self.current_section = None
-        self.adds = []
-        self.removals = []
-
-    def __del__(self):
-        if len(self.adds) > 0 or len(self.removals) > 0:
-            sys.stderr.write(
-                "WARNING: Uncommitted config schema \"%s\" version %s\n" %
-                (self.name, self.current_version))
-
-    def version(self, version, checkpoint=False):
-        version = Version(version)
-
-        if self.current_version and self.current_version != version:
-            self.commit()
-
-        if checkpoint or self.data == []:
-            self.data.append(SchemaUpdateRecord(version, 'checkpoint'))
-
-        self.current_version = version
+    def __cmp__(self, other):
+        return self.version.__cmp__(other.version)
 
     def section(self, name):
-        self.current_section = name
+        self._current_section = name
 
     def param(self, *args, **kwargs):
-        self._ensure_version()
-
-        if not 'section' in kwargs and self.current_section:
-            kwargs['section'] = self.current_section
+        if not 'section' in kwargs and self._current_section:
+            kwargs['section'] = self._current_section
 
         self.adds.append(ConfigParameterSchema(*args, **kwargs))
 
     def remove_param(self, name):
-        self._ensure_version()
-
         self.removals.append(name)
 
-    def commit(self):
-        "Finalize schema building"
-        self._ensure_version()
 
-        if len(self.removals) > 0:
-            self.data.append(
-                SchemaUpdateRecord(
-                    self.current_version,
-                    'remove',
-                    self.removals))
-            self.removals = []
-        if len(self.adds) > 0:
-            self.data.append(
-                SchemaUpdateRecord(
-                    self.current_version,
-                    'add',
-                    self.adds))
-            self.adds = []
+class SchemaBuilder(object):
 
-    def _ensure_version(self):
-        if not self.current_version:
-            raise Error(
-                'Schema version is not specified. Please call version() '
-                'method first')
+    def __init__(self, data):
+        super(SchemaBuilder, self).__init__()
+        self.data = data
+
+    @contextmanager
+    def version(self, version, checkpoint=False):
+        version_record = SchemaVersionRecord(version, checkpoint)
+
+        yield version_record
+
+        self.data.append(version_record)
+        self.data.sort()
 
 
 class ConfigSchemaRegistry:
@@ -103,8 +66,9 @@ class ConfigSchemaRegistry:
         if not configname:
             configname = '%s.conf' % project
         fullname = '%s/%s' % (project, configname)
-        self.__schemas[fullname] = []
-        return SchemaBuilder(fullname, self.__schemas[fullname])
+        if fullname not in self.__schemas:
+            self.__schemas[fullname] = []
+        return SchemaBuilder(self.__schemas[fullname])
 
     @classmethod
     def get_schema(self, project, version, configname=None):
@@ -119,7 +83,7 @@ class ConfigSchemaRegistry:
         records = self.__schemas[fullname]
         i = len(records) - 1
         # Find latest checkpoint prior given version
-        while i >= 0 and not (records[i].operation == 'checkpoint'
+        while i >= 0 and not (records[i].checkpoint
                               and records[i].version <= version):
             i -= 1
 
@@ -132,25 +96,23 @@ class ConfigSchemaRegistry:
 
         while i < len(records) and records[i].version <= version:
             last_version = records[i].version
-            if records[i].operation == 'add':
-                for param in records[i].data:
-                    if param.name in seen_parameters:
-                        old_param_index = index(
-                            parameters,
-                            lambda p: p.name == param.name)
-                        if old_param_index != -1:
-                            parameters[old_param_index] = param
-                    else:
-                        parameters.append(param)
-                        seen_parameters.add(param.name)
-            elif records[i].operation == 'remove':
-                for param_name in records[i].data:
-                    param_index = index(
+            for param in records[i].adds:
+                if param.name in seen_parameters:
+                    old_param_index = index(
                         parameters,
-                        lambda p: p.name == param_name)
-                    if index != -1:
-                        parameters.pop(param_index)
-                        seen_parameters.remove(param_name)
+                        lambda p: p.name == param.name)
+                    if old_param_index != -1:
+                        parameters[old_param_index] = param
+                else:
+                    parameters.append(param)
+                    seen_parameters.add(param.name)
+            for param_name in records[i].removals:
+                param_index = index(
+                    parameters,
+                    lambda p: p.name == param_name)
+                if index != -1:
+                    parameters.pop(param_index)
+                    seen_parameters.remove(param_name)
             i += 1
 
         return ConfigSchema(fullname, last_version, 'ini', parameters)
@@ -207,12 +169,12 @@ class ConfigParameterSchema:
         return (
             '<ConfigParameterSchema %s>' % ' '.join(
                 ['%s=%s' % (attr, getattr(self, attr))
-                                                    for attr in ['section',
-                                                                 'name',
-                                                                 'type',
-                                                                 'description',
-                                                                 'default',
-                                                                 'required']])
+                    for attr in ['section',
+                                 'name',
+                                 'type',
+                                 'description',
+                                 'default',
+                                 'required']])
         )
 
 
@@ -228,10 +190,10 @@ class TypeValidatorRegistry:
         return self.__validators[name]
 
 
-class SchemaError(Issue):
+class SchemaIssue(Issue):
 
     def __init__(self, message):
-        super(SchemaError, self).__init__(Issue.ERROR, message)
+        super(SchemaIssue, self).__init__(Issue.ERROR, message)
 
 
 class InvalidValueError(MarkedIssue):
@@ -438,7 +400,7 @@ def validate_string(s):
 def validate_integer(s, min=None, max=None):
     leading_whitespace_len = 0
     while leading_whitespace_len < len(s) \
-        and s[leading_whitespace_len].isspace():
+            and s[leading_whitespace_len].isspace():
         leading_whitespace_len += 1
 
     s = s.strip()
@@ -485,7 +447,7 @@ def validate_port(s, min=1, max=65535):
 def validate_list(s, element_type='string'):
     element_type_validator = TypeValidatorRegistry.get_validator(element_type)
     if not element_type_validator:
-        return SchemaError('Invalid element type "%s"' % element_type)
+        return SchemaIssue('Invalid element type "%s"' % element_type)
 
     result = []
     s = s.strip()
@@ -508,7 +470,7 @@ def validate_list(s, element_type='string'):
 def validate_dict(s, element_type='string'):
     element_type_validator = TypeValidatorRegistry.get_validator(element_type)
     if not element_type_validator:
-        return SchemaError('Invalid element type "%s"' % element_type)
+        return SchemaIssue('Invalid element type "%s"' % element_type)
 
     result = {}
     s = s.strip()

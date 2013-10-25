@@ -7,6 +7,8 @@ from rubick.discovery import OpenstackDiscovery
 import rubick.inspections
 # Silence PEP8 "unused import"
 assert rubick.inspections
+import rubick.schemas
+assert rubick.schemas
 from rubick.json import openstack_for_json
 
 
