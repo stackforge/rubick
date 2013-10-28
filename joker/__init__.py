@@ -1,7 +1,7 @@
-from nodes import NodesDict, Node
-#from os import remove
+from nodes import Node
+import os
 
-PETYA_ENV_KEY = "-----BEGIN RSA PRIVATE KEY-----\n\
+DEFAULT_KEY = "-----BEGIN RSA PRIVATE KEY-----\n\
 MIIEogIBAAKCAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzI\n\
 w+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoP\n\
 kcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2\n\
@@ -29,61 +29,87 @@ kda/AoGANWrLCz708y7VYgAtW2Uf1DPOIYMdvo6fxIB5i9ZfISgcJ/bbCUkFrhoH\n\
 NE5OgEXk2wVfZczCZpigBKbKZHNYcelXtTt/nP3rsCuGcM4h53s=\n\
 -----END RSA PRIVATE KEY-----"
 
-#TMP_PATH="/tmp/%s"
+TMP_PATH = "/tmp/joker_%s_%d"
 
 
 class Joker():
 
-    def __init__(self, key=PETYA_ENV_KEY, *args, **kwargs):
+    def __init__(self, key=DEFAULT_KEY, *args, **kwargs):
 
         self.default_key = key
 
-        self.nodes = NodesDict()
-        self.keyPath = None
+        self.discoverQueue = []
+        self.discoveryResult = []
+        self.cleanUp = []
         self.name = "EntryPoint"
-        #self.setKey()
+        self.seenNodes = {}
 
-#    def __del__(self):
-#        if (self.keyPath):
-#            # look at this.
-#            # epic security hole oneliner
-#            print "os.remove(self.keyPath)"
+        # keys temporary files
 
-    def addNode(self, name, host, port, user):
-        self.entryPoint = Node(name, host, port)
-        self.entryPoint.assignCredential(user, self.default_key, None)
-        return
+    def __del__(self):
+        for filePath in self.cleanUp:
+            if os.path.exists(filePath):
+                os.remove(filePath)
 
-    def genStub(self, hostname, ip, port, user, key, proxycommand):
-        return {"name": hostname, "ip": ip, "user": user,
-                "key": key, "port": port,
-                "proxy_command": proxycommand
-                }
+    def addNode(self, name, host, port=22, user='root'):
+
+        node = Node(name, host, port)
+        node.assignCredential(user, self.default_key, None)
+
+        self.discoverQueue.append(node)
+
+        self.cleanUp.append(node.keyPath)
+
+        return node
+
+    def addResult(self, hostname, ip, user, key, proxyCommand=None, port=22):
+        return self.discoveryResult.append(
+            self.dkOutput(hostname, ip, user, key, proxyCommand, port))
+
+    def dkOutput(self, hostname, ip, user, key, proxyCommand=None, port=22):
+        return {
+            "name": hostname,
+            "ip": ip,
+            "user": user,
+            "key": key,
+            "port": port,
+            "proxy_command": proxyCommand
+        }
 
     def discover(self):
-        result = []
+        result = {}
 
-        ep = self.entryPoint
-        discoveryData = ep.discovery()
+        while self.discoverQueue:
+            point = self.discoverQueue.pop()
 
-        for node in discoveryData:
-            proxy_command = ("ssh" +
-                             " -i %%PATH_TO_KEY%%" +
-                             " -p {0}".format(ep.accessPort) +
-                             " -q {0}@{1}".format(ep.user, ep.hostName) +
-                             " nc -q0 {0} 22".format(discoveryData[node]))
+            nodes = point.discover()
 
-            result.append(
-                self.genStub(hostname=discoveryData[node],
-                             ip=discoveryData[node],
-                             port=ep.accessPort,
-                             user="vagrant",
-                             key=self.default_key,
-                             proxycommand=proxy_command))
+            # this host can't be discovered by ssh method
+            if nodes is None:
+                continue
 
-        return result
+            self.addResult(
+                hostname=point.hostName, ip=point.hostName, user=point.user,
+                key=point.origKey, proxyCommand=point.proxyCommandTxt,
+                port=point.accessPort)
 
-if __name__ == '__main__':
-    joker = Joker(PETYA_ENV_KEY)
-    joker.addNode("controller1", "172.18.66.112", 2301, "vagrant")
-    print joker.discover()
+            # merge already seen nodes with new discovered nodes
+            self.seenNodes = dict(self.seenNodes.items() + point.link.items())
+
+            for node in nodes:
+                if node['hwAddr'] not in self.seenNodes:
+                    # add to discovering queue
+                    newNode = self.addNode(
+                        name=node['ip'],
+                        host=node['ip'],
+                        user=point.user)
+
+                    # new node connection channel working through master node
+                    newNode.setProxyCommand(
+                        point.hostName,
+                        point.accessPort,
+                        point.user,
+                        point.keyPath
+                    )
+
+        return self.discoveryResult

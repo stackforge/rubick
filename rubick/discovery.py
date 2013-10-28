@@ -159,9 +159,9 @@ class JokerNodeDiscovery(object):
         count = 0
         for node in parse_nodes_info(initial_nodes):
             j.addNode('node%d' % count,
-                      node['host'],
-                      node['port'],
-                      node['username'])
+                      host=node['host'],
+                      port=node['port'],
+                      user=node['username'])
 
         nodes = []
         for j_node_info in j.discover():
