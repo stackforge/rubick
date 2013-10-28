@@ -57,9 +57,7 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
             admin_tenant_name = get_value('admin_tenant_name')
             admin_token = get_value('admin_token')
 
-            msg = ('Service "%s" on host "%s" %%s'
-                   'in keystone authtoken config' %
-                   (nova.name, nova.host.name))
+            msg = 'Keystone authtoken config %s'
 
             def missing_param_issue(param):
                 return Issue(Issue.ERROR,
@@ -109,4 +107,5 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
                 nova.report_issue(
                     Issue(
                         Issue.WARNING,
-                        msg % ' uses insecure admin_token for authentication'))
+                        msg % ' uses insecure admin_token method'
+                        'for authentication'))

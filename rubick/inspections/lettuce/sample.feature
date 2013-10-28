@@ -4,7 +4,7 @@ Feature: Configuration consistency
     Given I use OpenStack 2013.1
     And Nova has "auth_strategy" equal to "keystone"
     And Keystone addresses are @X
-    Then Nova should have "keystone_authtoken.auth_host" in "$X"
+    Then Nova should have keystone authtoken filter's "auth_host" in "$X"
 
   Scenario: Nova has proper fixed_range settings for Grizzly release
     Given I use OpenStack 2013.1
