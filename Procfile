@@ -1,2 +1,2 @@
-webui: PYTHONPATH=joker: python webui.py
-worker: PYTHONPATH=joker: celery worker --app=rubick.celery:app
+webui: python webui.py
+worker: celery worker --app=rubick.celery:app
