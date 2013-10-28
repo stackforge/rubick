@@ -26,27 +26,30 @@ Each configuration option should have information on versions. When validating s
 
 Changes in schema can be small between build (maintanence) releases, so there is no need to store whole schema for those. It should be stored in a diff-like format: for each known version there should be records on configuration changes like added/changed option, removed option. To validate configuration for paritcular version a configuration schema snapshot for that version will need to be calculated. Major (and maybe minor) versions can have the whole schema to speed up schema snapshot calculus.
 
-Deployment
+Installation
 -------------
 
-### Development environment in vbox via vagrant
-1. Install vagrant(MacOS, Windows, Ubuntu) - http://downloads.vagrantup.com/tags/v1.3.3
-2. ./run_vagrant_provision.sh
-3. After that you can access application on http://<host_machine_ip>:8000/
+### Completely environment in VirtualBox via Vagrant
+1. Install vagrant(MacOS, Windows, Ubuntu) - http://downloads.vagrantup.com/tags/v1.3.3 and latest version of Virtualbox
+2. Run in console: vagrant up && vagrant provision
+3. After that you can access application on http://host_machine_ip:8000/
+4. For testing purposes of your application you can install latest-devstack installation via vagrant. We strongly recommend you to use this repo: https://github.com/lorin/devstack-vm. There are a lot of choices for devstack installation for Rubick to validate: with or without neutron\swift\security_groups\tempest etc.
+5. After that you’ll get full worked environment with Rubick and OpenStack.
 
-### Heroku deployment
-1. This steps is already depricated, because of mongo-db usage in application. But if you really want to deploy on Heroku - use their paid plugin MongoHQ.
-2. $ git clone git@github.com:MirantisLabs/rubick.git
-3. $ cd rubick
-4. $ heroku git:remote -a <name_of_the_heroku_app>
-5. $ git push heroku master
- 
-### Manual deployment 
+### Manual installation
 1. Install python dependencies: $ pip install -r requirements.txt
 2. Install system dependencies: mongodb-server, redis-server
 3. To run webui: $ PYTHONPATH=joker: python webui.py
 4. To run main worker: $ PYTHONPATH=joker: celery worker --app=rubick.celery:app
 5. All steps for manual deployment and running the app you can find here: ```/vagrant/cookbooks/openstack-validator/recipes/default.rb```
+
+### Heroku deployment
+1. This steps is already deprecated, because of mongo-db usage in application. But if you really want to deploy on Heroku - use their paid plugin MongoHQ.
+2. $ git clone git@github.com:MirantisLabs/rubick.git
+3. $ cd rubick
+4. $ heroku git:remote -a <name_of_the_heroku_app>
+5. $ git push heroku master
+
 
 Hacking
 -------
