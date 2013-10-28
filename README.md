@@ -50,6 +50,19 @@ Installation
 4. $ heroku git:remote -a <name_of_the_heroku_app>
 5. $ git push heroku master
 
+Rubick usage
+-------------
+
+Open http://host_machine_ip:8000/ with web-browser, host_machine_ip - address  your application is installed.
+Add new cluster by pushing the button “Add cluster” and fill the fields:
+
+1. “Cluster name” - with name of your cluster (e.g. local_devstack )
+2. “Description” - with description (e.g. VBox installation of devstack)
+3. “Ip Address“ - with username@host:port (e.g. vagrant@192.168.27.100)
+4. “SSH key“ - with ssh-key to access the virual machine (e.g. can be find in the directory ~/.vagrant.d/insecure_private_key for Vagrant nodes)
+5. Press “Create”
+ 
+After that you can select your cluster to run validations or select the rulest before validation.
 
 Hacking
 -------
