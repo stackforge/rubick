@@ -127,7 +127,8 @@ class OpenstackComponent(Service):
         if not schema:
             self.logger.debug(
                 'No schema for component "%s" main config version %s. '
-                'Skipping it' % (self.component, self.version))
+                'Using untyped parameters (everything is string)' %
+                (self.component, self.version))
             return None
 
         return self._parse_config_resources(self.config_files, schema)
@@ -219,7 +220,6 @@ class OpenstackComponent(Service):
                                     'Unknown parameter: section "%s" name "%s"'
                                     % (section_name, parameter.name.text),
                                     parameter.start_mark))
-                            continue
 
                     if parameter.name.text in seen_parameters:
                         report_issue(

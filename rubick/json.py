@@ -8,6 +8,9 @@ def json_issues(issues):
 def json_component(component):
     result = dict(type='component', name=component.name)
 
+    if hasattr(component, 'version'):
+        result['version'] = component.version
+
     if len(component.all_issues) > 0:
         result['issues'] = json_issues(component.all_issues)
 

@@ -201,7 +201,7 @@ class OpenstackDiscovery(object):
         d = self.node_discovery_klass()
         return d.test_connection(initial_nodes, private_key)
 
-    def discover(self, initial_nodes, username, private_key):
+    def discover(self, initial_nodes, private_key):
         "Takes a list of node addresses "
         "and returns discovered openstack installation info"
         openstack = Openstack()

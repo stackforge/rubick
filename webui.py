@@ -7,33 +7,24 @@ from flask_wtf import Form
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-from pymongo import MongoClient
-from recordtype import recordtype
-from rubick.celery import app as celery, \
-    ostack_inspect_task, InspectionRequest
-from rubick.common import Inspection, Issue
-from rubick.discovery import OpenstackDiscovery
-from rubick.json import openstack_for_json
-from rubick.model import Openstack
 from wtforms import StringField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json
+
+
+from rubick.celery import app as celery, \
+    ostack_discover_task, ostack_inspect_task, InspectionRequest
+from rubick.common import Inspection, Issue
+from rubick.database import get_db, Cluster, RuleGroup
+from rubick.discovery import OpenstackDiscovery
+from rubick.json import openstack_for_json
+from rubick.model import Openstack
+
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3fooN]LWX/,?RT'
 
 wtforms_json.init()
-
-
-def connect_to_db():
-    mongo_url = os.environ.get("MONGODB_URI") or "mongodb://localhost/rubick"
-    client = MongoClient(mongo_url)
-    return client[mongo_url.split('/')[-1]]
-
-
-def get_db():
-    db = connect_to_db()
-    return db
 
 
 def is_key_valid(private_key):
@@ -45,28 +36,6 @@ def is_key_valid(private_key):
             pass
 
     return False
-
-
-class Cluster(recordtype('Cluster',
-                         ['id', 'name', 'description',
-                          'status', 'nodes', 'private_key'],
-                         default=None)):
-    @classmethod
-    def from_doc(klass, doc):
-        doc['id'] = str(doc['_id'])
-        del doc['_id']
-        return Cluster(**doc)
-
-    def as_doc(self):
-        return self._asdict()
-
-
-class RuleGroup:
-    VALIDITY = 'validity'
-    HA = 'high-availability'
-    BEST_PRACTICES = 'best-practices'
-
-    all = [VALIDITY, HA, BEST_PRACTICES]
 
 
 class ValidateClusterForm(Form):
@@ -115,18 +84,43 @@ def add_cluster():
     elif not is_key_valid(data['private_key']):
         errors['private_key'] = ['Private key format is unknown']
 
-    if len(errors) == 0:
-        cluster = Cluster(**data)
-
-        get_db()['clusters'].save(cluster.as_doc())
-        return '', 201
-    else:
+    if len(errors) > 0:
         return json.dumps(dict(errors=errors)), 422
 
+    cluster = Cluster(**data)
 
-@app.route('/clusters/<id>', methods=['DELETE'])
-def del_cluster(id):
-    get_db()['clusters'].remove({'_id': ObjectId(id)})
+    cluster_id = get_db()['clusters'].save(cluster.as_doc())
+
+    ostack_discover_task.delay(str(cluster_id))
+
+    return json.dumps(dict(id=str(cluster_id))), 201
+
+
+@app.route('/clusters/<cluster_id>', methods=['GET'])
+def get_cluster(cluster_id):
+    cluster_doc = get_db()['clusters'].find_one({'_id': ObjectId(cluster_id)})
+    if not cluster_doc:
+        return json.dumps({'errors': {'cluster_id': 'Cluster not found'}}), 404
+
+    cluster = Cluster.from_doc(cluster_doc)
+
+    return json.dumps(cluster.for_json()), 200
+
+
+@app.route('/clusters/<cluster_id>', methods=['DELETE'])
+def del_cluster(cluster_id):
+    get_db()['clusters'].remove({'_id': ObjectId(cluster_id)})
+    return '', 200
+
+
+@app.route('/clusters/<cluster_id>/rediscover', methods=['GET'])
+def discover_cluster(cluster_id):
+    cluster_doc = get_db()['clusters'].find_one({'_id': ObjectId(cluster_id)})
+    if not cluster_doc:
+        return json.dumps({'errors': {'cluster_id': 'Cluster not found'}}), 404
+
+    ostack_discover_task.delay(cluster_id)
+
     return '', 200
 
 
