@@ -1,47 +1,13 @@
 import collections
 import paramiko
 
-from paramiko.rsakey import RSAKey
 from StringIO import StringIO
+from paramiko.rsakey import RSAKey
+from paramiko.dsskey import DSSKey
+import stat
+import os
 
-
-class TransformedDict(collections.MutableMapping):
-
-    def __init__(self, *args, **kwargs):
-        self.store = dict()
-        self.update(dict(*args, **kwargs))  # use the free update to set keys
-
-    def __getitem__(self, key):
-        return self.store[self.__keytransform__(key)]
-
-    def __setitem__(self, key, value):
-        self.store[self.__keytransform__(key)] = value
-
-    def __delitem__(self, key):
-        del self.store[self.__keytransform__(key)]
-
-    def __iter__(self):
-        return iter(self.store)
-
-    def __len__(self):
-        return len(self.store)
-
-    def __keytransform__(self, key):
-        return key
-
-
-class NodesDict(TransformedDict):
-
-    def add(self, element):
-        return self.__setitem__(element, element)
-
-    def __keytransform__(self, key):
-        try:
-            # now uniq for hash is only hwaddr key
-            # print 'hwaddr = ' + key['hwaddr']
-            return key['hwaddr']
-        except KeyError:
-            raise
+TMP_KEY_PATH = "/tmp/joker_%s_%d"
 
 
 class Node():
@@ -55,27 +21,51 @@ class Node():
         self.setAccessPort(port)
         self.connected = False
 
-        #self.neighbours = NodesDict()
-        self.neighbours = {}
-        self.debug = True
+        self.neighbours = []
+        self.debug = False
 
-        self.hwAddr = None
+        self.proxyCommandTxt = self.proxyCommand = None
+        self.link = None
 
-    def discoveryHwAddr(self):
+        self.keyPath = TMP_KEY_PATH % (name, os.getpid())
+        slaves = []
+
+    def dumpKey(self, path, key):
+        f = open(path, "w", stat.S_IRUSR | stat.S_IWUSR)
+        f.write(key)
+        f.close()
+
+#    def __del__(self):
+#        print "Del %s" % self.keyPath
+#        if os.path.exists(self.keyPath):
+#            print "Remove %s" % self.keyPath
+#            os.remove(self.keyPath)
+
+    def proxyCommandGen(self, masterHost, masterPort, masterUser,
+                        masterKeyfile):
+        return "ssh -i %s -p%d %s@%s nc -q0 %s %d" % (masterKey, masterPort,
+             masterUser, masterHost, self.hostName, self.accessPort)
+
+    def discoverHwAddr(self):
         try:
-            (stdout, stderr) = self.runCommand("ip link | grep -m1 -A1 "
-                                               "BROADCAST,MULTICAST,UP,"
-                                               "LOWER_UP | awk -F\" \" "
-                                               "'/link/ {print $2}'");
+            (stdout, stderr) = self.runCommand(
+                "ip addr | grep -A2 BROADCAST,MULTICAST,UP,LOWER_UP | awk '/link\/ether/ {ether=$2} /inet/ {print $2 \" \" ether}'")
         except:
             raise()
-        return stdout[0].strip()
+
+        macDict = {}
+
+        for line in stdout:
+            (ip, hwAddr) = line.strip().split(" ")
+            macDict[hwAddr] = ip
+
+        return macDict
 
     def setUniqData(self):
-        self.hwAddr = self.discoveryHwAddr()
+        self.link = self.discoverHwAddr()
 
     def getUniqData(self):
-        return self.hwAddr
+        return self.link
 
     def debugLog(self, debugData):
         if self.debug is True:
@@ -83,10 +73,13 @@ class Node():
 
     def prepare(self):
         # install arp-scan on node
-        self.runCommand(
-            "which arp-scan || sudo apt-get --force-yes -y install arp-scan")
+        try:
+            self.runCommand(
+                "[ ! -x arp-scan ] && sudo apt-get --force-yes -y install arp-scan")
+        except:
+            raise()
         self.setUniqData()
-        self.debugLog("Unit data is " + self.getUniqData())
+
         return True
 
     def infect(self):
@@ -102,35 +95,44 @@ class Node():
     def setAccessPort(self, port):
         self.accessPort = port
 
-    def assignCredential(self, user, key, password = None):
+    def assignCredential(self, user, key, password=None):
         self.user = user
         self.password = password
 
-        # from paramiko?
         self.origKey = key
+
+        # dump key to file
+        self.dumpKey(self.keyPath, self.origKey)
 
         self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
 
-#        try:
-#            self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
-#        except SSHException:
-#           try:
-#                self._pkey = DSSKey.from_private_key(StringIO(self.origKey))
-#           except SSHException:
-#                raise "Unknown private key format"
+        try:
+            self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
+        except paramiko.SSHException:
+            try:
+                self._pkey = DSSKey.from_private_key(StringIO(self.origKey))
+            except paramiko.SSHException:
+                raise "Unknown private key format"
 
-    def setProxyCommand(self, proxyCommand):
-        self.proxyCommand = proxyCommand
+    def setProxyCommand(self, masterHost, masterPort, masterUser, masterKeyfile):
+        self.proxyCommandTxt = self.proxyCommandGen(
+            masterHost, masterPort, masterUser, masterKeyfile)
+        self.proxyCommand = paramiko.ProxyCommand(self.proxyCommandTxt)
 
     def connect(self):
+
         if self.connected is True:
-            raise AssertionError(self.connected is True)
+            raise assertionError(self.connected is True)
+
         try:
-            print self.hostName, " ", self.accessPort, " ",  self.user, " "
+
             self.ssh.connect(self.hostName, self.accessPort, self.user,
-                             pkey=self._pkey)
+                             pkey=self._pkey, sock=self.proxyCommand,
+                             timeout=5)
+
             self.connected = True
             return True
+
         except paramiko.BadHostKeyException, e:
             print "Host key could not be verified: ", e
             return False
@@ -138,38 +140,40 @@ class Node():
             print "Error unable to authenticate: ", e
             return False
         except paramiko.SSHException, e:
-            print e
+            return False
+        except EOFError, e:
             return False
 
     def runCommand(self, command):
         if (command == ""):
-            AssertionError(command == "")
+            assertionError(command == "")
 
-        if (self.connected is False):
+        if self.connected is False:
             self.connect()
+
         self.debugLog("---> " + self.hostName + " " + command)
         stdin, stdout, stderr = self.ssh.exec_command(command)
         self.debugLog("OK   " + self.hostName + " " + command)
 
         return (stdout.readlines(), stderr.readlines())
 
-    def __discovery__(self):
+    def __discover__(self):
 
-        # tuesday discovery
-        (self.discovery_data, _) = self.runCommand(
+        (data, _) = self.runCommand(
             "ip link | awk -F: '/^[0-9]+?: eth/ {print $2}' |\
-            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep"
-            " -E '192.168.(28|30)'.101")
+            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep 192.168")
 
-    def discovery(self):
-        self.prepare()
-        node = {}
-
-        self.__discovery__()
-        for n in self.discovery_data:
-            (node['ip'], node['hwaddr'], _) = n.split("\t")
-            self.neighbours[node['hwaddr']] = node['ip']
-
-        self.neighbours[self.getUniqData()] = self.hostName
+        for line in data:
+            (ip, hwAddr, _) = line.strip().split("\t")
+            self.neighbours.append({"hwAddr": hwAddr, "ip": ip})
 
         return self.neighbours
+
+    def discover(self):
+
+        if self.connect() is False:
+            return None
+
+        self.prepare()
+
+        return self.__discover__()
