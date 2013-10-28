@@ -10,6 +10,8 @@ from rubick.discovery import OpenstackDiscovery
 import rubick.inspections
 # Silence PEP8 "unused import"
 assert rubick.inspections
+import rubick.schemas
+assert rubick.schemas
 
 broker_url = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
 backend_url = os.getenv('CELERY_RESULT_BACKEND', broker_url)

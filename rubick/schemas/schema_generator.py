@@ -92,7 +92,7 @@ with {0}.version('{1}') as {2}:""".format(project, version, conf_variable)
             f.write("\n\n    %s.param('%s', type='%s', default=%s" % (
                 conf_variable, param_name, param_type, repr(param_value)))
             f.write(", description=\"%s\"" % (
-                description.replace('"', '\"')))
+                description.replace('"', '\'')))
             f.write(")")
 
 

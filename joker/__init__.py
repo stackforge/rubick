@@ -51,7 +51,7 @@ class Joker():
             if os.path.exists(filePath):
                 os.remove(filePath)
 
-    def addNode(self, name, host, user, port=22):
+    def addNode(self, name, host, port=22, user='root'):
 
         node = Node(name, host, port)
         node.assignCredential(user, self.default_key, None)

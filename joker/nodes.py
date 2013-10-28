@@ -28,7 +28,6 @@ class Node():
         self.link = None
 
         self.keyPath = TMP_KEY_PATH % (name, os.getpid())
-        slaves = []
 
     def dumpKey(self, path, key):
         f = open(path, "w", stat.S_IRUSR | stat.S_IWUSR)
@@ -43,13 +42,16 @@ class Node():
 
     def proxyCommandGen(self, masterHost, masterPort, masterUser,
                         masterKeyfile):
-        return "ssh -i %s -p%d %s@%s nc -q0 %s %d" % (masterKey, masterPort,
-             masterUser, masterHost, self.hostName, self.accessPort)
+        return "ssh -i %s -o StrictHostChecking=no -p%d %s@%s nc -q0 %s %d" % (
+            masterKeyfile, masterPort, masterUser, masterHost,
+            self.hostName, self.accessPort)
 
     def discoverHwAddr(self):
         try:
             (stdout, stderr) = self.runCommand(
-                "ip addr | grep -A2 BROADCAST,MULTICAST,UP,LOWER_UP | awk '/link\/ether/ {ether=$2} /inet/ {print $2 \" \" ether}'")
+                "ip addr | grep -A2 BROADCAST,MULTICAST,UP,LOWER_UP | "
+                "awk '/link\/ether/ {ether=$2} /inet/ {print $2 \" \" ether}'")
+
         except:
             raise()
 
