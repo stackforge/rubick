@@ -163,7 +163,7 @@ class Node():
 
         (data, _) = self.runCommand(
             "ip link | awk -F: '/^[0-9]+?: eth/ {print $2}' |\
-            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.' | grep 192.168")
+            sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.'")
 
         for line in data:
             (ip, hwAddr, _) = line.strip().split("\t")
