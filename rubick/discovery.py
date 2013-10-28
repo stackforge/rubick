@@ -66,6 +66,7 @@ class SshShell(spur.SshShell):
 
 
 class NodeClient(object):
+    logger = logging.getLogger('rubick.ssh')
 
     def __init__(self, host, port=22, username='root', password=None,
                  private_key=None, proxy_command=None):
@@ -89,15 +90,20 @@ class NodeClient(object):
             password=password,
             private_key=private_key,
             missing_host_key=spur.ssh.MissingHostKey.accept,
-            connect_timeout=5,
             sock=sock)
 
     def run(self, command, *args, **kwargs):
         if self.use_sudo:
             command = ['sudo'] + command
-        return self.shell.run(command, allow_error=True, *args, **kwargs)
+        result = self.shell.run(command, allow_error=True, *args, **kwargs)
+        self.logger.debug('Executed command: %s, '
+                          'result code %d, output:\n%s' % (' '.join(command),
+                                                           result.return_code,
+                                                           result.output))
+        return result
 
     def open(self, path, mode='r'):
+        self.logger.debug('Opening file %s mode %s' % (path, mode))
         return self.shell.open(path, mode)
 
 
@@ -126,6 +132,8 @@ def parse_nodes_info(nodes, password=None, private_key=None):
 
 
 class SimpleNodeDiscovery(object):
+    logger = logging.getLogger('rubick.discovery.joker')
+
     def test_connection(self, initial_nodes, private_key):
         for node in parse_nodes_info(initial_nodes, private_key=private_key):
             client = NodeClient(**node)
@@ -143,6 +151,8 @@ class SimpleNodeDiscovery(object):
 
 
 class JokerNodeDiscovery(object):
+    logger = logging.getLogger('rubick.discovery.joker')
+
     def test_connection(self, initial_nodes, private_key):
         for node in parse_nodes_info(initial_nodes, private_key=private_key):
             client = NodeClient(**node)
@@ -158,6 +168,7 @@ class JokerNodeDiscovery(object):
         j = joker.Joker(default_key=private_key)
         count = 0
         for node in parse_nodes_info(initial_nodes):
+            self.logger.debug("Adding node to joker: %s" % node)
             j.addNode('node%d' % count,
                       host=node['host'],
                       port=node['port'],
@@ -198,6 +209,9 @@ class OpenstackDiscovery(object):
         node_discovery = self.node_discovery_klass()
 
         for node_info in node_discovery.discover(initial_nodes, private_key):
+            self.logger.debug('Connecting to node %(host)s'
+                              '(port %(port)d, username %(username)s' %
+                              node_info)
             try:
                 client = NodeClient(
                     host=node_info['host'],
@@ -208,13 +222,11 @@ class OpenstackDiscovery(object):
 
                 client.run(['echo', 'test'])
             except:
-                self.logger.exception("Can't connect to host %s"
-                                      % node_info['host'])
+                self.logger.exception("Can't connect to host %s" %
+                                      node_info['host'])
                 openstack.report_issue(
-                    Issue(
-                        Issue.WARNING,
-                        "Can't connect to node %s" %
-                        node_info['host']))
+                    Issue(Issue.WARNING, "Can't connect to node %s" %
+                          node_info['host']))
                 continue
 
             host = self._discover_node(client)
