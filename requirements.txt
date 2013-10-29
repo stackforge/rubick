@@ -12,3 +12,4 @@ lettuce>=0.2.19
 pymongo==2.6.1
 recordtype==1.1
 paramiko==1.11.0
+oslo.config==1.2.1
