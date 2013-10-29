@@ -218,7 +218,7 @@ def generate_schema_from_code(project, version, module_path,
 
             mod_obj = _import_module(mod_str)
             if not mod_obj:
-                raise RuntimeError("Unable to import module %s" % mod_str)
+                sys.stderr.write("Unable to import module %s" % mod_str)
 
             for group, opts in _list_opts(mod_obj):
                 opts_by_group.setdefault(group, []).append((mod_str, opts))
