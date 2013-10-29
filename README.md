@@ -31,18 +31,20 @@ Installation
 
 ### Completely environment in VirtualBox via Vagrant
 1. Install vagrant(MacOS, Windows, Ubuntu) - http://downloads.vagrantup.com/tags/v1.3.3 and latest version of Virtualbox
-2. Run in console: ```$ vagrant up && vagrant provision```
+2. ```$ vagrant up && vagrant provision```
 3. After that you can access application on http://host_machine_ip:8000/
 4. For testing purposes of your application you can install latest-devstack installation via vagrant. We strongly recommend you to use this repo: https://github.com/lorin/devstack-vm. There are a lot of choices for devstack installation for Rubick to validate: with or without neutron\swift\security_groups\tempest etc.
 5. After that you’ll get full worked environment with Rubick and OpenStack.
 
-### Manual installation
-1. Install system dependencies: ```$ sudo apt-get install build-essential mongodb-server redis-server python-pip```
-2. Install python dependencies: ```$ pip install -r requirements.txt```
-3. To run webui: ```$ python webui.py```
-4. To run main worker: ```$ celery worker --app=rubick.celery:app```
-5. All steps for manual deployment and running the app you can find here: ```/vagrant/cookbooks/openstack-validator/recipes/default.rb```
+### Manual installation and running
 
+```shell
+$ sudo apt-get install build-essential mongodb-server redis-server python-pip
+$ sudo pip install -r requirements.txt
+$ python webui.py &
+$ celery worker --app=rubick.celery:app &
+```
+All steps for manual deployment and running the app you can find here: /vagrant/cookbooks/openstack-validator/recipes/default.rb
 
 Rubick usage
 -------------
@@ -61,4 +63,4 @@ After that you can select your cluster to run validations or select the rulest b
 Hacking
 -------
 
-To check project on compliance to PEP8 run command use tox:```tox -v```.
+To check project on compliance to PEP8 run command use: tox -v.
