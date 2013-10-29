@@ -97,7 +97,7 @@ def nova_property_assertion(self, name, values):
         if not (nova_value and nova_value in values):
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova should have "%s" in %s' %
-                      (name, values)))
+                                   (name, values)))
 
 
 @step(r"Nova should have keystone authtoken filter's \"(.+)\" in \"(.*)\"")
@@ -114,14 +114,14 @@ def nova_authtoken_property_assertion(self, name, values):
         (authtoken_section, _) = find(
             nova.paste_config.items(),
             lambda name_values: name_values[0].startswith('filter:') and
-            name_values[1].get(
-                'paste.filter_factory') == AUTHTOKEN_FILTER_FACTORY
+                                name_values[1].get(
+                                    'paste.filter_factory') == AUTHTOKEN_FILTER_FACTORY
         )
 
         if not authtoken_section:
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova has keystone "auth" strategy '
-                      'configured, but doesnt have authtoken paste filter'))
+                                   'configured, but doesnt have authtoken paste filter'))
             continue
 
         authtoken_settings = nova.paste_config.section(authtoken_section)
@@ -132,26 +132,30 @@ def nova_authtoken_property_assertion(self, name, values):
         if not (param_value and param_value in values):
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova should have "%s" in %s, '
-                      'actual value is "%s"' % (name, values, param_value)))
+                                   'actual value is "%s"' % (
+                                       name, values, param_value)))
 
 
+# Common steps section
 @step(r'"(.+)" component must have "(.+)" parameter')
-def nova_has_non_none_property(step, component_name, parameter_name):
+def component_has_non_none_property(step, component_name, parameter_name):
     component_name = subst(component_name)
     parameter_name = subst(parameter_name)
 
     for component in [c for c in world.openstack.components
-                      if c.component.startswith('%s' % component_name)]:
+                      if c.name.startswith('%s' % component_name)]:
         component_value = component.config[parameter_name]
 
         if component_value is None:
             component.report_issue(
-                Issue(Issue.ERROR, '"%s" should have parameter "%s"' %
-                      (component_name, parameter_name)))
+                Issue(Issue.ERROR,
+                      '"%s" must have parameter "%s - version %s"' %
+                      (c.name, parameter_name, component.version)))
 
 
 @step(r'"(.+)" component have "(.+)" parameter equal to "(.*)"')
-def nova_has_property_with_value(step, component_name, parameter_name, value):
+def component_has_property_with_value(step, component_name, parameter_name,
+                                      value):
     component_name = subst(component_name)
     parameter_name = subst(parameter_name)
     value = subst(value)
@@ -166,3 +170,11 @@ def nova_has_property_with_value(step, component_name, parameter_name, value):
                       '"%s" should have parameter "%s" equals "%s"'
                       'now its "%s"' % (component_name, parameter_name,
                                         component_value, value)))
+
+
+@step(r'Which package version do I use?')
+def component_versions_list(self):
+    for component in world.openstack.components:
+        component.report_issue(Issue(Issue.INFO, "%s component has % version" %
+                                            (
+                                                component.name, component.version)))

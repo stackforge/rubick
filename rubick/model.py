@@ -347,6 +347,46 @@ class RabbitMqComponent(Service):
     name = 'rabbitmq'
 
 
+class GlanceApiComponent(OpenstackComponent):
+    component = 'glance'
+    name = 'glance-api'
+
+
+class GlanceRegistryComponent(OpenstackComponent):
+    component = 'glance'
+    name = 'glance-registry'
+
+
+class NeutronServerComponent(OpenstackComponent):
+    component = 'neutron'
+    name = 'neutron-server'
+
+
+class NeutronOpenvswitchAgentComponent(OpenstackComponent):
+    component = 'neutron'
+    name = 'neutron-openvswitch-agent'
+
+
+class NeutronDhcpAgentComponent(OpenstackComponent):
+    component = 'neutron'
+    name = 'neutron-dhcp-agent'
+
+
+class NeutronL3AgentComponent(OpenstackComponent):
+    component = 'neutron'
+    name = 'neutron-l3-agent'
+
+
+class NeutronMetadataAgentComponent(OpenstackComponent):
+    component = 'neutron'
+    name = 'neutron-metadata-agent'
+
+
+class SwiftProxyServerComponent(OpenstackComponent):
+    component = 'swift'
+    name = 'swift-proxy-server'
+
+
 class FileResource(IssueReporter):
 
     def __init__(self, path, contents, owner, group, permissions):

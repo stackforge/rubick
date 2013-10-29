@@ -260,6 +260,8 @@ class OpenstackDiscovery(object):
         host.add_component(self._collect_cinder_scheduler_data(client))
         host.add_component(self._collect_mysql_data(client))
         host.add_component(self._collect_rabbitmq_data(client))
+        host.add_component(self._collect_neutron_server_data(client))
+        host.add_component(self._collect_swift_proxy_server_data(client))
 
         return host
 
@@ -631,3 +633,44 @@ class OpenstackDiscovery(object):
         rabbitmq.version = 'unknown'
 
         return rabbitmq
+
+    def _collect_neutron_server_data(self, client):
+        process = self._find_python_process(client, 'neutron-server')
+        if not process:
+            return None
+
+        p = index(process, lambda s: s == '--config-file')
+        if p != -1 and p + 1 < len(process):
+            config_path = process[p + 1]
+        else:
+            config_path = '/etc/neutron/neutron.conf'
+
+        neutron_server = NeutronServerComponent()
+        neutron_server.version = self._find_python_package_version(
+            client, 'neutron')
+        neutron_server.config_files = []
+        neutron_server.config_files.append(
+            self._collect_file(client, config_path))
+
+        return neutron_server
+
+
+    def _collect_swift_proxy_server_data(self, client):
+        process = self._find_python_process(client, 'swift-proxy-server')
+        if not process:
+            return None
+
+        p = index(process, lambda s: 'swift-proxy-server' in s)
+        if p != -1 and p + 1 < len(process):
+            config_path = process[p + 1]
+        else:
+            config_path = '/etc/swift/proxy-server.conf'
+
+        swift_proxy_server = SwiftProxyServerComponent()
+        swift_proxy_server.version = self._find_python_package_version(
+            client, 'swift')
+        swift_proxy_server.config_files = []
+        swift_proxy_server.config_files.append(
+            self._collect_file(client, config_path))
+
+        return swift_proxy_server
