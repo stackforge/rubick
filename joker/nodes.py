@@ -22,17 +22,19 @@ class Node():
         self.connected = False
 
         self.neighbours = []
-        self.debug = False
+        self.debug = True
 
         self.proxyCommandTxt = self.proxyCommand = None
         self.link = None
 
+        self.origKey = self._pkey = None
         self.keyPath = TMP_KEY_PATH % (name, os.getpid())
 
     def dumpKey(self, path, key):
-        f = open(path, "w", stat.S_IRUSR | stat.S_IWUSR)
-        f.write(key)
-        f.close()
+        if (key): 
+            f = open(path, "w", stat.S_IRUSR | stat.S_IWUSR)
+            f.write(key)
+            f.close()
 
 #    def __del__(self):
 #        print "Del %s" % self.keyPath
@@ -97,16 +99,10 @@ class Node():
     def setAccessPort(self, port):
         self.accessPort = port
 
-    def assignCredential(self, user, key, password=None):
-        self.user = user
-        self.password = password
-
+    def assignKey(self, key): 
         self.origKey = key
-
         # dump key to file
         self.dumpKey(self.keyPath, self.origKey)
-
-        self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
 
         try:
             self._pkey = RSAKey.from_private_key(StringIO(self.origKey))
@@ -115,6 +111,17 @@ class Node():
                 self._pkey = DSSKey.from_private_key(StringIO(self.origKey))
             except paramiko.SSHException:
                 raise "Unknown private key format"
+        
+
+    def assignCredential(self, user, key, password=None):
+        self.user = user
+        self.password = password
+
+        if (key):
+            self.assignKey(key) 
+
+
+
 
     def setProxyCommand(self, masterHost, masterPort, masterUser, masterKeyfile):
         self.proxyCommandTxt = self.proxyCommandGen(
@@ -130,7 +137,7 @@ class Node():
 
             self.ssh.connect(self.hostName, self.accessPort, self.user,
                              pkey=self._pkey, sock=self.proxyCommand,
-                             timeout=5)
+                             timeout=5, password = self.password)
 
             self.connected = True
             return True
