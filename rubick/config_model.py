@@ -15,50 +15,32 @@ class ConfigurationSection(object):
         return '%s.%s' % (section, param)
 
     def get(self, name, *args, **kwargs):
-        return (
-            self.config.get(
-                self._combine_names(
-                    self.section,
-                    name),
-                *args,
-                **kwargs)
-        )
+        return self.config.get(
+            self._combine_names(self.section, name), *args, **kwargs)
 
     def set(self, name, *args, **kwargs):
         self.config.set(
-            self._combine_names(
-                self.section,
-                name),
-            *args,
-            **kwargs)
+            self._combine_names(self.section, name), *args, **kwargs)
 
     def set_default(self, name, *args, **kwargs):
         self.config.set_default(
-            self._combine_names(
-                self.section,
-                name),
-            *args,
-            **kwargs)
+            self._combine_names(self.section, name), *args, **kwargs)
+
+    def set_cli(self, name, *args, **kwargs):
+        self.config.set_cli(
+            self._combine_names(self.section, name), *args, **kwargs)
+
+    def set_env(self, name, *args, **kwargs):
+        self.config.set_env(
+            self._combine_names(self.section, name), *args, **kwargs)
 
     def contains(self, name, *args, **kwargs):
-        return (
-            self.config.contains(
-                self._combine_names(
-                    self.section,
-                    name),
-                *args,
-                **kwargs)
-        )
+        return self.config.contains(
+            self._combine_names(self.section, name), *args, **kwargs)
 
     def is_default(self, name, *args, **kwargs):
-        return (
-            self.config.is_default(
-                self._combine_names(
-                    self.section,
-                    name),
-                *args,
-                **kwargs)
-        )
+        return self.config.is_default(
+            self._combine_names(self.section, name), *args, **kwargs)
 
     def __getitem__(self, key):
         return self.config.get(self._combine_names(self.section, key))
@@ -96,6 +78,8 @@ class Configuration(object):
         super(Configuration, self).__init__()
         self._defaults = dict()
         self._normal = dict()
+        self._cli = dict()
+        self._env = dict()
 
     def _normalize_name(self, name):
         if name.find('.') == -1:
@@ -114,7 +98,11 @@ class Configuration(object):
     def get(self, name, default=None, raw=False, _state=[]):
         section, name = self._normalize_name(name)
 
-        if section in self._normal and name in self._normal[section]:
+        if section in self._cli and name in self._cli[section]:
+            value = self._cli[section][name]
+        elif section in self._env and name in self._env[section]:
+            value = self._env[section][name]
+        elif section in self._normal and name in self._normal[section]:
             value = self._normal[section][name]
         elif section in self._defaults and name in self._defaults[section]:
             value = self._defaults[section][name]
@@ -138,8 +126,14 @@ class Configuration(object):
         if section in self._normal and name in self._normal[section]:
             return True
 
-        if not ignoreDefault and section in self._defaults \
-            and name in self._defaults[section]:
+        if section in self._cli and name in self._cli[section]:
+            return True
+
+        if section in self._env and name in self._env[section]:
+            return True
+
+        if (not ignoreDefault and section in self._defaults and
+                name in self._defaults[section]):
             return True
 
         return False
@@ -148,25 +142,31 @@ class Configuration(object):
         section, name = self._normalize_name(name)
 
         return (
-            not (section in self._normal and name in self._normal[section])
-            and (section in self._defaults and name in self._defaults[section])
+            not (section in self._normal and name in self._normal[section]) and
+            not (section in self._cli and name in self._cli[section]) and
+            not (section in self._env and name in self._env[section]) and
+            (section in self._defaults and name in self._defaults[section])
         )
+
+    def set_env(self, name, value):
+        section, name = self._normalize_name(name)
+
+        self._env.setdefault(section, {})[name] = value
+
+    def set_cli(self, name, value):
+        section, name = self._normalize_name(name)
+
+        self._cli.setdefault(section, {})[name] = value
 
     def set_default(self, name, value):
         section, name = self._normalize_name(name)
 
-        if not section in self._defaults:
-            self._defaults[section] = dict()
-
-        self._defaults[section][name] = value
+        self._defaults.setdefault(section, {})[name] = value
 
     def set(self, name, value):
         section, name = self._normalize_name(name)
 
-        if not section in self._normal:
-            self._normal[section] = dict()
-
-        self._normal[section][name] = value
+        self._normal.setdefault(section, {})[name] = value
 
     def section(self, section):
         return ConfigurationSection(self, section)
@@ -178,17 +178,22 @@ class Configuration(object):
         self.set(key, value)
 
     def __contains__(self, section):
-        return (section in self._defaults) or (section in self._normal)
+        return ((section in self._defaults) or
+                (section in self._cli) or
+                (section in self._env) or
+                (section in self._normal))
 
     def keys(self, section=None):
         if section:
             names = set()
-            if section in self._defaults:
-                for param in self._defaults[section].keys():
-                    names.add(param)
-            if section in self._normal:
-                for param in self._normal[section].keys():
-                    names.add(param)
+            for param in self._defaults.get(section, {}).keys():
+                names.add(param)
+            for param in self._normal.get(section, {}).keys():
+                names.add(param)
+            for param in self._cli.get(section, {}).keys():
+                names.add(param)
+            for param in self._env.get(section, {}).keys():
+                names.add(param)
 
             return list(names)
         else:
@@ -197,6 +202,12 @@ class Configuration(object):
                 sections.add(section)
 
             for section in self._normal.keys():
+                sections.add(section)
+
+            for section in self._cli.keys():
+                sections.add(section)
+
+            for section in self._env.keys():
                 sections.add(section)
 
             return list(sections)
