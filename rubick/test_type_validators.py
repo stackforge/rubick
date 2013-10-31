@@ -5,7 +5,6 @@ import unittest
 
 
 class TypeValidatorTestHelper(object):
-
     def setUp(self):
         super(TypeValidatorTestHelper, self).setUp()
         self.validator = TypeValidatorRegistry.get_validator(self.type_name)
@@ -14,7 +13,8 @@ class TypeValidatorTestHelper(object):
         self.assertNotIsInstance(self.validator.validate(value), Issue)
 
     def assertInvalid(self, value):
-        self.assertIsInstance(self.validator.validate(value), Issue)
+        self.assertIsInstance(
+            self.validator.validate(value), Issue)
 
 
 class StringTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
@@ -275,6 +275,48 @@ class StringDictTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
         self.assertEqual('bar', v['foo'])
         self.assertEqual('123', v['baz'])
         self.assertEqual(2, len(v))
+
+
+class RabbitmqBindValidatorTest(TypeValidatorTestHelper, unittest.TestCase):
+    type_name = 'rabbitmq_bind'
+
+    def test_empty_value_is_an_error(self):
+        self.assertInvalid('')
+
+    def test_integer(self):
+        v = self.validator.validate('123')
+
+        self.assertEqual(('0.0.0.0', 123), v)
+
+    def test_integer_outside_port_range(self):
+        self.assertInvalid('65536')
+
+    def test_host_port(self):
+        v = self.validator.validate('{"127.0.0.1",8080}')
+
+        self.assertEqual(('127.0.0.1', 8080), v)
+
+
+class RabbitmqListValidatorTest(TypeValidatorTestHelper, unittest.TestCase):
+    type_name = 'rabbitmq_bind_list'
+
+    def test_empty(self):
+        self.assertInvalid('')
+
+    def test_empty_list(self):
+        v = self.validator.validate('[]')
+
+        self.assertEqual([], v)
+
+    def test_single_entry(self):
+        v = self.validator.validate('[123]')
+
+        self.assertEqual([('0.0.0.0', 123)], v)
+
+    def test_multiple_entries(self):
+        v = self.validator.validate('[1080,{"localhost",8080}]')
+
+        self.assertEqual([('0.0.0.0', 1080), ('localhost', 8080)], v)
 
 
 if __name__ == '__main__':

@@ -624,13 +624,33 @@ class OpenstackDiscovery(object):
     def _collect_rabbitmq_data(self, client):
         process = self._find_process(client, 'beam.smp')
         if not process:
-            return None
+            process = self._find_process(client, 'beam')
+            if not process:
+                return None
 
         if ' '.join(process).find('rabbit') == -1:
             return None
 
         rabbitmq = RabbitMqComponent()
         rabbitmq.version = 'unknown'
+
+        env_file = '/etc/rabbitmq/rabbitmq-env.conf'
+        env_vars = {}
+        result = client.run(['bash', '-c', 'source %s && printenv' % env_file])
+        if result.return_code == 0:
+            lines = result.output.split("\n")
+            env_vars = dict((k, v) for k, v in lines.split('=', 1))
+
+        rabbitmq_env_vars = \
+            dict((key.replace('RABBITMQ_', ''), value)
+                 for key, value in env_vars if key.startswith('RABBITMQ_'))
+
+        for key, value in rabbitmq_env_vars:
+            rabbitmq.config.set_env(key, value)
+
+        for i, s in enumerate(process):
+            if s == '-rabbit' and i + 2 <= len(process):
+                rabbitmq.config.set_cli(process[i + 1], process[i + 2])
 
         return rabbitmq
 

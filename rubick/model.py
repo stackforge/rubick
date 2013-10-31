@@ -1,7 +1,7 @@
 from itertools import groupby
 import logging
 
-from rubick.common import Mark, Issue, MarkedIssue
+from rubick.common import Mark, Issue, MarkedIssue, Version
 from rubick.config_formats import IniConfigParser
 from rubick.config_model import Configuration
 from rubick.schema import ConfigSchemaRegistry, TypeValidatorRegistry
@@ -345,6 +345,22 @@ class MysqlComponent(Service):
 
 class RabbitMqComponent(Service):
     name = 'rabbitmq'
+
+    @property
+    @memoized
+    def config(self):
+        config = Configuration()
+        schema = ConfigSchemaRegistry.get_schema('rabbitmq', Version(1000000))
+        if schema:
+            for parameter in schema.parameters:
+                if not parameter.default:
+                    continue
+
+                config.set_default(parameter.name, parameter.default)
+        else:
+            print("RabbitMQ schema not found")
+
+        return config
 
 
 class GlanceApiComponent(OpenstackComponent):

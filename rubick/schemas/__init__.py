@@ -4,3 +4,4 @@ import rubick.schemas.keystone
 import rubick.schemas.neutron
 import rubick.schemas.nova
 import rubick.schemas.swift
+import rubick.schemas.rabbitmq

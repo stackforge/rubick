@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+import re
 
 from rubick.common import Issue, MarkedIssue, Mark, Version, find, index
 from rubick.exceptions import RubickException
@@ -443,8 +444,7 @@ def validate_port(s, min=1, max=65535):
     return validate_integer(s, min=min, max=max)
 
 
-@type_validator('string_list')
-def validate_list(s, element_type='string'):
+def validate_list(s, element_type):
     element_type_validator = TypeValidatorRegistry.get_validator(element_type)
     if not element_type_validator:
         return SchemaIssue('Invalid element type "%s"' % element_type)
@@ -456,14 +456,27 @@ def validate_list(s, element_type='string'):
         return result
 
     values = s.split(',')
-    for value in values:
-        validated_value = element_type_validator.validate(value.strip())
-        if isinstance(validated_value, Issue):
-            # TODO: provide better position reporting
-            return validated_value
+    while len(values) > 0:
+        value = values.pop(0)
+        while True:
+            validated_value = element_type_validator.validate(value.strip())
+            if not isinstance(validated_value, Issue):
+                break
+
+            if len(values) == 0:
+                # TODO: provide better position reporting
+                return validated_value
+
+            value += ',' + values.pop()
+
         result.append(validated_value)
 
     return result
+
+
+@type_validator('string_list')
+def validate_string_list(s):
+    return validate_list(s, element_type='string')
 
 
 @type_validator('string_dict')
@@ -501,3 +514,41 @@ def validate_dict(s, element_type='string'):
             return validated_value
         result[key] = validated_value
     return result
+
+
+@type_validator('rabbitmq_bind')
+def validate_rabbitmq_bind(s):
+    m = re.match('\d+', s)
+    if m:
+        port = validate_port(s)
+        if isinstance(port, Issue):
+            return port
+
+        return ('0.0.0.0', port)
+
+    m = re.match('{\s*\"(.+)\"\s*,\s*(\d+)\s*}', s)
+    if m:
+        host = validate_host_address(m.group(1))
+        port = validate_port(m.group(2))
+
+        if isinstance(host, Issue):
+            return host
+
+        if isinstance(port, Issue):
+            return port
+
+        return (host, port)
+
+    return SchemaIssue("Unrecognized bind format")
+
+
+def validate_rabbitmq_list(s, element_type):
+    if not (s.startswith('[') and s.endswith(']')):
+        return SchemaIssue('List should be surrounded by [ and ]')
+
+    return validate_list(s[1:-1], element_type=element_type)
+
+
+@type_validator('rabbitmq_bind_list')
+def validate_rabbitmq_bind_list(s):
+    return validate_rabbitmq_list(s, element_type='rabbitmq_bind')
