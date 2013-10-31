@@ -285,12 +285,12 @@ class KeystoneComponent(OpenstackComponent):
 
 
 class GlanceApiComponent(OpenstackComponent):
-    component = 'glance'
+    component = 'glance_api'
     name = 'glance-api'
 
 
 class GlanceRegistryComponent(OpenstackComponent):
-    component = 'glance'
+    component = 'glance_registry'
     name = 'glance-registry'
 
 
@@ -374,7 +374,7 @@ class GlanceRegistryComponent(OpenstackComponent):
 
 
 class NeutronServerComponent(OpenstackComponent):
-    component = 'neutron'
+    component = 'neutron_server'
     name = 'neutron-server'
 
 
@@ -384,7 +384,7 @@ class NeutronOpenvswitchAgentComponent(OpenstackComponent):
 
 
 class NeutronDhcpAgentComponent(OpenstackComponent):
-    component = 'neutron'
+    component = 'neutron_dhcp_agent'
     name = 'neutron-dhcp-agent'
 
 

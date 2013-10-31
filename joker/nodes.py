@@ -1,17 +1,15 @@
-import collections
 import paramiko
 
-from StringIO import StringIO
-from paramiko.rsakey import RSAKey
-from paramiko.dsskey import DSSKey
-import stat
 import os
+from paramiko.dsskey import DSSKey
+from paramiko.rsakey import RSAKey
+import stat
+from StringIO import StringIO
 
 TMP_KEY_PATH = "/tmp/joker_%s_%d"
 
 
 class Node():
-
     def __init__(self, name, ip, port):
 
         self.ssh = paramiko.SSHClient()
@@ -31,16 +29,16 @@ class Node():
         self.keyPath = TMP_KEY_PATH % (name, os.getpid())
 
     def dumpKey(self, path, key):
-        if (key): 
+        if (key):
             f = open(path, "w", stat.S_IRUSR | stat.S_IWUSR)
             f.write(key)
             f.close()
 
-#    def __del__(self):
-#        print "Del %s" % self.keyPath
-#        if os.path.exists(self.keyPath):
-#            print "Remove %s" % self.keyPath
-#            os.remove(self.keyPath)
+        #    def __del__(self):
+        #        print "Del %s" % self.keyPath
+        #        if os.path.exists(self.keyPath):
+        #            print "Remove %s" % self.keyPath
+        #            os.remove(self.keyPath)
 
     def proxyCommandGen(self, masterHost, masterPort, masterUser,
                         masterKeyfile):
@@ -54,8 +52,8 @@ class Node():
                 "ip addr | grep -A2 BROADCAST,MULTICAST,UP,LOWER_UP | "
                 "awk '/link\/ether/ {ether=$2} /inet/ {print $2 \" \" ether}'")
 
-        except:
-            raise()
+        except Exception:
+            raise ()
 
         macDict = {}
 
@@ -79,9 +77,10 @@ class Node():
         # install arp-scan on node
         try:
             self.runCommand(
-                "[ ! -x arp-scan ] && sudo apt-get --force-yes -y install arp-scan")
-        except:
-            raise()
+                "[ ! -x arp-scan ] && sudo apt-get --force-yes -y install "
+                "arp-scan")
+        except Exception:
+            raise ()
         self.setUniqData()
 
         return True
@@ -99,7 +98,7 @@ class Node():
     def setAccessPort(self, port):
         self.accessPort = port
 
-    def assignKey(self, key): 
+    def assignKey(self, key):
         self.origKey = key
         # dump key to file
         self.dumpKey(self.keyPath, self.origKey)
@@ -111,19 +110,16 @@ class Node():
                 self._pkey = DSSKey.from_private_key(StringIO(self.origKey))
             except paramiko.SSHException:
                 raise "Unknown private key format"
-        
 
     def assignCredential(self, user, key, password=None):
         self.user = user
         self.password = password
 
         if (key):
-            self.assignKey(key) 
+            self.assignKey(key)
 
-
-
-
-    def setProxyCommand(self, masterHost, masterPort, masterUser, masterKeyfile):
+    def setProxyCommand(self, masterHost, masterPort, masterUser,
+                        masterKeyfile):
         self.proxyCommandTxt = self.proxyCommandGen(
             masterHost, masterPort, masterUser, masterKeyfile)
         self.proxyCommand = paramiko.ProxyCommand(self.proxyCommandTxt)
@@ -131,13 +127,13 @@ class Node():
     def connect(self):
 
         if self.connected is True:
-            raise assertionError(self.connected is True)
+            raise AssertionError(self.connected is True)
 
         try:
 
             self.ssh.connect(self.hostName, self.accessPort, self.user,
                              pkey=self._pkey, sock=self.proxyCommand,
-                             timeout=5, password = self.password)
+                             timeout=5, password=self.password)
 
             self.connected = True
             return True
@@ -155,7 +151,7 @@ class Node():
 
     def runCommand(self, command):
         if (command == ""):
-            assertionError(command == "")
+            AssertionError(command == "")
 
         if self.connected is False:
             self.connect()

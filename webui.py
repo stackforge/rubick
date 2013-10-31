@@ -79,7 +79,7 @@ def add_cluster():
         errors['name'] = ['Cluster name is required']
     if not 'nodes' in data or data['nodes'] == []:
         errors['nodes'] = ['At least one cluster node is required']
-    if not 'private_key' in data:
+    if 'private_key' not in data:
         errors['private_key'] = ['Private key for accessing nodes is required']
     elif not is_key_valid(data['private_key']):
         errors['private_key'] = ['Private key format is unknown']
@@ -130,7 +130,7 @@ def test_cluster():
     errors = {}
     if not 'nodes' in data or data['nodes'] == []:
         errors['nodes'] = ['At least one cluster node is required']
-    if not 'private_key' in data:
+    if 'private_key' not in data:
         errors['private_key'] = ['Private key for accessing nodes is required']
     elif not is_key_valid(data['private_key']):
         errors['private_key'] = ['Private key format is unknown']
@@ -156,7 +156,7 @@ def get_rules():
 
 @app.route('/rules/<group>')
 def get_rules_group(group):
-    if not group in RuleGroup.all:
+    if group not in RuleGroup.all:
         return 'Unknown rule group "%s"' % group, 404
 
     #db = get_db()

@@ -2,7 +2,6 @@ import argparse
 import re
 import sys
 import os
-import os.path
 import imp
 import traceback
 from copy import copy
@@ -98,7 +97,8 @@ def sanitize_type_and_value(param_name, param_type, param_value):
     return (param_type, param_value)
 
 
-def generate_schema_from_sample_config(project, version, config_file, schema_file=sys.stdout):
+def generate_schema_from_sample_config(project, version, config_file,
+                                       schema_file=sys.stdout):
     with open(config_file, 'r') as f:
         config_lines = f.readlines()
 

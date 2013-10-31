@@ -113,15 +113,16 @@ def nova_authtoken_property_assertion(self, name, values):
 
         (authtoken_section, _) = find(
             nova.paste_config.items(),
-            lambda name_values: name_values[0].startswith('filter:') and
-                                name_values[1].get(
-                                    'paste.filter_factory') == AUTHTOKEN_FILTER_FACTORY
+            lambda name_values: name_values[0].startswith('filter:')
+            and name_values[1].get('paste.filter_factory') ==
+                                AUTHTOKEN_FILTER_FACTORY
         )
 
         if not authtoken_section:
             nova.report_issue(
                 Issue(Issue.ERROR, 'Nova has keystone "auth" strategy '
-                                   'configured, but doesnt have authtoken paste filter'))
+                                   'configured, but doesnt have authtoken '
+                                   'paste filter'))
             continue
 
         authtoken_settings = nova.paste_config.section(authtoken_section)
@@ -176,5 +177,5 @@ def component_has_property_with_value(step, component_name, parameter_name,
 def component_versions_list(self):
     for component in world.openstack.components:
         component.report_issue(Issue(Issue.INFO, "%s component has % version" %
-                                            (
-                                                component.name, component.version)))
+                                                 (component.name,
+                                                  component.version)))
