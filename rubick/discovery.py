@@ -610,8 +610,7 @@ class OpenstackDiscovery(object):
         config_locations_result = client.run(
             ['bash', '-c',
              'mysqld --help --verbose '
-             '| grep "Default options are read from the following files in '
-             'the given order" -A 1'])
+             '| grep "Default options are read from" -A 1'])
         config_locations = config_locations_result.output.strip().split(
             "\n")[-1].split()
         for path in config_locations:

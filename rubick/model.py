@@ -244,11 +244,11 @@ class OpenstackComponent(Service):
                         if isinstance(type_validation_result, Issue):
                             type_validation_result.mark = parameter\
                                 .value.start_mark.merge(
-                                type_validation_result.mark)
+                                    type_validation_result.mark)
                             type_validation_result.message = \
                                 'Property "%s" in section "%s": %s' % (
-                                parameter.name.text, section_name,
-                                type_validation_result.message)
+                                    parameter.name.text, section_name,
+                                    type_validation_result.message)
                             report_issue(type_validation_result)
 
                             config.set(

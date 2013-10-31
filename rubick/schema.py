@@ -200,13 +200,8 @@ class SchemaIssue(Issue):
 class InvalidValueError(MarkedIssue):
 
     def __init__(self, message, mark=Mark('', 0, 0)):
-        super(
-            InvalidValueError,
-            self).__init__(
-            Issue.ERROR,
-            'Invalid value: ' +
-            message,
-            mark)
+        super(InvalidValueError,self).__init__(
+            Issue.ERROR, 'Invalid value: ' + message, mark)
 
 
 class TypeValidator(object):
