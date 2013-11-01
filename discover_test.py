@@ -1,6 +1,7 @@
 from flask import json
 from itertools import groupby
 import logging
+import sys
 
 from rubick.common import MarkedIssue, Inspection
 from rubick.discovery import OpenstackDiscovery
@@ -74,8 +75,11 @@ def main():
     logging.getLogger('rubick').setLevel(logging.DEBUG)
 
     discovery = OpenstackDiscovery()
-    with open('test_rsa') as f:
-        private_key = f.read()
+    try:
+        with open('test_rsa') as f:
+            private_key = f.read()
+    except:
+        private_key = sys.stdin.read() 
 
     openstack = discovery.discover(
         ['172.18.65.179'],
