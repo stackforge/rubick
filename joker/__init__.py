@@ -6,9 +6,11 @@ TMP_PATH = "/tmp/joker_%s_%d"
 
 class Joker():
 
-    def __init__(self, key=None, *args, **kwargs):
+    def __init__(self, key = None, *args, **kwargs):
 
         self.useKey = False
+        
+
 
         self.discoverQueue = []
         self.discoveryResult = []
@@ -17,9 +19,10 @@ class Joker():
         self.seenNodes = {}
         self.default_key = None
 
-        if (key):
+        if (key):  
             self.useKey = True
             self.default_key = key
+        
 
         # keys temporary files
 
@@ -28,14 +31,14 @@ class Joker():
             if os.path.exists(filePath):
                 os.remove(filePath)
 
-    def addNode(self, name, host, port=22, user='root', password="None"):
+    def addNode(self, name, host, port=22, user='root', password = None):
 
         node = Node(name, host, port)
         node.assignCredential(user, self.default_key, password)
 
         self.discoverQueue.append(node)
 
-        if (self.useKey):
+        if (self.useKey): 
             self.cleanUp.append(node.keyPath)
 
         return node
@@ -55,6 +58,7 @@ class Joker():
         }
 
     def discover(self):
+        result = {}
 
         while self.discoverQueue:
             point = self.discoverQueue.pop()
