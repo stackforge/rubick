@@ -129,7 +129,6 @@ class OpenstackComponent(Service):
                 'No schema for component "%s" main config version %s. '
                 'Using untyped parameters (everything is string)' %
                 (self.component, self.version))
-            return None
 
         return self._parse_config_resources(self.config_files, schema)
 

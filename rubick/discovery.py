@@ -346,6 +346,42 @@ class OpenstackDiscovery(object):
 
         return FileResource(path, contents, owner, group, permissions)
 
+    def _collect_component_configs(self, client, component,
+                                   args, default_config=None):
+        config_files = []
+
+        p = index(args, lambda s: s == '--config-file')
+        if p != -1 and p + 1 < len(args):
+            config_path = args[p + 1]
+        else:
+            config_path = '/etc/keystone/keystone.conf'
+
+        if config_path:
+            config_files.append(self._collect_file(client, config_path))
+
+        p = index(args, lambda s: s == '--config-dir')
+        if p != -1 and p + 1 < len(args):
+            result = client.run(['ls', '%s/*.conf' % args[p + 1]])
+            if result.return_code == 0:
+                for config_path in result.output.split("\n"):
+                    config_files.extend(
+                        self._collect_file(client, config_path))
+
+        component.config_files = config_files
+
+        for i, arg in enumerate(args):
+            if arg.startswith('--'):
+                name = arg[2:]
+                if '=' in name:
+                    name, value = name.split('=', 1)
+                elif i + 1 < len(args):
+                    value = args[i + 1]
+                    i += 1
+                else:
+                    continue
+
+                component.config.set_cli(name, value)
+
     def _get_keystone_db_data(self, client, command, env={}):
         result = client.run(['keystone', command], update_env=env)
         if result.return_code != 0:
@@ -380,21 +416,18 @@ class OpenstackDiscovery(object):
         return data
 
     def _collect_keystone_data(self, client):
-        keystone_process = self._find_python_process(client, 'keystone-all')
-        if not keystone_process:
+        process = self._find_python_process(client, 'keystone-all')
+        if not process:
             return None
-
-        p = index(keystone_process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(keystone_process):
-            config_path = keystone_process[p + 1]
-        else:
-            config_path = '/etc/keystone/keystone.conf'
 
         keystone = KeystoneComponent()
         keystone.version = self._find_python_package_version(
             client, 'keystone')
         keystone.config_files = []
-        keystone.config_files.append(self._collect_file(client, config_path))
+
+        self._collect_component_configs(
+            client, keystone, process[1:],
+            default_config='/etc/keystone/keystone.conf')
 
         token = keystone.config['admin_token']
         host = keystone.config['bind_host']
@@ -424,20 +457,19 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/nova/nova.conf'
-
         nova_api = NovaApiComponent()
         nova_api.version = self._find_python_package_version(client, 'nova')
-        nova_api.config_files = []
-        nova_api.config_files.append(self._collect_file(client, config_path))
+
+        self._collect_component_configs(
+            client, nova_api, process[1:],
+            default_config='/etc/nova/nova.conf')
+
+        config_dir = '/etc/nova'
+        if len(nova_api.config_files) > 0:
+            config_dir = os.path.dirname(nova_api.config_files[0].path)
 
         paste_config_path = path_relative_to(
-            nova_api.config['api_paste_config'],
-            os.path.dirname(config_path))
+            nova_api.config['api_paste_config'], config_dir)
         nova_api.paste_config_file = self._collect_file(
             client, paste_config_path)
 
@@ -448,18 +480,13 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/nova/nova.conf'
-
         nova_compute = NovaComputeComponent()
-        nova_compute.version = self._find_python_package_version(
-            client, 'nova')
-        nova_compute.config_files = []
-        nova_compute.config_files.append(
-            self._collect_file(client, config_path))
+        nova_compute.version = self._find_python_package_version(client,
+                                                                 'nova')
+
+        self._collect_component_configs(
+            client, nova_compute, process[1:],
+            default_config='/etc/nova/nova.conf')
 
         return nova_compute
 
@@ -468,18 +495,13 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/nova/nova.conf'
-
         nova_scheduler = NovaSchedulerComponent()
-        nova_scheduler.version = self._find_python_package_version(
-            client, 'nova')
-        nova_scheduler.config_files = []
-        nova_scheduler.config_files.append(
-            self._collect_file(client, config_path))
+        nova_scheduler.version = self._find_python_package_version(client,
+                                                                   'nova')
+
+        self._collect_component_configs(
+            client, nova_scheduler, process[1:],
+            default_config='/etc/nova/nova.conf')
 
         return nova_scheduler
 
@@ -488,17 +510,13 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/glance/glance-api.conf'
-
         glance_api = GlanceApiComponent()
-        glance_api.version = self._find_python_package_version(
-            client, 'glance')
-        glance_api.config_files = []
-        glance_api.config_files.append(self._collect_file(client, config_path))
+        glance_api.version = self._find_python_package_version(client,
+                                                               'glance')
+
+        self._collect_component_configs(
+            client, glance_api, process[1:],
+            default_config='/etc/glance/glance.conf')
 
         return glance_api
 
@@ -507,18 +525,13 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/glance/glance-registry.conf'
-
         glance_registry = GlanceRegistryComponent()
-        glance_registry.version = self._find_python_package_version(
-            client, 'glance')
-        glance_registry.config_files = []
-        glance_registry.config_files.append(
-            self._collect_file(client, config_path))
+        glance_registry.version = self._find_python_package_version(client,
+                                                                    'glance')
+
+        self._collect_component_configs(
+            client, glance_registry, process[1:],
+            default_config='/etc/glance/glance.conf')
 
         return glance_registry
 
@@ -527,21 +540,20 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/cinder/cinder.conf'
-
         cinder_api = CinderApiComponent()
-        cinder_api.version = self._find_python_package_version(
-            client, 'cinder')
-        cinder_api.config_files = []
-        cinder_api.config_files.append(self._collect_file(client, config_path))
+        cinder_api.version = self._find_python_package_version(client,
+                                                               'cinder')
+
+        self._collect_component_configs(
+            client, cinder_api, process[1:],
+            default_config='/etc/cinder/cinder.conf')
+
+        config_dir = '/etc/cinder'
+        if len(cinder_api.config_files) > 0:
+            config_dir = os.path.dirname(cinder_api.config_files[0].path)
 
         paste_config_path = path_relative_to(
-            cinder_api.config['api_paste_config'],
-            os.path.dirname(config_path))
+            cinder_api.config['api_paste_config'], config_dir)
         cinder_api.paste_config_file = self._collect_file(
             client, paste_config_path)
 
@@ -552,22 +564,20 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/cinder/cinder.conf'
-
         cinder_volume = CinderVolumeComponent()
-        cinder_volume.version = self._find_python_package_version(
-            client, 'cinder')
-        cinder_volume.config_files = []
-        cinder_volume.config_files.append(
-            self._collect_file(client, config_path))
+        cinder_volume.version = self._find_python_package_version(client,
+                                                                  'cinder')
+
+        self._collect_component_configs(
+            client, cinder_volume, process[1:],
+            default_config='/etc/cinder/cinder.conf')
+
+        config_dir = '/etc/cinder'
+        if len(cinder_volume.config_files) > 0:
+            config_dir = os.path.dirname(cinder_volume.config_files[0].path)
 
         rootwrap_config_path = path_relative_to(
-            cinder_volume.config['rootwrap_config'],
-            os.path.dirname(config_path))
+            cinder_volume.config['rootwrap_config'], config_dir)
         cinder_volume.rootwrap_config = self._collect_file(
             client, rootwrap_config_path)
 
@@ -578,18 +588,13 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/cinder/cinder.conf'
-
         cinder_scheduler = CinderSchedulerComponent()
-        cinder_scheduler.version = self._find_python_package_version(
-            client, 'cinder')
-        cinder_scheduler.config_files = []
-        cinder_scheduler.config_files.append(
-            self._collect_file(client, config_path))
+        cinder_scheduler.version = self._find_python_package_version(client,
+                                                                     'cinder')
+
+        self._collect_component_configs(
+            client, cinder_scheduler, process[1:],
+            default_config='/etc/cinder/cinder.conf')
 
         return cinder_scheduler
 
@@ -658,38 +663,27 @@ class OpenstackDiscovery(object):
         if not process:
             return None
 
-        p = index(process, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/neutron/neutron.conf'
-
         neutron_server = NeutronServerComponent()
-        neutron_server.version = self._find_python_package_version(
-            client, 'neutron')
-        neutron_server.config_files = []
-        neutron_server.config_files.append(
-            self._collect_file(client, config_path))
+        neutron_server.version = self._find_python_package_version(client,
+                                                                   'neutron')
+
+        self._collect_component_configs(
+            client, neutron_server, process[1:],
+            default_config='/etc/neutron/neutron.conf')
 
         return neutron_server
-
 
     def _collect_swift_proxy_server_data(self, client):
         process = self._find_python_process(client, 'swift-proxy-server')
         if not process:
             return None
 
-        p = index(process, lambda s: 'swift-proxy-server' in s)
-        if p != -1 and p + 1 < len(process):
-            config_path = process[p + 1]
-        else:
-            config_path = '/etc/swift/proxy-server.conf'
-
         swift_proxy_server = SwiftProxyServerComponent()
-        swift_proxy_server.version = self._find_python_package_version(
-            client, 'swift')
-        swift_proxy_server.config_files = []
-        swift_proxy_server.config_files.append(
-            self._collect_file(client, config_path))
+        swift_proxy_server.version = self._find_python_package_version(client,
+                                                                       'swift')
+
+        self._collect_component_configs(
+            client, swift_proxy_server, process[1:],
+            default_config='/etc/swift/proxy-server.conf')
 
         return swift_proxy_server
