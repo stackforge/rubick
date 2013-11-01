@@ -83,7 +83,6 @@ def main():
 
     openstack = discovery.discover(
         ['172.18.65.179'],
-        'root',
         private_key=private_key)
 
     all_inspections = Inspection.all_inspections()
