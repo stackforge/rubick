@@ -6,7 +6,7 @@ TMP_PATH = "/tmp/joker_%s_%d"
 
 class Joker():
 
-    def __init__(self, key = None, *args, **kwargs):
+    def __init__(self, default_key, *args, **kwargs):
 
         self.useKey = False
         
@@ -19,9 +19,9 @@ class Joker():
         self.seenNodes = {}
         self.default_key = None
 
-        if (key):  
+        if (default_key):  
             self.useKey = True
-            self.default_key = key
+            self.default_key = default_key
         
 
         # keys temporary files
