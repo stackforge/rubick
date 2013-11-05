@@ -253,6 +253,8 @@ class OpenstackDiscovery(object):
                           'nova_scheduler', 'glance_api', 'glance_registry',
                           'cinder_api', 'cinder_volume', 'cinder_scheduler',
                           'mysql', 'rabbitmq', 'neutron_server',
+                          'neutron_openvswitch_agent', 'neutron_dhcp_agent',
+                          'neutron_l3_agent', 'neutron_metadata_agent', 
                           'swift_proxy_server']:
             method = '_collect_%s_data' % component
             if hasattr(self, method):

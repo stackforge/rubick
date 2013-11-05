@@ -4,6 +4,9 @@ import rubick.schemas.glance_registry
 import rubick.schemas.keystone
 import rubick.schemas.neutron_server
 import rubick.schemas.neutron_dhcp_agent
+import rubick.schemas.neutron_l3_agent
+import rubick.schemas.neutron_metadata_agent
+import rubick.schemas.neutron_openvswitch_agent
 import rubick.schemas.nova
 import rubick.schemas.swift
 import rubick.schemas.rabbitmq

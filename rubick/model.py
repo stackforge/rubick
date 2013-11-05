@@ -363,12 +363,12 @@ class RabbitMqComponent(Service):
 
 
 class GlanceApiComponent(OpenstackComponent):
-    component = 'glance'
+    component = 'glance_api'
     name = 'glance-api'
 
 
 class GlanceRegistryComponent(OpenstackComponent):
-    component = 'glance'
+    component = 'glance_registry'
     name = 'glance-registry'
 
 
@@ -378,7 +378,7 @@ class NeutronServerComponent(OpenstackComponent):
 
 
 class NeutronOpenvswitchAgentComponent(OpenstackComponent):
-    component = 'neutron'
+    component = 'neutron_openvswitch_agent'
     name = 'neutron-openvswitch-agent'
 
 
@@ -388,12 +388,12 @@ class NeutronDhcpAgentComponent(OpenstackComponent):
 
 
 class NeutronL3AgentComponent(OpenstackComponent):
-    component = 'neutron'
+    component = 'neutron_l3_agent'
     name = 'neutron-l3-agent'
 
 
 class NeutronMetadataAgentComponent(OpenstackComponent):
-    component = 'neutron'
+    component = 'neutron_metadata_agent'
     name = 'neutron-metadata-agent'
 
 
