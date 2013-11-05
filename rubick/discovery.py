@@ -640,7 +640,7 @@ class OpenstackDiscovery(object):
 
         env_file = '/etc/rabbitmq/rabbitmq-env.conf'
         env_vars = {}
-        result = client.run(['bash', '-c', 'source %s && printenv' % env_file])
+        result = client.run(['bash', '-c', 'source %s && set' % env_file])
         if result.return_code == 0:
             lines = result.output.split("\n")
             env_vars = dict((k, v) for k, v in lines.split('=', 1))
