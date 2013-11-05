@@ -29,24 +29,21 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
             if nova.config['auth_strategy'] != 'keystone':
                 continue
 
-            (authtoken_section, _) = find(
+            authtoken_section = find(
                 nova.paste_config.items(),
                 lambda name_values: name_values[0].startswith('filter:') and
                 name_values[1].get(
-                    'paste.filter_factory') == AUTHTOKEN_FILTER_FACTORY
-            )
+                    'paste.filter_factory') == AUTHTOKEN_FILTER_FACTORY)
 
             if not authtoken_section:
                 continue
 
-            authtoken_settings = nova.paste_config.section(authtoken_section)
+            authtoken_settings = authtoken_section[1]
 
             def get_value(name):
                 return (
-                    authtoken_settings[
-                        name] or nova.config[
-                        'keystone_authtoken.%s' %
-                        name]
+                    authtoken_settings[name] or
+                    nova.config['keystone_authtoken.%s' % name]
                 )
 
             auth_host = get_value('auth_host')
