@@ -249,19 +249,17 @@ class OpenstackDiscovery(object):
         host.id = self._collect_host_id(client)
         host.network_addresses = self._collect_host_network_addresses(client)
 
-        host.add_component(self._collect_keystone_data(client))
-        host.add_component(self._collect_nova_api_data(client))
-        host.add_component(self._collect_nova_compute_data(client))
-        host.add_component(self._collect_nova_scheduler_data(client))
-        host.add_component(self._collect_glance_api_data(client))
-        host.add_component(self._collect_glance_registry_data(client))
-        host.add_component(self._collect_cinder_api_data(client))
-        host.add_component(self._collect_cinder_volume_data(client))
-        host.add_component(self._collect_cinder_scheduler_data(client))
-        host.add_component(self._collect_mysql_data(client))
-        host.add_component(self._collect_rabbitmq_data(client))
-        host.add_component(self._collect_neutron_server_data(client))
-        host.add_component(self._collect_swift_proxy_server_data(client))
+        for component in ['keystone', 'nova_api', 'nova_compute',
+                          'nova_scheduler', 'glance_api', 'glance_registry',
+                          'cinder_api', 'cinder_volume', 'cinder_scheduler',
+                          'mysql', 'rabbitmq', 'neutron_server',
+                          'swift_proxy_server']:
+            method = '_collect_%s_data' % component
+            if hasattr(self, method):
+                try:
+                    host.add_component(getattr(self, method)(client))
+                except:
+                    traceback.print_exc()
 
         return host
 
