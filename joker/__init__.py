@@ -9,8 +9,6 @@ class Joker():
     def __init__(self, default_key, *args, **kwargs):
 
         self.useKey = False
-        
-
 
         self.discoverQueue = []
         self.discoveryResult = []
@@ -19,12 +17,18 @@ class Joker():
         self.seenNodes = {}
         self.default_key = None
 
-        if (default_key):  
+        if (default_key):
+            try:
+                with open(default_key) as f:
+                    self.default_key = f.read() 
+            except:
+                self.default_key = default_key
+    
             self.useKey = True
-            self.default_key = default_key
-        
+            print self.default_key
+             
 
-        # keys temporary files
+    # keys temporary files
 
     def __del__(self):
         for filePath in self.cleanUp:
