@@ -1,6 +1,6 @@
 import sys
 
-#temporary workaround for rubick/json and system json modules
+# temporary workaround for rubick/json and system json modules
 sys.path = sys.path[1:]
 
 import argparse
@@ -13,12 +13,26 @@ Debug = None
 
 def arg_parse():
     p = argparse.ArgumentParser(description='Rubick cli interface')
-    p.add_argument('-l', '--list-clusters',
-                   help='List clusters', default=None, action='store_true')
-    p.add_argument('-d', '--debug',
-                   help='Debug data', default=None, action='store_true')
+    p.add_argument('-l', '--list-cluster',
+                   help='List cluster', default=None, action='store_true')
+    p.add_argument('-a', '--add-cluster',
+                   help='List cluster', default=None, action='store_true')
+    p.add_argument('-v', '--verbose',
+                   help='more verbose', default=None, action='store_true')
     p.add_argument('-i', '--id',
                    help='Specify cluster id', default=None)
+
+    p.add_argument('-n', '--name',
+                   help='Cluster name', default=None)
+    p.add_argument('-d', '--description',
+                   help='Clustr description', default=None)
+
+    p.add_argument('-H', '--host',
+                   help='Entry point host in cluster', default=None)
+
+    p.add_argument('-k', '--key',
+                   help='Identity key', default=None)
+
     p.add_argument('api', help='Api url', default=None)
 
     return p.parse_args()
@@ -37,16 +51,22 @@ def rubick_cluster_show(cluster):
     print '\tdescription: %s' % cluster['description']
 
 
-def rubick_request_get(url):
-    cli_debug("Get request %s " % url)
-    return requests.get(url)
-
-
-def rubick_clusters_list(cluster_id):
+def rubick_request_get(uri):
     global Api_url
+    cli_debug("Get request %s " % (Api_url + uri))
+    return requests.get(Api_url + uri)
 
-    request_url = "%s/clusters%s" % (
-        Api_url, "/" + cluster_id if (cluster_id) else "")
+
+def rubick_request_post(uri, payload_data):
+    global Api_url
+    cli_debug("POST request %s " % (Api_url + uri))
+    cli_debug("POST data %s " % payload_data)
+    return requests.post(Api_url + uri, json.dumps(payload_data))
+
+
+def rubick_cluster_list(cluster_id):
+
+    request_url = "/clusters%s" % ("/" + cluster_id if (cluster_id) else "")
 
     #r = requests.get(request_url)
     r = rubick_request_get(request_url)
@@ -68,16 +88,42 @@ def rubick_clusters_list(cluster_id):
     return code
 
 
+def rubick_cluster_add(name, description, host, key):
+    if (not bool(name) or not bool(description) or not(host) or not(key)):
+        # usage error
+        return 1
+
+    try:
+        with open(key) as f:
+            keyData = f.read()
+    except:
+        return 1
+
+    request_payload = {
+        "description":  description,
+        "name": name,
+        "nodes": host,
+        "private_key": keyData
+    }
+
+    r = rubick_request_post("/clusters", request_payload)
+    print r
+
+
 def main():
     global Api_url, Debug
 
     args = arg_parse()
 
     Api_url = args.api
-    Debug = args.debug
+    Debug = args.verbose
 
-    if (args.list_clusters):
-        return rubick_clusters_list(args.id)
+    if (args.list_cluster):
+        return rubick_cluster_list(args.id)
+
+    if (args.add_cluster):
+        return rubick_cluster_add(
+            args.name, args.description, args.host, args.key)
 
 
 if __name__ == '__main__':
