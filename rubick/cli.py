@@ -48,7 +48,6 @@ def rubick_clusters_list(cluster_id):
     request_url = "%s/clusters%s" % (
         Api_url, "/" + cluster_id if (cluster_id) else "")
 
-
     #r = requests.get(request_url)
     r = rubick_request_get(request_url)
 
@@ -76,7 +75,6 @@ def main():
 
     Api_url = args.api
     Debug = args.debug
-
 
     if (args.list_clusters):
         return rubick_clusters_list(args.id)
