@@ -20,13 +20,11 @@ class Joker():
         if (default_key):
             try:
                 with open(default_key) as f:
-                    self.default_key = f.read() 
+                    self.default_key = f.read()
             except:
                 self.default_key = default_key
-    
+
             self.useKey = True
-            print self.default_key
-             
 
     # keys temporary files
 
@@ -42,7 +40,7 @@ class Joker():
 
         self.discoverQueue.append(node)
 
-        if (self.useKey): 
+        if (self.useKey):
             self.cleanUp.append(node.keyPath)
 
         return node
