@@ -398,8 +398,23 @@ class NeutronMetadataAgentComponent(OpenstackComponent):
 
 
 class SwiftProxyServerComponent(OpenstackComponent):
-    component = 'swift'
+    component = 'swift_proxy_server'
     name = 'swift-proxy-server'
+
+
+class SwiftContainerServerComponent(OpenstackComponent):
+    component = 'swift_container_server'
+    name = 'swift-container-server'
+
+
+class SwiftAccountServerComponent(OpenstackComponent):
+    component = 'swift_account_server'
+    name = 'swift-account-server'
+
+
+class SwiftObjectServerComponent(OpenstackComponent):
+    component = 'swift_object_server'
+    name = 'swift-object-server'
 
 
 class FileResource(IssueReporter):

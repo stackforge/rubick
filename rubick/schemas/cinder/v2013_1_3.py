@@ -289,7 +289,7 @@ with cinder.version('2013.1.3', checkpoint=True) as cinder_2013_1_3:
     cinder_2013_1_3.param(
         'backup_driver',
         type='string',
-        default='cinder_2013_1_3.backup.drivers.swift',
+        default='cinder_2013_1_3.backup.drivers.swift_proxy_server',
         description="Driver to use for backups.")
 
     cinder_2013_1_3.param(

@@ -152,7 +152,7 @@ with cinder.version('2013.2') as cinder_2013_2:
                         default=True, description="Enable or Disable compression for backups ")
 
     cinder_2013_2.param('backup_driver', type='string',
-                        default='cinder.backup.drivers.swift', description="Driver to use for backups. ")
+                        default='cinder.backup.drivers.swift_proxy_server', description="Driver to use for backups. ")
 
     cinder_2013_2.param('connection_type', type='string', default=None,
                         description="Virtualization api connection type : libvirt, xenapi, or fake ")

@@ -288,14 +288,14 @@ with glance_api.version('2013.2.1') as glance_api_2013_2_1:
 
     glance_api_2013_2_1.param(
         'swift_store_admin_tenants', type='string', default='',
-        description="A list of swift ACL strings that will be applied as both read and write ACLs to the containers created by Glance in multi-tenant mode. This grants the specified tenants/users read and write access to all newly created image objects. The standard swift ACL string formats are allowed, including: <tenant_id>:<username> <tenant_name>:<username> *:<username> Multiple ACLs can be combined using a comma separated list, for example: swift_store_admin_tenants = service:glance,*:admin")
+        description="A list of swift_proxy_server ACL strings that will be applied as both read and write ACLs to the containers created by Glance in multi-tenant mode. This grants the specified tenants/users read and write access to all newly created image objects. The standard swift_proxy_server ACL string formats are allowed, including: <tenant_id>:<username> <tenant_name>:<username> *:<username> Multiple ACLs can be combined using a comma separated list, for example: swift_store_admin_tenants = service:glance,*:admin")
 
     glance_api_2013_2_1.param('swift_store_region', type='string', default='',
-                              description="The region of the swift endpoint to be used for single tenant. This setting is only necessary if the tenant has multiple swift endpoints.")
+                              description="The region of the swift_proxy_server endpoint to be used for single tenant. This setting is only necessary if the tenant has multiple swift_proxy_server endpoints.")
 
     glance_api_2013_2_1.param(
         'swift_store_ssl_compression', type='string', default='True',
-        description="If set to False, disables SSL layer compression of https swift requests. Setting to 'False' may improve performance for images which are already in a compressed format, eg qcow2. If set to True, enables SSL layer compression (provided it is supported by the target swift proxy).")
+        description="If set to False, disables SSL layer compression of https swift_proxy_server requests. Setting to 'False' may improve performance for images which are already in a compressed format, eg qcow2. If set to True, enables SSL layer compression (provided it is supported by the target swift_proxy_server proxy).")
 
     glance_api_2013_2_1.param(
         's3_store_host', type='string', default='127.0.0.1:8080/v1.0/',

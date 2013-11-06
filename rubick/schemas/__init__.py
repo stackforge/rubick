@@ -8,5 +8,8 @@ import rubick.schemas.neutron_l3_agent
 import rubick.schemas.neutron_metadata_agent
 import rubick.schemas.neutron_openvswitch_agent
 import rubick.schemas.nova
-import rubick.schemas.swift
+import rubick.schemas.swift_account_server
+import rubick.schemas.swift_container_server
+import rubick.schemas.swift_object_server
+import rubick.schemas.swift_proxy_server
 import rubick.schemas.rabbitmq

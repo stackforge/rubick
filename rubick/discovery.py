@@ -181,8 +181,8 @@ class JokerNodeDiscovery(object):
                 host=j_node_info['ip'],
                 port=j_node_info['port'],
                 username=j_node_info['user'],
-                private_key=j_node_info['key'],)
-                # proxy_command=j_node_info['proxy_command'])
+                private_key=j_node_info['key'], )
+            # proxy_command=j_node_info['proxy_command'])
             node = dict((k, v) for k, v in node.iteritems() if v)
             nodes.append(node)
 
@@ -226,7 +226,7 @@ class OpenstackDiscovery(object):
                                       node_info['host'])
                 openstack.report_issue(
                     Issue(Issue.WARNING, "Can't connect to node %s" %
-                          node_info['host']))
+                                         node_info['host']))
                 continue
 
             host = self._discover_node(client)
@@ -254,8 +254,9 @@ class OpenstackDiscovery(object):
                           'cinder_api', 'cinder_volume', 'cinder_scheduler',
                           'mysql', 'rabbitmq', 'neutron_server',
                           'neutron_openvswitch_agent', 'neutron_dhcp_agent',
-                          'neutron_l3_agent', 'neutron_metadata_agent', 
-                          'swift_proxy_server']:
+                          'neutron_l3_agent', 'neutron_metadata_agent',
+                          'swift_proxy_server', 'swift_container_server',
+                          'swift_account_server', 'swift_object_server']:
             method = '_collect_%s_data' % component
             if hasattr(self, method):
                 try:
@@ -280,7 +281,7 @@ class OpenstackDiscovery(object):
                                   or line[0].endswith('/' + name)):
                 return line
             if len(line) > 1 and python_re.match(line[0]) \
-                    and (line[1] == name or line[1].endswith('/' + name)):
+                and (line[1] == name or line[1].endswith('/' + name)):
                 return line
 
         return None
@@ -673,6 +674,67 @@ class OpenstackDiscovery(object):
 
         return neutron_server
 
+    def _collect_neutron_dhcp_agent_data(self, client):
+        process = self._find_python_process(client, 'neutron-dhcp-agent')
+        if not process:
+            return None
+
+        neutron_dhcp_agent = NeutronDhcpAgentComponent()
+        neutron_dhcp_agent.version = self._find_python_package_version(client,
+                                                                       'neutron')
+
+        self._collect_component_configs(
+            client, neutron_dhcp_agent, process[1:],
+            default_config='/etc/neutron/dhcp_agent.ini')
+
+        return neutron_dhcp_agent
+
+    def _collect_neutron_l3_agent_data(self, client):
+        process = self._find_python_process(client, 'neutron-l3-agent')
+        if not process:
+            return None
+
+        neutron_l3_agent = NeutronL3AgentComponent()
+        neutron_l3_agent.version = self._find_python_package_version(client,
+                                                                     'neutron')
+
+        self._collect_component_configs(
+            client, neutron_l3_agent, process[1:],
+            default_config='/etc/neutron/l3_agent.ini')
+
+        return neutron_l3_agent
+
+    def _collect_neutron_metadata_agent_data(self, client):
+        process = self._find_python_process(client, 'neutron-metadata-agent')
+        if not process:
+            return None
+
+        neutron_metadata_agent = NeutronMetadataAgentComponent()
+        neutron_metadata_agent.version = self._find_python_package_version(
+            client, 'neutron')
+
+        self._collect_component_configs(
+            client, neutron_metadata_agent, process[1:],
+            default_config='/etc/neutron/metadata_agent.ini')
+
+        return neutron_metadata_agent
+
+    def _collect_neutron_openvswitch_agent_data(self, client):
+        process = self._find_python_process(client,
+                                            'neutron-openvswitch-agent')
+        if not process:
+            return None
+
+        neutron_openvswitch_agent = NeutronOpenvswitchAgentComponent()
+        neutron_openvswitch_agent.version = self._find_python_package_version(
+            client, 'neutron')
+
+        self._collect_component_configs(
+            client, neutron_openvswitch_agent, process[1:],
+            default_config='/etc/neutron/plugins/ml2/ml2_conf.ini')
+
+        return neutron_openvswitch_agent
+
     def _collect_swift_proxy_server_data(self, client):
         process = self._find_python_process(client, 'swift-proxy-server')
         if not process:
@@ -684,6 +746,51 @@ class OpenstackDiscovery(object):
 
         self._collect_component_configs(
             client, swift_proxy_server, process[1:],
-            default_config='/etc/swift/proxy-server.conf')
+            default_config='/etc/swift_proxy_server/proxy-server.conf')
 
         return swift_proxy_server
+
+    def _collect_swift_container_server_data(self, client):
+        process = self._find_python_process(client, 'swift-container-server')
+        if not process:
+            return None
+
+        swift_container_server = SwiftContainerServerComponent()
+        swift_container_server.version = self._find_python_package_version(
+            client, 'swift')
+
+        self._collect_component_configs(
+            client, swift_container_server, process[1:],
+            default_config='/etc/swift/container-server/1.conf')
+
+        return swift_container_server
+
+    def _collect_swift_account_server_data(self, client):
+        process = self._find_python_process(client, 'swift-account-server')
+        if not process:
+            return None
+
+        swift_account_server = SwiftAccountServerComponent()
+        swift_account_server.version = self._find_python_package_version(
+            client, 'swift')
+
+        self._collect_component_configs(
+            client, swift_account_server, process[1:],
+            default_config='/etc/swift/account-server/1.conf')
+
+        return swift_account_server
+
+    def _collect_swift_object_server_data(self, client):
+        process = self._find_python_process(client, 'swift-object-server')
+        if not process:
+            return None
+
+        swift_object_server = SwiftObjectServerComponent()
+        swift_object_server.version = self._find_python_package_version(
+            client, 'swift')
+
+        self._collect_component_configs(
+            client, swift_object_server, process[1:],
+            default_config='/etc/swift/object-server/1.conf')
+
+        return swift_object_server
