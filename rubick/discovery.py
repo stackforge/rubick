@@ -1,21 +1,57 @@
+import os.path
+import re
 import logging
 from StringIO import StringIO
 import tempfile
-import traceback
+import shlex
+from collections import deque
 
-import joker
-import os.path
 import paramiko
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-import re
-from rubick.common import Issue, index, path_relative_to
+import spur
+from recordtype import recordtype
+
+from rubick.common import index, find, path_relative_to, all_subclasses
 from rubick.exceptions import ValidatorException
 from rubick.model import *
-import spur
 
 
+def parse_nodes_info(nodes, password=None, private_key=None):
+    result = []
+    for node in nodes:
+        m = parse_nodes_info.connection_re.match(node)
+        if not m:
+            continue
+
+        username = m.group(1) or 'root'
+        host = m.group(2)
+        port = int(m.group(3) or '22')
+
+        result.append(
+            dict(host=host,
+                 port=port,
+                 username=username,
+                 password=password,
+                 private_key=private_key))
+
+    return result
+
+parse_nodes_info.connection_re = re.compile('(?:(\w+)@)?([^:]+)(?::(\d+))?')
+
+
+def parse_private_key(private_key):
+    try:
+        return RSAKey.from_private_key(StringIO(private_key))
+    except SSHException:
+        try:
+            return DSSKey.from_private_key(StringIO(private_key))
+        except SSHException:
+            return None
+
+
+# SshShell wrapper to add support for sock parameter (for proxy command)
 class SshShell(spur.SshShell):
     def __init__(self,
                  hostname,
@@ -33,13 +69,9 @@ class SshShell(spur.SshShell):
                                        connect_timeout=connect_timeout,
                                        missing_host_key=missing_host_key)
 
-        try:
-            self._pkey = RSAKey.from_private_key(StringIO(private_key))
-        except SSHException:
-            try:
-                self._pkey = DSSKey.from_private_key(StringIO(private_key))
-            except SSHException:
-                raise ValidatorException("Unknown private key format")
+        self._pkey = parse_private_key(private_key)
+        if not self._pkey:
+            raise ValidatorException("Unknown private key format")
 
         self._sock = sock
 
@@ -107,281 +139,329 @@ class NodeClient(object):
         return self.shell.open(path, mode)
 
 
-connection_re = re.compile('(?:(\w+)@)?([^:]+)(?::(\d+))?')
+ProcessInfo = recordtype('ProcessInfo', ['pid', 'command'])
 
 
-def parse_nodes_info(nodes, password=None, private_key=None):
-    result = []
-    for node in nodes:
-        m = connection_re.match(node)
-        if not m:
+class ExtendedNodeClient(object):
+    def __init__(self, client):
+        super(ExtendedNodeClient, self).__init__()
+        self._client = client
+
+    def run(self, command, *args, **kwargs):
+        return self._client.run(command, *args, **kwargs)
+
+    def open(self, path, mode='r'):
+        return self._client.open(path, mode)
+
+    def get_processes(self, reload=False):
+        if not hasattr(self, '_processes') or reload:
+            self._processes = get_processes(self._client)
+
+        return self._processes
+
+    def get_listen_sockets(self, reload=False):
+        if not hasattr(self, '_listen_sockets') or reload:
+            self._listen_sockets = get_listen_sockets(self._client)
+
+        return self._listen_sockets
+
+    def get_host_id(self, reload=False):
+        if not hasattr(self, '_host_id') or reload:
+            self._host_id = get_host_id(self._client)
+
+        return self._host_id
+
+
+def get_processes(client):
+    if hasattr(client, 'get_processes'):
+        return client.get_processes()
+
+    lines = client.run(['ps', '-Ao', 'pid,cmd',
+                        '--no-headers']).output.split("\n")
+    results = []
+    for line in lines:
+        line = line.strip()
+        if line == '':
             continue
 
-        username = m.group(1) or 'root'
-        host = m.group(2)
-        port = int(m.group(3) or '22')
+        parts = line.split()
 
-        result.append(
-            dict(host=host,
-                 port=port,
-                 username=username,
-                 password=password,
-                 private_key=private_key))
+        pid = int(parts.pop(0))
+        command = ' '.join(parts)
+        results.append(ProcessInfo(pid=pid, command=command))
 
-    return result
+    return results
 
 
-class SimpleNodeDiscovery(object):
-    logger = logging.getLogger('rubick.discovery.joker')
-
-    def test_connection(self, initial_nodes, private_key):
-        for node in parse_nodes_info(initial_nodes, private_key=private_key):
-            client = NodeClient(**node)
-
-            try:
-                client.run(['echo', 'ok'])
-            except:
-                traceback.print_exc()
-                return False
-
-        return True
-
-    def discover(self, initial_nodes, private_key):
-        return parse_nodes_info(initial_nodes, private_key=private_key)
+def get_process_by_pid(client, pid):
+    return find(get_processes(client), lambda p: p.pid == pid)
 
 
-class JokerNodeDiscovery(object):
-    logger = logging.getLogger('rubick.discovery.joker')
+def get_listen_sockets(client):
+    if hasattr(client, 'get_listen_sockets'):
+        return client.get_listen_sockets()
 
-    def test_connection(self, initial_nodes, private_key):
-        for node in parse_nodes_info(initial_nodes, private_key=private_key):
-            client = NodeClient(**node)
+    result = client.run(['lsof', '-i', '-s', 'TCP:LISTEN', '-nP', '-Fn'])
+    if result.return_code != 0:
+        return {}
 
-            try:
-                client.run(['echo', 'ok'])
-            except:
-                return False
+    host_addresses = get_host_network_addresses(client)
+    sockets = {}
 
-        return True
+    current_pid = 0
+    for line in result.output.split("\n"):
+        if line.startswith('p'):
+            current_pid = int(line[1:])
+            sockets.setdefault(current_pid, [])
+        elif line.startswith('n'):
+            host, port = line[1:].split(':')
+            if host == '*':
+                for address in host_addresses:
+                    sockets[current_pid].append((address, port))
+            else:
+                sockets[current_pid].append((host, port))
 
-    def discover(self, initial_nodes, private_key):
-        j = joker.Joker(default_key=private_key)
-        count = 0
-        for node in parse_nodes_info(initial_nodes):
-            self.logger.debug("Adding node to joker: %s" % node)
-            j.addNode('node%d' % count,
-                      host=node['host'],
-                      port=node['port'],
-                      user=node['username'])
-
-        nodes = []
-        for j_node_info in j.discover():
-            node = dict(
-                name=j_node_info['name'],
-                host=j_node_info['ip'],
-                port=j_node_info['port'],
-                username=j_node_info['user'],
-                private_key=j_node_info['key'], )
-            # proxy_command=j_node_info['proxy_command'])
-            node = dict((k, v) for k, v in node.iteritems() if v)
-            nodes.append(node)
-
-        return nodes
+    return sockets
 
 
-python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
+def get_process_listen_sockets(client, pid):
+    sockets_per_process = get_listen_sockets(client)
+    if pid not in sockets_per_process:
+        return []
+
+    return sockets_per_process[pid]
 
 
-class OpenstackDiscovery(object):
-    logger = logging.getLogger('rubick.discovery')
+def find_process_by_name(client, name):
+    processes = get_processes(client)
+    for process in processes:
+        args = shlex.split(process.command)
+        if os.path.basename(args[0]) == name:
+            return process
 
-    node_discovery_klass = JokerNodeDiscovery
+    return None
 
-    def test_connection(self, initial_nodes, private_key):
-        d = self.node_discovery_klass()
-        return d.test_connection(initial_nodes, private_key)
 
-    def discover(self, initial_nodes, private_key):
-        "Takes a list of node addresses "
-        "and returns discovered openstack installation info"
-        openstack = Openstack()
+def find_python_process(client, name):
+    processes = get_processes(client)
+    for process in processes:
+        args = shlex.split(process.command)
+        if len(args) > 0 and (args[0] == name or args[0].endswith('/' + name)):
+            return process
+        if len(args) > 1 and find_python_process.python_re.match(args[0]) \
+                and (args[1] == name or args[1].endswith('/' + name)):
+            return process
 
-        node_discovery = self.node_discovery_klass()
+    return None
 
-        for node_info in node_discovery.discover(initial_nodes, private_key):
-            self.logger.debug('Connecting to node %(host)s'
-                              '(port %(port)d, username %(username)s' %
-                              node_info)
-            try:
-                client = NodeClient(
-                    host=node_info['host'],
-                    port=node_info['port'],
-                    username=node_info['username'],
-                    password=node_info.get('password'),
-                    private_key=node_info['private_key'])
+find_python_process.python_re = re.compile('(/?([^/]*/)*)python[0-9.]*')
 
-                client.run(['echo', 'test'])
-            except:
-                self.logger.exception("Can't connect to host %s" %
-                                      node_info['host'])
-                openstack.report_issue(
-                    Issue(Issue.WARNING, "Can't connect to node %s" %
-                                         node_info['host']))
+
+def find_python_package_version(client, package):
+    result = client.run(
+        ['python', '-c',
+            'import pkg_resources; version = pkg_resources'
+            '.get_provider(pkg_resources.Requirement.parse("%s"))'
+            '.version; print(version)' %
+            package])
+
+    s = result.output.strip()
+    parts = []
+    for p in s.split('.'):
+        if not p[0].isdigit():
+            break
+
+        parts.append(p)
+
+    version = '.'.join(parts)
+
+    return version
+
+
+def get_host_id(client):
+    if hasattr(client, 'get_host_id'):
+        return client.get_host_id()
+
+    ether_re = re.compile('link/ether (([0-9a-f]{2}:){5}([0-9a-f]{2})) ')
+    result = client.run(['bash', '-c', 'ip link | grep "link/ether "'])
+    macs = []
+    for match in ether_re.finditer(result.output):
+        macs.append(match.group(1).replace(':', ''))
+    return ''.join(macs)
+
+
+def get_host_network_addresses(client):
+    ipaddr_re = re.compile('inet (\d+\.\d+\.\d+\.\d+)/\d+')
+    addresses = []
+    result = client.run(['bash', '-c', 'ip address list | grep "inet "'])
+    for match in ipaddr_re.finditer(result.output):
+        addresses.append(match.group(1))
+    return addresses
+
+
+def permissions_string_to_number(s):
+    # TODO: implement it
+    return 0
+
+
+def collect_file(client, path):
+    ls = client.run(['ls', '-l', '--time-style=full-iso', path])
+    if ls.return_code != 0:
+        return None
+
+    line = ls.output.split("\n")[0]
+    perm, links, owner, group, size, date, time, timezone, name = \
+        line.split()
+    permissions = permissions_string_to_number(perm)
+
+    with client.open(path) as f:
+        contents = f.read()
+
+    return FileResource(path, contents, owner, group, permissions)
+
+
+def collect_component_configs(client, component,
+                              command, default_config=None):
+    config_files = []
+
+    args = shlex.split(command)[1:]
+
+    p = index(args, lambda s: s == '--config-file')
+    if p != -1 and p + 1 < len(args):
+        config_path = args[p + 1]
+    else:
+        config_path = default_config
+
+    if config_path:
+        r = collect_file(client, config_path)
+        if r:
+            config_files.append(r)
+
+    p = index(args, lambda s: s == '--config-dir')
+    if p != -1 and p + 1 < len(args):
+        result = client.run(['ls', '%s/*.conf' % args[p + 1]])
+        if result.return_code == 0:
+            for config_path in result.output.split("\n"):
+                config_files.extend(
+                    collect_file(client, config_path))
+
+    component.config_files = config_files
+
+    for i, arg in enumerate(args):
+        if arg.startswith('--'):
+            name = arg[2:]
+            if '=' in name:
+                name, value = name.split('=', 1)
+            elif i + 1 < len(args):
+                value = args[i + 1]
+                i += 1
+            else:
                 continue
 
-            host = self._discover_node(client)
+            component.config.set_cli(name, value)
 
-            if len(host.components) == 0:
-                continue
 
-            openstack.add_host(host)
+# Marker class
+class BaseDiscovery(object):
+    def seen(self, host, **data):
+        return False
 
-        if len(openstack.hosts) == 0:
-            openstack.report_issue(
-                Issue(Issue.FATAL, "No OpenStack nodes were discovered"))
 
-        return openstack
+class HostDiscovery(BaseDiscovery):
+    item_type = 'host'
 
-    def _discover_node(self, client):
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
         hostname = client.run(['hostname']).output.strip()
 
-        host = Host(name=hostname)
-        host.id = self._collect_host_id(client)
-        host.network_addresses = self._collect_host_network_addresses(client)
+        item = Host(name=hostname)
+        item.id = get_host_id(client)
+        item.network_addresses = get_host_network_addresses(client)
 
-        for component in ['keystone', 'nova_api', 'nova_compute',
-                          'nova_scheduler', 'glance_api', 'glance_registry',
-                          'cinder_api', 'cinder_volume', 'cinder_scheduler',
-                          'mysql', 'rabbitmq', 'neutron_server',
-                          'neutron_openvswitch_agent', 'neutron_dhcp_agent',
-                          'neutron_l3_agent', 'neutron_metadata_agent',
-                          'swift_proxy_server', 'swift_container_server',
-                          'swift_account_server', 'swift_object_server']:
-            method = '_collect_%s_data' % component
-            if hasattr(self, method):
-                try:
-                    host.add_component(getattr(self, method)(client))
-                except:
-                    traceback.print_exc()
+        process_sockets = get_listen_sockets(client)
 
-        return host
+        # Service detection part
+        process = find_python_process(client, 'keystone-all')
+        if process:
+            driver.enqueue(
+                'keystone', host=host, pid=process.pid,
+                sockets=process_sockets.get(process.pid, []))
 
-    def _find_process(self, client, name):
-        processes = self._get_processes(client)
-        for line in processes:
-            if len(line) > 0 and os.path.basename(line[0]) == name:
-                return line
+        for service in [
+            'nova-api', 'nova-volume', 'nova-scheduler',
+            'glance-api', 'glance-registry',
+            'cinder-api', 'cinder-volume', 'cinder-scheduler',
+            'neutron-server', 'neutron-dhcp-agent', 'neutron-l3-agent',
+            'neutron-metadata-agent', 'neutron-openvswitch-agent',
+            'swift-proxy-server', 'swift-container-server',
+            'swift-account-server', 'swift-object-server'
+        ]:
+            process = find_python_process(client, service)
+            if not process:
+                continue
 
-        return None
+            driver.enqueue(
+                service, host=host, pid=process.pid,
+                sockets=process_sockets.get(process.pid, []))
 
-    def _find_python_process(self, client, name):
-        processes = self._get_processes(client)
-        for line in processes:
-            if len(line) > 0 and (line[0] == name
-                                  or line[0].endswith('/' + name)):
-                return line
-            if len(line) > 1 and python_re.match(line[0]) \
-                and (line[1] == name or line[1].endswith('/' + name)):
-                return line
+        for service in ['mysql', 'rabbitmq']:
+            process = find_process_by_name(client, service)
+            if not process:
+                continue
 
-        return None
+            driver.enqueue(
+                service, host=host, pid=process.pid,
+                sockets=process_sockets.get(process.pid, []))
 
-    def _find_python_package_version(self, client, package):
-        result = client.run(
-            ['python', '-c',
-             'import pkg_resources; version = pkg_resources'
-             '.get_provider(pkg_resources.Requirement.parse("%s"))'
-             '.version; print(version)' %
-             package])
+        return item
 
-        s = result.output.strip()
-        parts = []
-        for p in s.split('.'):
-            if not p[0].isdigit():
-                break
+    def seen(self, host, **data):
+        return False
 
-            parts.append(p)
 
-        version = '.'.join(parts)
+class KeystoneDiscovery(BaseDiscovery):
+    item_type = 'keystone'
 
-        return version
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
 
-    def _get_processes(self, client):
-        return (
-            [line.split()
-             for line in client.run(['ps', '-Ao', 'cmd',
-                                     '--no-headers']).output.split("\n")]
-        )
-
-    def _collect_host_id(self, client):
-        ether_re = re.compile('link/ether (([0-9a-f]{2}:){5}([0-9a-f]{2})) ')
-        result = client.run(['bash', '-c', 'ip link | grep "link/ether "'])
-        macs = []
-        for match in ether_re.finditer(result.output):
-            macs.append(match.group(1).replace(':', ''))
-        return ''.join(macs)
-
-    def _collect_host_network_addresses(self, client):
-        ipaddr_re = re.compile('inet (\d+\.\d+\.\d+\.\d+)/\d+')
-        addresses = []
-        result = client.run(['bash', '-c', 'ip address list | grep "inet "'])
-        for match in ipaddr_re.finditer(result.output):
-            addresses.append(match.group(1))
-        return addresses
-
-    def _permissions_string_to_number(self, s):
-        return 0
-
-    def _collect_file(self, client, path):
-        ls = client.run(['ls', '-l', '--time-style=full-iso', path])
-        if ls.return_code != 0:
+        process = find_python_process(client, 'keystone-all')
+        if not process:
             return None
 
-        line = ls.output.split("\n")[0]
-        perm, links, owner, group, size, date, time, timezone, name = \
-            line.split()
-        permissions = self._permissions_string_to_number(perm)
+        keystone = KeystoneComponent()
+        keystone.host_id = get_host_id(client)
+        keystone.version = find_python_package_version(
+            client, 'keystone')
+        keystone.config_files = []
 
-        with client.open(path) as f:
-            contents = f.read()
+        collect_component_configs(
+            client, keystone, process.command,
+            default_config='/etc/keystone/keystone.conf')
 
-        return FileResource(path, contents, owner, group, permissions)
+        token = keystone.config['admin_token']
+        host = keystone.config['bind_host']
+        if host == '0.0.0.0':
+            host = '127.0.0.1'
+        port = int(keystone.config['admin_port'])
 
-    def _collect_component_configs(self, client, component,
-                                   args, default_config=None):
-        config_files = []
+        keystone_env = {
+            'OS_SERVICE_TOKEN': token,
+            'OS_SERVICE_ENDPOINT': 'http://%s:%d/v2.0' % (host, port)
+        }
 
-        p = index(args, lambda s: s == '--config-file')
-        if p != -1 and p + 1 < len(args):
-            config_path = args[p + 1]
-        else:
-            config_path = '/etc/keystone/keystone.conf'
+        keystone.db = dict()
+        keystone.db['tenants'] = self._get_keystone_db_data(
+            client, 'tenant-list', env=keystone_env)
+        keystone.db['users'] = self._get_keystone_db_data(
+            client, 'user-list', env=keystone_env)
+        keystone.db['services'] = self._get_keystone_db_data(
+            client, 'service-list', env=keystone_env)
+        keystone.db['endpoints'] = self._get_keystone_db_data(
+            client, 'endpoint-list', env=keystone_env)
 
-        if config_path:
-            config_files.append(self._collect_file(client, config_path))
-
-        p = index(args, lambda s: s == '--config-dir')
-        if p != -1 and p + 1 < len(args):
-            result = client.run(['ls', '%s/*.conf' % args[p + 1]])
-            if result.return_code == 0:
-                for config_path in result.output.split("\n"):
-                    config_files.extend(
-                        self._collect_file(client, config_path))
-
-        component.config_files = config_files
-
-        for i, arg in enumerate(args):
-            if arg.startswith('--'):
-                name = arg[2:]
-                if '=' in name:
-                    name, value = name.split('=', 1)
-                elif i + 1 < len(args):
-                    value = args[i + 1]
-                    i += 1
-                else:
-                    continue
-
-                component.config.set_cli(name, value)
+        return keystone
 
     def _get_keystone_db_data(self, client, command, env={}):
         result = client.run(['keystone', command], update_env=env)
@@ -416,53 +496,23 @@ class OpenstackDiscovery(object):
 
         return data
 
-    def _collect_keystone_data(self, client):
-        process = self._find_python_process(client, 'keystone-all')
-        if not process:
-            return None
 
-        keystone = KeystoneComponent()
-        keystone.version = self._find_python_package_version(
-            client, 'keystone')
-        keystone.config_files = []
+class NovaApiDiscovery(BaseDiscovery):
+    item_type = 'nova-api'
 
-        self._collect_component_configs(
-            client, keystone, process[1:],
-            default_config='/etc/keystone/keystone.conf')
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
 
-        token = keystone.config['admin_token']
-        host = keystone.config['bind_host']
-        if host == '0.0.0.0':
-            host = '127.0.0.1'
-        port = int(keystone.config['admin_port'])
-
-        keystone_env = {
-            'OS_SERVICE_TOKEN': token,
-            'OS_SERVICE_ENDPOINT': 'http://%s:%d/v2.0' % (host, port)
-        }
-
-        keystone.db = dict()
-        keystone.db['tenants'] = self._get_keystone_db_data(
-            client, 'tenant-list', env=keystone_env)
-        keystone.db['users'] = self._get_keystone_db_data(
-            client, 'user-list', env=keystone_env)
-        keystone.db['services'] = self._get_keystone_db_data(
-            client, 'service-list', env=keystone_env)
-        keystone.db['endpoints'] = self._get_keystone_db_data(
-            client, 'endpoint-list', env=keystone_env)
-
-        return keystone
-
-    def _collect_nova_api_data(self, client):
-        process = self._find_python_process(client, 'nova-api')
+        process = find_python_process(client, 'nova-api')
         if not process:
             return None
 
         nova_api = NovaApiComponent()
-        nova_api.version = self._find_python_package_version(client, 'nova')
+        nova_api.host_id = get_host_id(client)
+        nova_api.version = find_python_package_version(client, 'nova')
 
-        self._collect_component_configs(
-            client, nova_api, process[1:],
+        collect_component_configs(
+            client, nova_api, process.command,
             default_config='/etc/nova/nova.conf')
 
         config_dir = '/etc/nova'
@@ -471,82 +521,112 @@ class OpenstackDiscovery(object):
 
         paste_config_path = path_relative_to(
             nova_api.config['api_paste_config'], config_dir)
-        nova_api.paste_config_file = self._collect_file(
+        nova_api.paste_config_file = collect_file(
             client, paste_config_path)
 
         return nova_api
 
-    def _collect_nova_compute_data(self, client):
-        process = self._find_python_process(client, 'nova-compute')
+
+class NovaComputeDiscovery(BaseDiscovery):
+    item_type = 'nova-compute'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'nova-compute')
         if not process:
             return None
 
         nova_compute = NovaComputeComponent()
-        nova_compute.version = self._find_python_package_version(client,
-                                                                 'nova')
+        nova_compute.host_id = get_host_id(client)
+        nova_compute.version = find_python_package_version(client, 'nova')
 
-        self._collect_component_configs(
-            client, nova_compute, process[1:],
+        collect_component_configs(
+            client, nova_compute, process.command,
             default_config='/etc/nova/nova.conf')
 
         return nova_compute
 
-    def _collect_nova_scheduler_data(self, client):
-        process = self._find_python_process(client, 'nova-scheduler')
+
+class NovaSchedulerDiscovery(BaseDiscovery):
+    item_type = 'nova-scheduler'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'nova-scheduler')
         if not process:
             return None
 
         nova_scheduler = NovaSchedulerComponent()
-        nova_scheduler.version = self._find_python_package_version(client,
-                                                                   'nova')
+        nova_scheduler.host_id = get_host_id(client)
+        nova_scheduler.version = find_python_package_version(client, 'nova')
 
-        self._collect_component_configs(
-            client, nova_scheduler, process[1:],
+        collect_component_configs(
+            client, nova_scheduler, process.command,
             default_config='/etc/nova/nova.conf')
 
         return nova_scheduler
 
-    def _collect_glance_api_data(self, client):
-        process = self._find_python_process(client, 'glance-api')
+
+class GlanceApiDiscovery(BaseDiscovery):
+    item_type = 'glance-api'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'glance-api')
         if not process:
             return None
 
         glance_api = GlanceApiComponent()
-        glance_api.version = self._find_python_package_version(client,
-                                                               'glance')
+        glance_api.host_id = get_host_id(client)
+        glance_api.version = find_python_package_version(client, 'glance')
 
-        self._collect_component_configs(
-            client, glance_api, process[1:],
+        collect_component_configs(
+            client, glance_api, process.command,
             default_config='/etc/glance/glance.conf')
 
         return glance_api
 
-    def _collect_glance_registry_data(self, client):
-        process = self._find_python_process(client, 'glance-registry')
+
+class GlanceRegistryDiscovery(BaseDiscovery):
+    item_type = 'glance-registry'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'glance-registry')
         if not process:
             return None
 
         glance_registry = GlanceRegistryComponent()
-        glance_registry.version = self._find_python_package_version(client,
-                                                                    'glance')
+        glance_registry.host_id = get_host_id(client)
+        glance_registry.version = find_python_package_version(client, 'glance')
 
-        self._collect_component_configs(
-            client, glance_registry, process[1:],
+        collect_component_configs(
+            client, glance_registry, process.command,
             default_config='/etc/glance/glance.conf')
 
         return glance_registry
 
-    def _collect_cinder_api_data(self, client):
-        process = self._find_python_process(client, 'cinder-api')
+
+class CinderApiDiscovery(BaseDiscovery):
+    item_type = 'cinder-api'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'cinder-api')
         if not process:
             return None
 
         cinder_api = CinderApiComponent()
-        cinder_api.version = self._find_python_package_version(client,
-                                                               'cinder')
+        cinder_api.host_id = get_host_id(client)
+        cinder_api.version = find_python_package_version(client, 'cinder')
 
-        self._collect_component_configs(
-            client, cinder_api, process[1:],
+        collect_component_configs(
+            client, cinder_api, process.command,
             default_config='/etc/cinder/cinder.conf')
 
         config_dir = '/etc/cinder'
@@ -555,22 +635,28 @@ class OpenstackDiscovery(object):
 
         paste_config_path = path_relative_to(
             cinder_api.config['api_paste_config'], config_dir)
-        cinder_api.paste_config_file = self._collect_file(
+        cinder_api.paste_config_file = collect_file(
             client, paste_config_path)
 
         return cinder_api
 
-    def _collect_cinder_volume_data(self, client):
-        process = self._find_python_process(client, 'cinder-volume')
+
+class CinderVolumeDiscovery(BaseDiscovery):
+    item_type = 'cinder-volume'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'cinder-volume')
         if not process:
             return None
 
         cinder_volume = CinderVolumeComponent()
-        cinder_volume.version = self._find_python_package_version(client,
-                                                                  'cinder')
+        cinder_volume.host_id = get_host_id(client)
+        cinder_volume.version = find_python_package_version(client, 'cinder')
 
-        self._collect_component_configs(
-            client, cinder_volume, process[1:],
+        collect_component_configs(
+            client, cinder_volume, process.command,
             default_config='/etc/cinder/cinder.conf')
 
         config_dir = '/etc/cinder'
@@ -579,34 +665,48 @@ class OpenstackDiscovery(object):
 
         rootwrap_config_path = path_relative_to(
             cinder_volume.config['rootwrap_config'], config_dir)
-        cinder_volume.rootwrap_config = self._collect_file(
+        cinder_volume.rootwrap_config = collect_file(
             client, rootwrap_config_path)
 
         return cinder_volume
 
-    def _collect_cinder_scheduler_data(self, client):
-        process = self._find_python_process(client, 'cinder-scheduler')
+
+class CinderSchedulerDiscovery(BaseDiscovery):
+    item_type = 'cinder-scheduler'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'cinder-scheduler')
         if not process:
             return None
 
         cinder_scheduler = CinderSchedulerComponent()
-        cinder_scheduler.version = self._find_python_package_version(client,
-                                                                     'cinder')
+        cinder_scheduler.host_id = get_host_id(client)
+        cinder_scheduler.version = find_python_package_version(client,
+                                                               'cinder')
 
-        self._collect_component_configs(
-            client, cinder_scheduler, process[1:],
+        collect_component_configs(
+            client, cinder_scheduler, process.command,
             default_config='/etc/cinder/cinder.conf')
 
         return cinder_scheduler
 
-    def _collect_mysql_data(self, client):
-        process = self._find_process(client, 'mysqld')
+
+class MysqlDiscovery(BaseDiscovery):
+    item_type = 'mysql'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_process_by_name(client, 'mysqld')
         if not process:
             return None
 
         mysqld_version_re = re.compile('mysqld\s+Ver\s(\S+)\s')
 
         mysql = MysqlComponent()
+        mysql.host_id = get_host_id(client)
 
         version_result = client.run(['mysqld', '--version'])
         m = mysqld_version_re.match(version_result.output)
@@ -620,23 +720,30 @@ class OpenstackDiscovery(object):
         config_locations = config_locations_result.output.strip().split(
             "\n")[-1].split()
         for path in config_locations:
-            f = self._collect_file(client, path)
+            f = collect_file(client, path)
             if f:
                 mysql.config_files.append(f)
 
         return mysql
 
-    def _collect_rabbitmq_data(self, client):
-        process = self._find_process(client, 'beam.smp')
+
+class RabbitmqDiscovery(BaseDiscovery):
+    item_type = 'rabbitmq'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_process_by_name(client, 'beam.smp')
         if not process:
-            process = self._find_process(client, 'beam')
+            process = find_process_by_name(client, 'beam')
             if not process:
                 return None
 
-        if ' '.join(process).find('rabbit') == -1:
+        if process.command.find('rabbit') == -1:
             return None
 
         rabbitmq = RabbitMqComponent()
+        rabbitmq.host_id = get_host_id(client)
         rabbitmq.version = 'unknown'
 
         env_file = '/etc/rabbitmq/rabbitmq-env.conf'
@@ -653,144 +760,291 @@ class OpenstackDiscovery(object):
         for key, value in rabbitmq_env_vars:
             rabbitmq.config.set_env(key, value)
 
-        for i, s in enumerate(process):
-            if s == '-rabbit' and i + 2 <= len(process):
-                rabbitmq.config.set_cli(process[i + 1], process[i + 2])
+        args = shlex.split(process.command)
+        for i, s in enumerate(args):
+            if s == '-rabbit' and i + 2 <= len(args):
+                rabbitmq.config.set_cli(args[i + 1], args[i + 2])
 
         return rabbitmq
 
-    def _collect_neutron_server_data(self, client):
-        process = self._find_python_process(client, 'neutron-server')
+
+class SwiftProxyServerDiscovery(BaseDiscovery):
+    item_type = 'swift-proxy-server'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'swift-proxy-server')
+        if not process:
+            return None
+
+        swift_proxy_server = SwiftProxyServerComponent()
+        swift_proxy_server.host_id = get_host_id(client)
+        swift_proxy_server.version = find_python_package_version(client,
+                                                                 'swift')
+
+        collect_component_configs(
+            client, swift_proxy_server, process.command,
+            default_config='/etc/swift/proxy-server.conf')
+
+        return swift_proxy_server
+
+
+class SwiftContainerServerDiscovery(BaseDiscovery):
+    item_type = 'swift-container-server'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'swift-container-server')
+        if not process:
+            return None
+
+        swift_container_server = SwiftContainerServerComponent()
+        swift_container_server.host_id = get_host_id(client)
+        swift_container_server.version = find_python_package_version(client,
+                                                                     'swift')
+
+        collect_component_configs(
+            client, swift_container_server, process.command,
+            default_config='/etc/swift/container-server/1.conf')
+
+        return swift_container_server
+
+
+class SwiftAccountServerDiscovery(BaseDiscovery):
+    item_type = 'swift-account-server'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'swift-account-server')
+        if not process:
+            return None
+
+        swift_account_server = SwiftAccountServerComponent()
+        swift_account_server.host_id = get_host_id(client)
+        swift_account_server.version = find_python_package_version(client,
+                                                                   'swift')
+
+        collect_component_configs(
+            client, swift_account_server, process.command,
+            default_config='/etc/swift/account-server/1.conf')
+
+        return swift_account_server
+
+
+class SwiftObjectServerDiscovery(BaseDiscovery):
+    item_type = 'swift-object-server'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'swift-object-server')
+        if not process:
+            return None
+
+        swift_object_server = SwiftObjectServerComponent()
+        swift_object_server.host_id = get_host_id(client)
+        swift_object_server.version = find_python_package_version(client,
+                                                                  'swift')
+
+        collect_component_configs(
+            client, swift_object_server, process.command,
+            default_config='/etc/swift/object-server/1.conf')
+
+        return swift_object_server
+
+
+class NeutronServerDiscovery(BaseDiscovery):
+    item_type = 'neutron-server'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'neutron-server')
         if not process:
             return None
 
         neutron_server = NeutronServerComponent()
-        neutron_server.version = self._find_python_package_version(client,
-                                                                   'neutron')
+        neutron_server.host_id = get_host_id(client)
+        neutron_server.version = find_python_package_version(client, 'neutron')
 
-        self._collect_component_configs(
-            client, neutron_server, process[1:],
+        collect_component_configs(
+            client, neutron_server, process.command,
             default_config='/etc/neutron/neutron.conf')
 
         return neutron_server
 
-    def _collect_neutron_dhcp_agent_data(self, client):
+
+class NeutronDhcpAgentDiscovery(BaseDiscovery):
+    item_type = 'neutron-dhcp-agent'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
         process = self._find_python_process(client, 'neutron-dhcp-agent')
         if not process:
             return None
 
         neutron_dhcp_agent = NeutronDhcpAgentComponent()
-        neutron_dhcp_agent.version = self._find_python_package_version(client,
-                                                                       'neutron')
+        neutron_dhcp_agent.host_id = get_host_id(client)
+        neutron_dhcp_agent.version = find_python_package_version(client,
+                                                                 'neutron')
 
-        self._collect_component_configs(
-            client, neutron_dhcp_agent, process[1:],
+        collect_component_configs(
+            client, neutron_dhcp_agent, process.command,
             default_config='/etc/neutron/dhcp_agent.ini')
 
         return neutron_dhcp_agent
 
-    def _collect_neutron_l3_agent_data(self, client):
-        process = self._find_python_process(client, 'neutron-l3-agent')
+
+class NeutronL3AgentDiscovery(BaseDiscovery):
+    item_type = 'neutron-l3-agent'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'neutron-l3-agent')
         if not process:
             return None
 
         neutron_l3_agent = NeutronL3AgentComponent()
-        neutron_l3_agent.version = self._find_python_package_version(client,
-                                                                     'neutron')
+        neutron_l3_agent.host_id = get_host_id(client)
+        neutron_l3_agent.version = find_python_package_version(client,
+                                                               'neutron')
 
-        self._collect_component_configs(
-            client, neutron_l3_agent, process[1:],
+        collect_component_configs(
+            client, neutron_l3_agent, process.command,
             default_config='/etc/neutron/l3_agent.ini')
 
         return neutron_l3_agent
 
-    def _collect_neutron_metadata_agent_data(self, client):
-        process = self._find_python_process(client, 'neutron-metadata-agent')
+
+class NeutronMetadataAgentDiscovery(BaseDiscovery):
+    item_type = 'neutron-metadata-agent'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'neutron-metadata-agent')
         if not process:
             return None
 
         neutron_metadata_agent = NeutronMetadataAgentComponent()
-        neutron_metadata_agent.version = self._find_python_package_version(
-            client, 'neutron')
+        neutron_metadata_agent.host_id = get_host_id(client)
+        neutron_metadata_agent.version = find_python_package_version(client,
+                                                                     'neutron')
 
-        self._collect_component_configs(
-            client, neutron_metadata_agent, process[1:],
+        collect_component_configs(
+            client, neutron_metadata_agent, process.command,
             default_config='/etc/neutron/metadata_agent.ini')
 
         return neutron_metadata_agent
 
-    def _collect_neutron_openvswitch_agent_data(self, client):
-        process = self._find_python_process(client,
-                                            'neutron-openvswitch-agent')
+
+class NeutronOpenvswitchAgentDiscovery(BaseDiscovery):
+    item_type = 'neutron-openvswitch-agent'
+
+    def discover(self, driver, host, **data):
+        client = driver.client(host)
+
+        process = find_python_process(client, 'neutron-openvswitch-agent')
         if not process:
             return None
 
         neutron_openvswitch_agent = NeutronOpenvswitchAgentComponent()
-        neutron_openvswitch_agent.version = self._find_python_package_version(
+        neutron_openvswitch_agent.host_id = get_host_id(client)
+        neutron_openvswitch_agent.version = find_python_package_version(
             client, 'neutron')
 
-        self._collect_component_configs(
-            client, neutron_openvswitch_agent, process[1:],
+        collect_component_configs(
+            client, neutron_openvswitch_agent, process.command,
             default_config='/etc/neutron/plugins/ml2/ml2_conf.ini')
 
         return neutron_openvswitch_agent
 
-    def _collect_swift_proxy_server_data(self, client):
-        process = self._find_python_process(client, 'swift-proxy-server')
-        if not process:
-            return None
 
-        swift_proxy_server = SwiftProxyServerComponent()
-        swift_proxy_server.version = self._find_python_package_version(client,
-                                                                       'swift')
+DiscoveryTask = recordtype('DiscoveryTask', ['type', 'host', 'data'])
 
-        self._collect_component_configs(
-            client, swift_proxy_server, process[1:],
-            default_config='/etc/swift_proxy_server/proxy-server.conf')
 
-        return swift_proxy_server
+class DiscoveryDriver(object):
+    def __init__(self, defaultPrivateKey):
+        self.queue = deque()
+        self.defaultPrivateKey = defaultPrivateKey
+        self._hosts = {}
+        self._clients = {}
 
-    def _collect_swift_container_server_data(self, client):
-        process = self._find_python_process(client, 'swift-container-server')
-        if not process:
-            return None
+    def setHostConnectionInfo(self, host, port=22,
+                              username='root', password=None, privateKey=None):
+        self._hosts[host] = dict(
+            host=host,
+            port=port,
+            username=username,
+            password=password,
+            private_key=privateKey or self.defaultPrivateKey)
 
-        swift_container_server = SwiftContainerServerComponent()
-        swift_container_server.version = self._find_python_package_version(
-            client, 'swift')
+    def client(self, host):
+        if host not in self._clients:
+            host_info = self._hosts[host] if host in self._hosts else dict(
+                host=host, port=22,
+                username='root', private_key=self.defaultPrivateKey)
 
-        self._collect_component_configs(
-            client, swift_container_server, process[1:],
-            default_config='/etc/swift/container-server/1.conf')
+            self._clients[host] = ExtendedNodeClient(NodeClient(**host_info))
 
-        return swift_container_server
+        return self._clients[host]
 
-    def _collect_swift_account_server_data(self, client):
-        process = self._find_python_process(client, 'swift-account-server')
-        if not process:
-            return None
+    def enqueue(self, type, host, **data):
+        self.queue.append(DiscoveryTask(type, host, data))
 
-        swift_account_server = SwiftAccountServerComponent()
-        swift_account_server.version = self._find_python_package_version(
-            client, 'swift')
 
-        self._collect_component_configs(
-            client, swift_account_server, process[1:],
-            default_config='/etc/swift/account-server/1.conf')
+class OpenstackDiscovery(object):
+    logger = logging.getLogger('rubick.discovery')
 
-        return swift_account_server
+    def discover(self, initial_nodes, private_key):
+        "Takes a list of node addresses "
+        "and returns discovered openstack installation info"
+        agents = dict([(c.item_type, c())
+                       for c in all_subclasses(BaseDiscovery)
+                       if hasattr(c, 'item_type')])
 
-    def _collect_swift_object_server_data(self, client):
-        process = self._find_python_process(client, 'swift-object-server')
-        if not process:
-            return None
+        driver = DiscoveryDriver(private_key)
 
-        swift_object_server = SwiftObjectServerComponent()
-        swift_object_server.version = self._find_python_package_version(
-            client, 'swift')
+        # Set connection info and queue initial nodes
+        for info in parse_nodes_info(initial_nodes, private_key):
+            driver.setHostConnectionInfo(
+                host=info['host'], port=info['port'],
+                username=info['username'], password=info['password'],
+                privateKey=info['private_key'])
 
-        self._collect_component_configs(
-            client, swift_object_server, process[1:],
-            default_config='/etc/swift/object-server/1.conf')
+            driver.enqueue('host', info['host'])
 
-        return swift_object_server
+        items = []
+        while len(driver.queue) > 0:
+            task = driver.queue.popleft()
+
+            self.logger.info('Processing item of type %s, host = %s' %
+                             (task.type, task.host))
+            if task.type in agents.keys():
+                item = agents[task.type].discover(
+                    driver, task.host, **task.data)
+
+                if item:
+                    items.append(item)
+            else:
+                self.logger.error('Unknown item type: %s' % task.type)
+
+        # Rebuild model tree
+        openstack = Openstack()
+
+        for host in filter(lambda i: isinstance(i, Host), items):
+            openstack.add_host(host)
+
+        for service in filter(lambda i: isinstance(i, Service), items):
+            host = find(openstack.hosts, lambda h: h.id == service.host_id)
+            if not host:
+                continue
+
+            host.add_component(service)
+
+        return openstack
