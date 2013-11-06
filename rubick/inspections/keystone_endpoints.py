@@ -9,9 +9,9 @@ SERVICE_ENDPOINT_MSG = """
 Keystone catalog has endpoint for service "%s" (id %s) that has "%s"
 """.strip()
 UNKNOWN_HOST_ENDPOINT_MSG = (SERVICE_ENDPOINT_MSG +
-                             'set pointing to unknown host')
+                             ' set pointing to unknown host')
 UNKNOWN_SERVICE_ENDPOINT_MSG = (SERVICE_ENDPOINT_MSG +
-                                'set pointing to no service')
+                                ' set pointing to no service')
 
 
 class KeystoneEndpointsInspection(Inspection):
@@ -50,19 +50,20 @@ class KeystoneEndpointsInspection(Inspection):
                                   (service['name'], service['id'], url_attr)))
                         continue
 
-                    nova_compute = None
+                    nova_api = None
                     for c in host.components:
-                        if c.name != 'nova-compute':
+                        if c.name != 'nova-api':
                             continue
 
                         listen_address = c.config['osapi_compute_listen']
                         listen_port = c.config['osapi_compute_listen_port']
+
                         if (listen_address in ['0.0.0.0', url.hostname] and
                                 listen_port == url.port):
-                            nova_compute = c
+                            nova_api = c
                             break
 
-                    if not nova_compute:
+                    if not nova_api:
                         keystone.report_issue(
                             Issue(Issue.ERROR, UNKNOWN_SERVICE_ENDPOINT_MSG %
                                   (service['name'], service['id'], url_attr)))
