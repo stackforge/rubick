@@ -27,7 +27,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('ca_path', type='string', default='$state_path/CA',
                         description="Where we keep our root CA")
 
-    nova_2013_1_4.param('use_project_ca', type='boolean', default='false',
+    nova_2013_1_4.param('use_project_ca', type='boolean', default=False,
                         description="Should we use a CA for each project?")
 
     nova_2013_1_4.param(
@@ -43,11 +43,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "timestamp")
 
     nova_2013_1_4.param('fatal_exception_format_errors', type='boolean',
-                        default='false', description="make exception message format errors"
+                        default=False, description="make exception message format errors"
                         " fatal")
 
     nova_2013_1_4.param(
-        'run_external_periodic_tasks', type='boolean', default='true',
+        'run_external_periodic_tasks', type='boolean', default=True,
         description="Some periodic tasks can be run in a separate process."
         " Should we run them here?")
 
@@ -64,22 +64,22 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param(
         'use_ipv6',
         type='boolean',
-        default='false',
+        default=False,
         description="use ipv6")
 
     nova_2013_1_4.param(
-        'notify_on_any_change', type='boolean', default='false',
+        'notify_on_any_change', type='boolean', default=False,
         description="If set, send compute.instance.update notifications"
         " on instance state changes.  Valid values are False"
         " for no notifications, True for notifications on any"
         " instance changes.")
 
-    nova_2013_1_4.param('notify_api_faults', type='boolean', default='false',
+    nova_2013_1_4.param('notify_api_faults', type='boolean', default=False,
                         description="If set, send api.fault notifications on caught "
                         "exceptions in the API service.")
 
     nova_2013_1_4.param(
-        'notify_on_state_change', type='string', default='<None>',
+        'notify_on_state_change', type='string', default=None,
         description="If set, send compute.instance.update notifications "
         "on instance state changes.  Valid values are None for"
         " no notifications, 'vm_state' for notifications on VM"
@@ -103,90 +103,90 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'policy_default_rule', type='string', default='default',
         description="Rule checked when requested rule is not found")
 
-    nova_2013_1_4.param('quota_instances', type='integer', default='10',
+    nova_2013_1_4.param('quota_instances', type='integer', default=10,
                         description="number of instances allowed per project")
 
-    nova_2013_1_4.param('quota_cores', type='integer', default='20',
+    nova_2013_1_4.param('quota_cores', type='integer', default=20,
                         description="number of instance cores allowed per project")
 
-    nova_2013_1_4.param('quota_ram', type='integer', default='51200',
+    nova_2013_1_4.param('quota_ram', type='integer', default=51200,
                         description="megabytes of instance ram allowed per project")
 
-    nova_2013_1_4.param('quota_floating_ips', type='integer', default='10',
+    nova_2013_1_4.param('quota_floating_ips', type='integer', default=10,
                         description="number of floating ips allowed per project")
 
-    nova_2013_1_4.param('quota_metadata_items', type='integer', default='128',
+    nova_2013_1_4.param('quota_metadata_items', type='integer', default=128,
                         description="number of metadata items allowed per instance")
 
     nova_2013_1_4.param('quota_injected_files', type='integer',
-                        default='5', description="number of injected files allowed")
+                        default=5, description="number of injected files allowed")
 
     nova_2013_1_4.param('quota_injected_file_content_bytes', type='integer',
-                        default='10240', description="number of bytes allowed per injected"
+                        default=10240, description="number of bytes allowed per injected"
                         " file")
 
     nova_2013_1_4.param(
-        'quota_injected_file_path_bytes', type='integer', default='255',
+        'quota_injected_file_path_bytes', type='integer', default=255,
         description="number of bytes allowed per injected file path")
 
-    nova_2013_1_4.param('quota_security_groups', type='integer', default='10',
+    nova_2013_1_4.param('quota_security_groups', type='integer', default=10,
                         description="number of security groups per project")
 
     nova_2013_1_4.param(
-        'quota_security_group_rules', type='integer', default='20',
+        'quota_security_group_rules', type='integer', default=20,
         description="number of security rules per security group")
 
     nova_2013_1_4.param('quota_key_pairs', type='integer',
-                        default='100', description="number of key pairs per user")
+                        default=100, description="number of key pairs per user")
 
-    nova_2013_1_4.param('reservation_expire', type='integer', default='86400',
+    nova_2013_1_4.param('reservation_expire', type='integer', default=86400,
                         description="number of seconds until a reservation expires")
 
-    nova_2013_1_4.param('until_refresh', type='integer', default='0',
+    nova_2013_1_4.param('until_refresh', type='integer', default=0,
                         description="count of reservations until usage is refreshed")
 
-    nova_2013_1_4.param('max_age', type='integer', default='0',
+    nova_2013_1_4.param('max_age', type='integer', default=0,
                         description="number of seconds between subsequent usage refreshes")
 
     nova_2013_1_4.param(
         'quota_driver', type='string', default='nova.quota.DbQuotaDriver',
         description="default driver to use for quota checks")
 
-    nova_2013_1_4.param('report_interval', type='integer', default='10',
+    nova_2013_1_4.param('report_interval', type='integer', default=10,
                         description="seconds between nodes reporting state to datastore")
 
     nova_2013_1_4.param('periodic_enable', type='boolean',
-                        default='true', description="enable periodic tasks")
+                        default=True, description="enable periodic tasks")
 
-    nova_2013_1_4.param('periodic_fuzzy_delay', type='integer', default='60',
+    nova_2013_1_4.param('periodic_fuzzy_delay', type='integer', default=60,
                         description="range of seconds to randomly delay when starting the "
                         "periodic task scheduler to reduce stampeding.")
 
     nova_2013_1_4.param(
-        'enabled_apis', type='list', default='ec2,osapi_compute,metadata',
+        'enabled_apis', type='list', default=['ec2', 'osapi_compute', 'metadata'],
         description="a list of APIs to enable by default")
 
-    nova_2013_1_4.param('enabled_ssl_apis', type='list', default='',
+    nova_2013_1_4.param('enabled_ssl_apis', type='list', default=[],
                         description="a list of APIs with enabled SSL")
 
     nova_2013_1_4.param('ec2_listen', type='string', default='0.0.0.0',
                         description="IP address for EC2 API to listen")
 
-    nova_2013_1_4.param('ec2_listen_port', type='integer',
-                        default='8773', description="port for ec2 api to listen")
+    nova_2013_1_4.param('ec2_listen_port', type='port',
+                        default=8773, description="port for ec2 api to listen")
 
-    nova_2013_1_4.param('ec2_workers', type='integer', default='<None>',
+    nova_2013_1_4.param('ec2_workers', type='integer', default=None,
                         description="Number of workers for EC2 API service")
 
     nova_2013_1_4.param(
         'osapi_compute_listen', type='string', default='0.0.0.0',
         description="IP address for OpenStack API to listen")
 
-    nova_2013_1_4.param('osapi_compute_listen_port', type='integer',
-                        default='8774', description="list port for osapi compute")
+    nova_2013_1_4.param('osapi_compute_listen_port', type='port',
+                        default=8774, description="list port for osapi compute")
 
     nova_2013_1_4.param(
-        'osapi_compute_workers', type='integer', default='<None>',
+        'osapi_compute_workers', type='integer', default=None,
         description="Number of workers for OpenStack API service")
 
     nova_2013_1_4.param(
@@ -197,10 +197,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('metadata_listen', type='string', default='0.0.0.0',
                         description="IP address for metadata api to listen")
 
-    nova_2013_1_4.param('metadata_listen_port', type='integer',
-                        default='8775', description="port for metadata api to listen")
+    nova_2013_1_4.param('metadata_listen_port', type='port',
+                        default=8775, description="port for metadata api to listen")
 
-    nova_2013_1_4.param('metadata_workers', type='integer', default='<None>',
+    nova_2013_1_4.param('metadata_workers', type='integer', default=None,
                         description="Number of workers for metadata service")
 
     nova_2013_1_4.param(
@@ -227,27 +227,27 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='nova.scheduler.manager.SchedulerManager',
         description="full class name for the Manager for scheduler")
 
-    nova_2013_1_4.param('service_down_time', type='integer', default='60',
+    nova_2013_1_4.param('service_down_time', type='integer', default=60,
                         description="maximum time since last check-in for up service")
 
     nova_2013_1_4.param('sqlite_clean_db', type='string',
                         default='clean.sqlite', description="File name of clean sqlite db")
 
-    nova_2013_1_4.param('monkey_patch', type='boolean', default='false',
+    nova_2013_1_4.param('monkey_patch', type='boolean', default=False,
                         description="Whether to log monkey patching")
 
     nova_2013_1_4.param(
         'monkey_patch_modules', type='list',
-        default='nova.api.ec2.cloud:nova.openstack.common.notifier.api'
-                '.notify_decorator,nova.compute.api:nova.openstack.common'
-                '.notifier.api.notify_decorator',
+        default=[
+            'nova.api.ec2.cloud:nova.openstack.common.notifier.api.notify_decorator',
+            'nova.compute.api:nova.openstack.common.notifier.api.notify_decorator'],
         description="List of modules/decorators to monkey patch")
 
-    nova_2013_1_4.param('password_length', type='integer', default='12',
+    nova_2013_1_4.param('password_length', type='integer', default=12,
                         description="Length of generated instance admin passwords")
 
     nova_2013_1_4.param('disable_process_locking', type='boolean',
-                        default='false',
+                        default=False,
                         description="Whether to disable inter-process locks")
 
     nova_2013_1_4.param(
@@ -260,7 +260,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Path to the rootwrap configuration file to use for "
         "running commands as root")
 
-    nova_2013_1_4.param('tempdir', type='string', default='<None>',
+    nova_2013_1_4.param('tempdir', type='string', default=None,
                         description="Explicitly specify the temporary working directory")
 
     nova_2013_1_4.param(
@@ -276,37 +276,37 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "into it: client_ip, date_time, request_line, status_code, "
                     "body_length, wall_seconds.")
 
-    nova_2013_1_4.param('ssl_ca_file', type='string', default='<None>',
+    nova_2013_1_4.param('ssl_ca_file', type='string', default=None,
                         description="CA certificate file to use to verify connecting "
                         "clients")
 
-    nova_2013_1_4.param('ssl_cert_file', type='string', default='<None>',
+    nova_2013_1_4.param('ssl_cert_file', type='string', default=None,
                         description="SSL certificate of API server")
 
-    nova_2013_1_4.param('ssl_key_file', type='string', default='<None>',
+    nova_2013_1_4.param('ssl_key_file', type='string', default=None,
                         description="SSL private key of API server")
 
-    nova_2013_1_4.param('tcp_keepidle', type='integer', default='600',
+    nova_2013_1_4.param('tcp_keepidle', type='integer', default=600,
                         description="Sets the value of TCP_KEEPIDLE in seconds for each "
                         "server socket. Not supported on OS X.")
 
     nova_2013_1_4.param('api_rate_limit', type='boolean',
-                        default='true', description="whether to rate limit the api")
+                        default=True, description="whether to rate limit the api")
 
     nova_2013_1_4.param('auth_strategy', type='string', default='noauth',
                         description="The strategy to use for auth: noauth or keystone.")
 
-    nova_2013_1_4.param('use_forwarded_for', type='boolean', default='false',
+    nova_2013_1_4.param('use_forwarded_for', type='boolean', default=False,
                         description="Treat X-Forwarded-For as the canonical remote address."
                         " Only enable this if you have a sanitizing proxy.")
 
-    nova_2013_1_4.param('lockout_attempts', type='integer', default='5',
+    nova_2013_1_4.param('lockout_attempts', type='integer', default=5,
                         description="Number of failed auths before lockout.")
 
-    nova_2013_1_4.param('lockout_minutes', type='integer', default='15',
+    nova_2013_1_4.param('lockout_minutes', type='integer', default=15,
                         description="Number of minutes to lockout if triggered.")
 
-    nova_2013_1_4.param('lockout_window', type='integer', default='15',
+    nova_2013_1_4.param('lockout_window', type='integer', default=15,
                         description="Number of minutes for lockout window.")
 
     nova_2013_1_4.param(
@@ -315,25 +315,25 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="URL to get token from ec2 request.")
 
     nova_2013_1_4.param(
-        'ec2_private_dns_show_ip', type='boolean', default='false',
+        'ec2_private_dns_show_ip', type='boolean', default=False,
         description="Return the IP address as private dns hostname in "
         "describe instances")
 
     nova_2013_1_4.param(
-        'ec2_strict_validation', type='boolean', default='true',
+        'ec2_strict_validation', type='boolean', default=True,
         description="Validate security group names according to EC2 "
         "specification")
 
-    nova_2013_1_4.param('ec2_timestamp_expiry', type='integer', default='300',
+    nova_2013_1_4.param('ec2_timestamp_expiry', type='integer', default=300,
                         description="Time in seconds before ec2 timestamp expires")
 
-    nova_2013_1_4.param('ec2_host', type='string', default='$my_ip',
+    nova_2013_1_4.param('ec2_host', type='host', default='$my_ip',
                         description="the ip of the ec2 api server")
 
-    nova_2013_1_4.param('ec2_dmz_host', type='string', default='$my_ip',
+    nova_2013_1_4.param('ec2_dmz_host', type='host', default='$my_ip',
                         description="the internal ip of the ec2 api server")
 
-    nova_2013_1_4.param('ec2_port', type='integer', default='8773',
+    nova_2013_1_4.param('ec2_port', type='port', default=8773,
                         description="the port of the ec2 api server")
 
     nova_2013_1_4.param('ec2_scheme', type='string', default='http',
@@ -343,7 +343,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('ec2_path', type='string', default='/services/Cloud',
                         description="the path prefix used to call the ec2 api server")
 
-    nova_2013_1_4.param('region_list', type='list', default='',
+    nova_2013_1_4.param('region_list', type='list', default=[],
                         description="list of region=fqdn pairs separated by commas")
 
     nova_2013_1_4.param(
@@ -354,7 +354,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "config drive")
 
     nova_2013_1_4.param(
-        'service_quantum_metadata_proxy', type='boolean', default='false',
+        'service_quantum_metadata_proxy', type='boolean', default=False,
         description="Set flag to indicate Quantum will proxy metadata "
         "requests and resolve instance ids.")
 
@@ -363,24 +363,24 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Shared secret to validate proxies Quantum metadata "
         "requests")
 
-    nova_2013_1_4.param('osapi_max_limit', type='integer', default='1000',
+    nova_2013_1_4.param('osapi_max_limit', type='integer', default=1000,
                         description="the maximum number of items returned in a single "
                         "response from a collection resource")
 
     nova_2013_1_4.param(
-        'osapi_compute_link_prefix', type='string', default='<None>',
+        'osapi_compute_link_prefix', type='string', default=None,
         description="Base URL that will be presented to users in links to "
         "the OpenStack Compute API")
 
     nova_2013_1_4.param(
-        'osapi_glance_link_prefix', type='string', default='<None>',
+        'osapi_glance_link_prefix', type='string', default=None,
         description="Base URL that will be presented to users in links to "
         "glance resources")
 
     nova_2013_1_4.param('allow_instance_snapshots', type='boolean',
-                        default='true', description="Permit instance snapshot operations.")
+                        default=True, description="Permit instance snapshot operations.")
 
-    nova_2013_1_4.param('osapi_compute_ext_list', type='list', default='',
+    nova_2013_1_4.param('osapi_compute_ext_list', type='list', default=[],
                         description="Specify list of extensions to load when using "
                         "osapi_compute_extension option with nova.api"
                         ".openstack.compute.contrib.select_extensions")
@@ -389,15 +389,15 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='/usr/sbin/fping', description="Full path to fping.")
 
     nova_2013_1_4.param(
-        'osapi_hide_server_address_states', type='list', default='building',
+        'osapi_hide_server_address_states', type='list', default=['building'],
         description="List of instance states that should hide network info")
 
     nova_2013_1_4.param(
-        'enable_network_quota', type='boolean', default='false',
+        'enable_network_quota', type='boolean', default=False,
         description="Enables or disables quotaing of tenant networks")
 
     nova_2013_1_4.param(
-        'use_quantum_default_nets', type='string', default='False',
+        'use_quantum_default_nets', type='boolean', default=False,
         description="Control for checking for default networks")
 
     nova_2013_1_4.param(
@@ -409,12 +409,12 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="osapi compute extension to load")
 
     nova_2013_1_4.param(
-        'enable_instance_password', type='boolean', default='true',
+        'enable_instance_password', type='boolean', default=True,
         description="Allows use of instance password during server "
         "creation")
 
     nova_2013_1_4.param(
-        'osapi_max_request_body_size', type='integer', default='114688',
+        'osapi_max_request_body_size', type='integer', default=114688,
         description="the maximum body size per each osapi request(bytes)")
 
     nova_2013_1_4.param('cert_topic', type='string', default='cert',
@@ -431,17 +431,17 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='$pybasedir/nova/cloudpipe/bootscript.template',
         description="Template for cloudpipe instance boot script")
 
-    nova_2013_1_4.param('dmz_net', type='string', default='10.0.0.0',
+    nova_2013_1_4.param('dmz_net', type='network', default='10.0.0.0',
                         description="Network to push into openvpn config")
 
-    nova_2013_1_4.param('dmz_mask', type='string', default='255.255.255.0',
+    nova_2013_1_4.param('dmz_mask', type='network_mask', default='255.255.255.0',
                         description="Netmask to push into openvpn config")
 
     nova_2013_1_4.param('vpn_key_suffix', type='string', default='-vpn',
                         description="Suffix to add to project name for vpn key and "
                         "secgroups")
 
-    nova_2013_1_4.param('memcached_servers', type='list', default='<None>',
+    nova_2013_1_4.param('memcached_servers', type='list', default=None,
                         description="Memcached servers or None for in process cache.")
 
     nova_2013_1_4.param(
@@ -449,18 +449,18 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="The full class name of the compute API class to use")
 
     nova_2013_1_4.param(
-        'allow_resize_to_same_host', type='boolean', default='false',
+        'allow_resize_to_same_host', type='boolean', default=False,
         description="Allow destination machine to match source for resize. "
         "Useful when testing in single-host environments.")
 
     nova_2013_1_4.param(
-        'default_schedule_zone', type='string', default='<None>',
+        'default_schedule_zone', type='string', default=None,
         description="availability zone to use when user doesn't specify "
         "one")
 
     nova_2013_1_4.param(
         'non_inheritable_image_properties', type='list',
-        default='cache_in_nova,bittorrent',
+        default=['cache_in_nova', 'bittorrent'],
         description="These are image properties which a snapshot should not "
                     "inherit from an instance")
 
@@ -488,12 +488,12 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         "on this host.")
 
     nova_2013_1_4.param(
-        'default_access_ip_network_name', type='string', default='<None>',
+        'default_access_ip_network_name', type='string', default=None,
         description="Name of network to use to set access ips for "
         "instances")
 
     nova_2013_1_4.param(
-        'defer_iptables_apply', type='boolean', default='false',
+        'defer_iptables_apply', type='boolean', default=False,
         description="Whether to batch up the application of IPTables rules "
         "during a host restart and apply all at the end of the "
         "init phase")
@@ -503,41 +503,41 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="where instances are stored on disk")
 
     nova_2013_1_4.param(
-        'instance_usage_audit', type='boolean', default='false',
+        'instance_usage_audit', type='boolean', default=False,
         description="Generate periodic compute.instance.exists "
         "notifications")
 
     nova_2013_1_4.param(
-        'live_migration_retry_count', type='integer', default='30',
+        'live_migration_retry_count', type='integer', default=30,
         description="Number of 1 second retries needed in live_migration")
 
     nova_2013_1_4.param(
-        'resume_guests_state_on_host_boot', type='boolean', default='false',
+        'resume_guests_state_on_host_boot', type='boolean', default=False,
         description="Whether to start guests that were running before the "
         "host rebooted")
 
     nova_2013_1_4.param('bandwidth_poll_interval', type='integer',
-                        default='600', description="interval to pull bandwidth usage info")
+                        default=600, description="interval to pull bandwidth usage info")
 
     nova_2013_1_4.param(
-        'heal_instance_info_cache_interval', type='integer', default='60',
+        'heal_instance_info_cache_interval', type='integer', default=60,
         description="Number of seconds between instance info_cache self "
         "healing updates")
 
-    nova_2013_1_4.param('host_state_interval', type='integer', default='120',
+    nova_2013_1_4.param('host_state_interval', type='integer', default=120,
                         description="Interval in seconds for querying the host status")
 
     nova_2013_1_4.param(
-        'image_cache_manager_interval', type='integer', default='2400',
+        'image_cache_manager_interval', type='integer', default=2400,
         description="Number of seconds to wait between runs of the image "
         "cache manager")
 
     nova_2013_1_4.param(
-        'reclaim_instance_interval', type='integer', default='0',
+        'reclaim_instance_interval', type='integer', default=0,
         description="Interval in seconds for reclaiming deleted instances")
 
     nova_2013_1_4.param(
-        'volume_usage_poll_interval', type='integer', default='0',
+        'volume_usage_poll_interval', type='integer', default=0,
         description="Interval in seconds for gathering volume usages")
 
     nova_2013_1_4.param(
@@ -547,36 +547,36 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         "Set to 'noop' to disable.")
 
     nova_2013_1_4.param(
-        'running_deleted_instance_poll_interval', type='integer', default='1800',
+        'running_deleted_instance_poll_interval', type='integer', default=1800,
         description="Number of seconds to wait between runs of the cleanup task.")
 
     nova_2013_1_4.param(
-        'running_deleted_instance_timeout', type='integer', default='0',
+        'running_deleted_instance_timeout', type='integer', default=0,
         description="Number of seconds after being deleted when a running "
         "instance should be considered eligible for cleanup.")
 
-    nova_2013_1_4.param('reboot_timeout', type='integer', default='0',
+    nova_2013_1_4.param('reboot_timeout', type='integer', default=0,
                         description="Automatically hard reboot an instance if it has been "
                         "stuck in a rebooting state longer than N seconds. Set "
                         "to 0 to disable.")
 
-    nova_2013_1_4.param('instance_build_timeout', type='integer', default='0',
+    nova_2013_1_4.param('instance_build_timeout', type='integer', default=0,
                         description="Amount of time in seconds an instance can be in BUILD "
                         "before going into ERROR status.Set to 0 to disable.")
 
-    nova_2013_1_4.param('rescue_timeout', type='integer', default='0',
+    nova_2013_1_4.param('rescue_timeout', type='integer', default=0,
                         description="Automatically unrescue an instance after N seconds. "
                         "Set to 0 to disable.")
 
-    nova_2013_1_4.param('resize_confirm_window', type='integer', default='0',
+    nova_2013_1_4.param('resize_confirm_window', type='integer', default=0,
                         description="Automatically confirm resizes after N seconds. Set to "
                         "0 to disable.")
 
-    nova_2013_1_4.param('reserved_host_disk_mb', type='integer', default='0',
+    nova_2013_1_4.param('reserved_host_disk_mb', type='integer', default=0,
                         description="Amount of disk in MB to reserve for the host")
 
     nova_2013_1_4.param(
-        'reserved_host_memory_mb', type='integer', default='512',
+        'reserved_host_memory_mb', type='integer', default=512,
         description="Amount of memory in MB to reserve for the host")
 
     nova_2013_1_4.param(
@@ -591,7 +591,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='nova.console.xvp.XVPConsoleProxy',
         description="Driver to use for the console proxy")
 
-    nova_2013_1_4.param('stub_compute', type='boolean', default='false',
+    nova_2013_1_4.param('stub_compute', type='boolean', default=False,
                         description="Stub calls to compute worker for tests")
 
     nova_2013_1_4.param(
@@ -601,11 +601,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('console_topic', type='string', default='console',
                         description="the topic console proxy nodes listen on")
 
-    nova_2013_1_4.param('console_vmrc_port', type='integer',
-                        default='443', description="port for VMware VMRC connections")
+    nova_2013_1_4.param('console_vmrc_port', type='port',
+                        default=443, description="port for VMware VMRC connections")
 
     nova_2013_1_4.param(
-        'console_vmrc_error_retries', type='integer', default='10',
+        'console_vmrc_error_retries', type='integer', default=10,
         description="number of retries for retrieving VMRC information")
 
     nova_2013_1_4.param('console_xvp_conf_template', type='string',
@@ -623,21 +623,21 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='/var/log/xvp.log', description="XVP log file")
 
     nova_2013_1_4.param(
-        'console_xvp_multiplex_port', type='integer', default='5900',
+        'console_xvp_multiplex_port', type='port', default=5900,
         description="port for XVP to multiplex VNC connections on")
 
     nova_2013_1_4.param(
         'consoleauth_topic', type='string', default='consoleauth',
         description="the topic console auth proxy nodes listen on")
 
-    nova_2013_1_4.param('console_token_ttl', type='integer', default='600',
+    nova_2013_1_4.param('console_token_ttl', type='integer', default=600,
                         description="How many seconds before deleting tokens")
 
     nova_2013_1_4.param('consoleauth_manager', type='string',
                         default='nova.consoleauth.manager.ConsoleAuthManager',
                         description="Manager for console auth")
 
-    nova_2013_1_4.param('enable_new_services', type='boolean', default='true',
+    nova_2013_1_4.param('enable_new_services', type='boolean', default=True,
                         description="Services to be added to the available pool on create")
 
     nova_2013_1_4.param(
@@ -661,25 +661,25 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('glance_host', type='string', default='$my_ip',
                         description="default glance hostname or ip")
 
-    nova_2013_1_4.param('glance_port', type='integer',
-                        default='9292', description="default glance port")
+    nova_2013_1_4.param('glance_port', type='port',
+                        default=9292, description="default glance port")
 
     nova_2013_1_4.param('glance_protocol', type='string', default='http',
                         description="Default protocol to use when connecting to glance. "
                         "Set to https for SSL.")
 
     nova_2013_1_4.param(
-        'glance_api_servers', type='list', default='$glance_host:$glance_port',
+        'glance_api_servers', type='list', default=['$glance_host:$glance_port'],
         description="A list of the glance api servers available to nova. Prefix "
                     "with https:// for ssl-based glance api servers.")
 
     nova_2013_1_4.param('glance_api_insecure', type='boolean',
-                        default='false', description="Allow to perform insecure SSL")
+                        default=False, description="Allow to perform insecure SSL")
 
-    nova_2013_1_4.param('glance_num_retries', type='integer', default='0',
+    nova_2013_1_4.param('glance_num_retries', type='integer', default=0,
                         description="Number retries when downloading an image from glance")
 
-    nova_2013_1_4.param('allowed_direct_url_schemes', type='list', default='',
+    nova_2013_1_4.param('allowed_direct_url_schemes', type='list', default=[],
                         description="A list of url scheme that can be downloaded directly "
                         "via the direct_url.  Currently supported schemes: "
                         "[file].")
@@ -691,7 +691,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="hostname or ip for openstack to use when accessing "
                         "the s3 api")
 
-    nova_2013_1_4.param('s3_port', type='integer', default='3333',
+    nova_2013_1_4.param('s3_port', type='port', default=3333,
                         description="port used when accessing the s3 api")
 
     nova_2013_1_4.param('s3_access_key', type='string', default='notchecked',
@@ -700,10 +700,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('s3_secret_key', type='string', default='notchecked',
                         description="secret key to use for s3 server for images")
 
-    nova_2013_1_4.param('s3_use_ssl', type='boolean', default='false',
+    nova_2013_1_4.param('s3_use_ssl', type='boolean', default=False,
                         description="whether to use ssl when talking to s3")
 
-    nova_2013_1_4.param('s3_affix_tenant', type='boolean', default='false',
+    nova_2013_1_4.param('s3_affix_tenant', type='boolean', default=False,
                         description="whether to affix the tenant id to the access key when "
                         "downloading from s3")
 
@@ -722,7 +722,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='nova', description="Default pool for floating ips")
 
     nova_2013_1_4.param('auto_assign_floating_ip', type='boolean',
-                        default='false', description="Autoassigning floating ip to VM")
+                        default=False, description="Autoassigning floating ip to VM")
 
     nova_2013_1_4.param(
         'floating_ip_dns_manager', type='string',
@@ -760,17 +760,17 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'ldap_dns_base_dn', type='string', default='ouhosts,dcexample,dcorg',
         description="Base DN for DNS entries in ldap")
 
-    nova_2013_1_4.param('ldap_dns_soa_refresh', type='string',
-                        default='1800', description="Refresh interval")
+    nova_2013_1_4.param('ldap_dns_soa_refresh', type='integer',
+                        default=1800, description="Refresh interval")
 
-    nova_2013_1_4.param('ldap_dns_soa_retry', type='string',
-                        default='3600', description="Retry interval")
+    nova_2013_1_4.param('ldap_dns_soa_retry', type='integer',
+                        default=3600, description="Retry interval")
 
-    nova_2013_1_4.param('ldap_dns_soa_expiry', type='string',
-                        default='86400', description="Expiry interval")
+    nova_2013_1_4.param('ldap_dns_soa_expiry', type='integer',
+                        default=86400, description="Expiry interval")
 
-    nova_2013_1_4.param('ldap_dns_soa_minimum', type='string',
-                        default='7200', description="Minimum interval")
+    nova_2013_1_4.param('ldap_dns_soa_minimum', type='integer',
+                        default=7200, description="Minimum interval")
 
     nova_2013_1_4.param(
         'dhcpbridge_flagfile', type='multi',
@@ -785,7 +785,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Interface for public IP addresses")
 
     nova_2013_1_4.param('network_device_mtu', type='string',
-                        default='<None>', description="MTU setting for vlan")
+                        default=None, description="MTU setting for vlan")
 
     nova_2013_1_4.param(
         'dhcpbridge', type='string', default='$bindir/nova-dhcpbridge',
@@ -794,7 +794,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('routing_source_ip', type='string',
                         default='$my_ip', description="Public IP of network host")
 
-    nova_2013_1_4.param('dhcp_lease_time', type='integer', default='120',
+    nova_2013_1_4.param('dhcp_lease_time', type='integer', default=120,
                         description="Lifetime of a DHCP lease in seconds")
 
     nova_2013_1_4.param('dns_server', type='multi', default='',
@@ -802,11 +802,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         "specified multiple times.")
 
     nova_2013_1_4.param(
-        'use_network_dns_servers', type='boolean', default='false',
+        'use_network_dns_servers', type='boolean', default=False,
         description="if set, uses the dns1 and dns2 from the network ref.as"
         " dns servers.")
 
-    nova_2013_1_4.param('dmz_cidr', type='list', default='',
+    nova_2013_1_4.param('dmz_cidr', type='list', default=[],
                         description="A list of dmz range that should be accepted")
 
     nova_2013_1_4.param('force_snat_range', type='multi', default='',
@@ -825,14 +825,14 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'linuxnet_ovs_integration_bridge', type='string', default='br-int',
         description="Name of Open vSwitch bridge used with linuxnet")
 
-    nova_2013_1_4.param('send_arp_for_ha', type='boolean', default='false',
+    nova_2013_1_4.param('send_arp_for_ha', type='boolean', default=False,
                         description="send gratuitous ARPs for HA setup")
 
-    nova_2013_1_4.param('send_arp_for_ha_count', type='integer', default='3',
+    nova_2013_1_4.param('send_arp_for_ha_count', type='integer', default=3,
                         description="send this many gratuitous ARPs for HA setup")
 
     nova_2013_1_4.param(
-        'use_single_default_gateway', type='boolean', default='false',
+        'use_single_default_gateway', type='boolean', default=False,
         description="Use single default gateway. Only first nic of vm will "
         "get default gateway from dhcp server")
 
@@ -845,7 +845,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('metadata_host', type='string', default='$my_ip',
                         description="the ip for the metadata api server")
 
-    nova_2013_1_4.param('metadata_port', type='integer', default='8775',
+    nova_2013_1_4.param('metadata_port', type='port', default=8775,
                         description="the port for the metadata api port")
 
     nova_2013_1_4.param('iptables_top_regex', type='string', default='',
@@ -856,34 +856,34 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Regular expression to match iptables rule that "
                         "shouldalways be on the bottom.")
 
-    nova_2013_1_4.param('flat_network_bridge', type='string', default='<None>',
+    nova_2013_1_4.param('flat_network_bridge', type='string', default=None,
                         description="Bridge for simple network instances")
 
     nova_2013_1_4.param('flat_network_dns', type='string',
                         default='8.8.4.4', description="Dns for simple network")
 
-    nova_2013_1_4.param('flat_injected', type='boolean', default='false',
+    nova_2013_1_4.param('flat_injected', type='boolean', default=False,
                         description="Whether to attempt to inject network setup into guest")
 
-    nova_2013_1_4.param('flat_interface', type='string', default='<None>',
+    nova_2013_1_4.param('flat_interface', type='string', default=None,
                         description="FlatDhcp will bridge into this interface if set")
 
-    nova_2013_1_4.param('vlan_start', type='integer', default='100',
+    nova_2013_1_4.param('vlan_start', type='integer', default=100,
                         description="First VLAN for private networks")
 
-    nova_2013_1_4.param('vlan_interface', type='string', default='<None>',
+    nova_2013_1_4.param('vlan_interface', type='string', default=None,
                         description="vlans will bridge into this interface if set")
 
-    nova_2013_1_4.param('num_networks', type='integer', default='1',
+    nova_2013_1_4.param('num_networks', type='integer', default=1,
                         description="Number of networks to support")
 
     nova_2013_1_4.param('vpn_ip', type='string', default='$my_ip',
                         description="Public IP for the cloudpipe VPN servers")
 
-    nova_2013_1_4.param('vpn_start', type='integer', default='1000',
+    nova_2013_1_4.param('vpn_start', type='integer', default=1000,
                         description="First Vpn port for private networks")
 
-    nova_2013_1_4.param('network_size', type='integer', default='256',
+    nova_2013_1_4.param('network_size', type='integer', default=256,
                         description="Number of addresses in each private subnet")
 
     nova_2013_1_4.param('fixed_range', type='string',
@@ -893,45 +893,45 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='fd00::/48', description="Fixed IPv6 address block")
 
     nova_2013_1_4.param('gateway', type='string',
-                        default='<None>', description="Default IPv4 gateway")
+                        default=None, description="Default IPv4 gateway")
 
     nova_2013_1_4.param('gateway_v6', type='string',
-                        default='<None>', description="Default IPv6 gateway")
+                        default=None, description="Default IPv6 gateway")
 
-    nova_2013_1_4.param('cnt_vpn_clients', type='integer', default='0',
+    nova_2013_1_4.param('cnt_vpn_clients', type='integer', default=0,
                         description="Number of addresses reserved for vpn clients")
 
     nova_2013_1_4.param(
-        'fixed_ip_disassociate_timeout', type='integer', default='600',
+        'fixed_ip_disassociate_timeout', type='integer', default=600,
         description="Seconds after which a deallocated ip is disassociated")
 
     nova_2013_1_4.param('create_unique_mac_address_attempts', type='integer',
-                        default='5', description="Number of attempts to create unique mac"
+                        default=5, description="Number of attempts to create unique mac"
                         " address")
 
-    nova_2013_1_4.param('fake_network', type='boolean', default='false',
+    nova_2013_1_4.param('fake_network', type='boolean', default=False,
                         description="If passed, use fake network devices and addresses")
 
-    nova_2013_1_4.param('fake_call', type='boolean', default='false',
+    nova_2013_1_4.param('fake_call', type='boolean', default=False,
                         description="If True, skip using the queue and make local calls")
 
     nova_2013_1_4.param('teardown_unused_network_gateway', type='boolean',
-                        default='false', description="If True, unused gateway devices")
+                        default=False, description="If True, unused gateway devices")
 
-    nova_2013_1_4.param('force_dhcp_release', type='boolean', default='false',
+    nova_2013_1_4.param('force_dhcp_release', type='boolean', default=False,
                         description="If True, send a dhcp release on instance termination")
 
-    nova_2013_1_4.param('share_dhcp_address', type='boolean', default='false',
+    nova_2013_1_4.param('share_dhcp_address', type='boolean', default=False,
                         description="If True in multi_host mode, all compute hosts share "
                         "the same dhcp address.")
 
-    nova_2013_1_4.param('update_dns_entries', type='boolean', default='false',
+    nova_2013_1_4.param('update_dns_entries', type='boolean', default=False,
                         description="If True, when a DNS entry must be updated, it sends a "
                         "fanout cast to all network hosts to update their DNS "
                         "entries in multi host mode")
 
     nova_2013_1_4.param(
-        'dns_update_periodic_interval', type='integer', default='-1',
+        'dns_update_periodic_interval', type='integer', default=-1,
         description="Number of seconds to wait between runs of updates to "
         "DNS entries.")
 
@@ -946,23 +946,23 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'quantum_url', type='string', default='http://127.0.0.1:9696',
         description="URL for connecting to quantum")
 
-    nova_2013_1_4.param('quantum_url_timeout', type='integer', default='30',
+    nova_2013_1_4.param('quantum_url_timeout', type='integer', default=30,
                         description="timeout value for connecting to quantum in seconds")
 
     nova_2013_1_4.param(
-        'quantum_admin_username', type='string', default='<None>',
+        'quantum_admin_username', type='string', default=None,
         description="username for connecting to quantum in admin context")
 
     nova_2013_1_4.param(
-        'quantum_admin_password', type='string', default='<None>',
+        'quantum_admin_password', type='string', default=None,
         description="password for connecting to quantum in admin context")
 
     nova_2013_1_4.param(
-        'quantum_admin_tenant_name', type='string', default='<None>',
+        'quantum_admin_tenant_name', type='string', default=None,
         description="tenant name for connecting to quantum in admin "
         "context")
 
-    nova_2013_1_4.param('quantum_region_name', type='string', default='<None>',
+    nova_2013_1_4.param('quantum_region_name', type='string', default=None,
                         description="region name for connecting to quantum in admin "
                         "context")
 
@@ -972,7 +972,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="auth url for connecting to quantum in admin context")
 
     nova_2013_1_4.param(
-        'quantum_api_insecure', type='boolean', default='false',
+        'quantum_api_insecure', type='boolean', default=False,
         description="if set, ignore any SSL validation issues")
 
     nova_2013_1_4.param(
@@ -984,14 +984,14 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Name of Integration Bridge used by Open vSwitch")
 
     nova_2013_1_4.param(
-        'quantum_extension_sync_interval', type='integer', default='600',
+        'quantum_extension_sync_interval', type='integer', default=600,
         description="Number of seconds before querying quantum for "
         "extensions")
 
     nova_2013_1_4.param('network_topic', type='string', default='network',
                         description="the topic network nodes listen on")
 
-    nova_2013_1_4.param('multi_host', type='boolean', default='false',
+    nova_2013_1_4.param('multi_host', type='boolean', default=False,
                         description="Default value for multi_host in networks. Also, if "
                         "set, some rpc network calls will be sent directly to "
                         "host.")
@@ -1011,19 +1011,19 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Queues to delete")
 
     nova_2013_1_4.param('delete_exchange', type='boolean',
-                        default='false', description="delete nova exchange too.")
+                        default=False, description="delete nova exchange too.")
 
-    nova_2013_1_4.param('record', type='boolean', default='false',
+    nova_2013_1_4.param('record', type='boolean', default=False,
                         description="Record sessions to FILE.[session_number]")
 
     nova_2013_1_4.param('daemon', type='boolean',
-                        default='false', description="Become a daemon")
+                        default=False, description="Become a daemon")
 
-    nova_2013_1_4.param('ssl_only', type='boolean', default='false',
+    nova_2013_1_4.param('ssl_only', type='boolean', default=False,
                         description="Disallow non-encrypted connections")
 
     nova_2013_1_4.param('source_is_ipv6', type='boolean',
-                        default='false', description="Source is ipv6")
+                        default=False, description="Source is ipv6")
 
     nova_2013_1_4.param('cert', type='string', default='self.pem',
                         description="SSL certificate file")
@@ -1031,7 +1031,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param(
         'key',
         type='string',
-        default='<None>',
+        default=None,
         description="SSL key file")
 
     nova_2013_1_4.param('web', type='string', default='/usr/share/novnc',
@@ -1040,7 +1040,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('novncproxy_host', type='string', default='0.0.0.0',
                         description="Host on which to listen for incoming requests")
 
-    nova_2013_1_4.param('novncproxy_port', type='integer', default='6080',
+    nova_2013_1_4.param('novncproxy_port', type='port', default=6080,
                         description="Port on which to listen for incoming requests")
 
     nova_2013_1_4.param('buckets_path', type='string',
@@ -1049,13 +1049,13 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('s3_listen', type='string', default='0.0.0.0',
                         description="IP address for S3 API to listen")
 
-    nova_2013_1_4.param('s3_listen_port', type='integer',
-                        default='3333', description="port for s3 api to listen")
+    nova_2013_1_4.param('s3_listen_port', type='port',
+                        default=3333, description="port for s3 api to listen")
 
     nova_2013_1_4.param('db_backend', type='string', default='sqlalchemy',
                         description="The backend to use for db")
 
-    nova_2013_1_4.param('dbapi_use_tpool', type='boolean', default='false',
+    nova_2013_1_4.param('dbapi_use_tpool', type='boolean', default=False,
                         description="Enable the experimental use of thread pooling for all "
                         "DB API calls")
 
@@ -1068,59 +1068,59 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('sqlite_db', type='string', default='nova.sqlite',
                         description="the filename to use with sqlite")
 
-    nova_2013_1_4.param('sql_idle_timeout', type='integer', default='3600',
+    nova_2013_1_4.param('sql_idle_timeout', type='integer', default=3600,
                         description="timeout before idle sql connections are reaped")
 
-    nova_2013_1_4.param('sqlite_synchronous', type='boolean', default='true',
+    nova_2013_1_4.param('sqlite_synchronous', type='boolean', default=True,
                         description="If passed, use synchronous mode for sqlite")
 
-    nova_2013_1_4.param('sql_min_pool_size', type='integer', default='1',
+    nova_2013_1_4.param('sql_min_pool_size', type='integer', default=1,
                         description="Minimum number of SQL connections to keep open in a "
                         "pool")
 
-    nova_2013_1_4.param('sql_max_pool_size', type='integer', default='5',
+    nova_2013_1_4.param('sql_max_pool_size', type='integer', default=5,
                         description="Maximum number of SQL connections to keep open in a "
                         "pool")
 
-    nova_2013_1_4.param('sql_max_retries', type='integer', default='10',
+    nova_2013_1_4.param('sql_max_retries', type='integer', default=10,
                         description="maximum db connection retries during startup.")
 
-    nova_2013_1_4.param('sql_retry_interval', type='integer', default='10',
+    nova_2013_1_4.param('sql_retry_interval', type='integer', default=10,
                         description="interval between retries of opening a sql connection")
 
-    nova_2013_1_4.param('sql_max_overflow', type='integer', default='<None>',
+    nova_2013_1_4.param('sql_max_overflow', type='integer', default=None,
                         description="If set, use this value for max_overflow with "
                         "sqlalchemy")
 
-    nova_2013_1_4.param('sql_connection_debug', type='integer', default='0',
+    nova_2013_1_4.param('sql_connection_debug', type='integer', default=0,
                         description="Verbosity of SQL debugging information. 0=None, "
                         "100=Everything")
 
     nova_2013_1_4.param(
-        'sql_connection_trace', type='boolean', default='false',
+        'sql_connection_trace', type='boolean', default=False,
         description="Add python stack traces to SQL as comment strings")
 
-    nova_2013_1_4.param('backdoor_port', type='integer', default='<None>',
+    nova_2013_1_4.param('backdoor_port', type='port', default=None,
                         description="port for eventlet backdoor to listen")
 
     nova_2013_1_4.param('disable_process_locking', type='boolean',
-                        default='false', description="Whether to disable inter-process "
+                        default=False, description="Whether to disable inter-process "
                         "locks")
 
-    nova_2013_1_4.param('lock_path', type='string', default='<None>',
+    nova_2013_1_4.param('lock_path', type='string', default=None,
                         description="Directory to use for lock files. Default to a temp "
                         "directory")
 
-    nova_2013_1_4.param('debug', type='boolean', default='false',
+    nova_2013_1_4.param('debug', type='boolean', default=False,
                         description="Print debugging output")
 
-    nova_2013_1_4.param('verbose', type='boolean', default='false',
+    nova_2013_1_4.param('verbose', type='boolean', default=False,
                         description="Print more verbose output")
 
-    nova_2013_1_4.param('use_stderr', type='boolean', default='true',
+    nova_2013_1_4.param('use_stderr', type='boolean', default=True,
                         description="Log output to standard error")
 
-    nova_2013_1_4.param('logfile_mode', type='string', default='0644',
+    nova_2013_1_4.param('logfile_mode', type='string', default=0644,
                         description="Default file mode used when creating log files")
 
     nova_2013_1_4.param('logging_context_format_string', type='string',
@@ -1144,16 +1144,17 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s',
         description="prefix each line of exception output with this format")
 
+    # TODO: fix default value
     nova_2013_1_4.param('default_log_levels', type='list',
-                        default='amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO'
-                        ',keystoneINFO,eventlet.wsgi.serverWARN',
+                        default=['amqplibWARN', 'sqlalchemyWARN', 'botoWARN' , 'sudsINFO',
+                                 'keystoneINFO', 'eventlet.wsgi.serverWARN'],
                         description="list of logger=LEVEL pairs")
 
     nova_2013_1_4.param('publish_errors', type='boolean',
-                        default='false', description="publish error events")
+                        default=False, description="publish error events")
 
     nova_2013_1_4.param('fatal_deprecations', type='boolean',
-                        default='false', description="make deprecations fatal")
+                        default=False, description="make deprecations fatal")
 
     nova_2013_1_4.param('instance_format', type='string',
                         default='"[instance: %(uuid)s] "',
@@ -1165,7 +1166,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="If an instance UUID is passed with the log message, "
                         "format it like this")
 
-    nova_2013_1_4.param('log_config', type='string', default='<None>',
+    nova_2013_1_4.param('log_config', type='string', default=None,
                         description="If this option is specified, the logging configuration"
                         " file specified is used and overrides any other "
                         "logging options specified. Please see the Python "
@@ -1183,15 +1184,15 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Format string for %%(asctime)s in log records. "
         "Default: %(default)s")
 
-    nova_2013_1_4.param('log_file', type='string', default='<None>',
+    nova_2013_1_4.param('log_file', type='string', default=None,
                         description="(Optional) Name of log file to output to. If not set,"
                         " logging will go to stdout.")
 
-    nova_2013_1_4.param('log_dir', type='string', default='<None>',
+    nova_2013_1_4.param('log_dir', type='string', default=None,
                         description="(Optional) The directory to keep log files in")
 
     nova_2013_1_4.param('use_syslog', type='boolean',
-                        default='false', description="Use syslog for logging.")
+                        default=False, description="Use syslog for logging.")
 
     nova_2013_1_4.param(
         'syslog_log_facility', type='string', default='LOG_USER',
@@ -1208,7 +1209,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Default publisher_id for outgoing notifications")
 
     nova_2013_1_4.param(
-        'notification_topics', type='list', default='notifications',
+        'notification_topics', type='list', default=['notifications'],
         description="AMQP topic used for openstack notifications")
 
     nova_2013_1_4.param(
@@ -1217,33 +1218,33 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="The messaging module to use, defaults to kombu.")
 
     nova_2013_1_4.param('rpc_thread_pool_size', type='integer',
-                        default='64', description="Size of RPC thread pool")
+                        default=64, description="Size of RPC thread pool")
 
     nova_2013_1_4.param('rpc_conn_pool_size', type='integer',
-                        default='30', description="Size of RPC connection pool")
+                        default=30, description="Size of RPC connection pool")
 
-    nova_2013_1_4.param('rpc_response_timeout', type='integer', default='60',
+    nova_2013_1_4.param('rpc_response_timeout', type='integer', default=60,
                         description="Seconds to wait for a response from call or "
                         "multicall")
 
-    nova_2013_1_4.param('rpc_cast_timeout', type='integer', default='30',
+    nova_2013_1_4.param('rpc_cast_timeout', type='integer', default=30,
                         description="Seconds to wait before a cast expires")
 
     nova_2013_1_4.param(
         'allowed_rpc_exception_modules', type='list',
-        default='nova.openstack.common.exception,nova.exception,cinder.exception,'
-                'exceptions',
+        default=['nova.openstack.common.exception', 'nova.exception',
+                 'cinder.exception,' 'exceptions'],
         description="Modules of exceptions that are permitted to be recreatedupon"
                     " receiving exception data from an rpc call.")
 
-    nova_2013_1_4.param('fake_rabbit', type='boolean', default='false',
+    nova_2013_1_4.param('fake_rabbit', type='boolean', default=False,
                         description="If passed, use a fake RabbitMQ provider")
 
     nova_2013_1_4.param('control_exchange', type='string', default='openstack',
                         description="AMQP exchange to connect to if using RabbitMQ or Qpid")
 
     nova_2013_1_4.param(
-        'amqp_rpc_single_reply_queue', type='boolean', default='false',
+        'amqp_rpc_single_reply_queue', type='boolean', default=False,
         description="Enable a fast single reply queue if using AMQP based"
         " RPC like RabbitMQ or Qpid.")
 
@@ -1263,15 +1264,15 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="The RabbitMQ broker address where a single node is"
                         " used")
 
-    nova_2013_1_4.param('rabbit_port', type='integer', default='5672',
+    nova_2013_1_4.param('rabbit_port', type='port', default=5672,
                         description="The RabbitMQ broker port where a single node is used")
 
     nova_2013_1_4.param(
-        'rabbit_hosts', type='list', default='$rabbit_host:$rabbit_port',
+        'rabbit_hosts', type='list', default=['$rabbit_host:$rabbit_port'],
         description="RabbitMQ HA cluster host:port pairs")
 
     nova_2013_1_4.param('rabbit_use_ssl', type='boolean',
-                        default='false', description="connect over SSL for RabbitMQ")
+                        default=False, description="connect over SSL for RabbitMQ")
 
     nova_2013_1_4.param('rabbit_userid', type='string',
                         default='guest', description="the RabbitMQ userid")
@@ -1282,30 +1283,30 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('rabbit_virtual_host', type='string',
                         default='/', description="the RabbitMQ virtual host")
 
-    nova_2013_1_4.param('rabbit_retry_interval', type='integer', default='1',
+    nova_2013_1_4.param('rabbit_retry_interval', type='integer', default=1,
                         description="how frequently to retry connecting with RabbitMQ")
 
-    nova_2013_1_4.param('rabbit_retry_backoff', type='integer', default='2',
+    nova_2013_1_4.param('rabbit_retry_backoff', type='integer', default=2,
                         description="how long to backoff for between retries when "
                         "connecting to RabbitMQ")
 
-    nova_2013_1_4.param('rabbit_max_retries', type='integer', default='0',
+    nova_2013_1_4.param('rabbit_max_retries', type='integer', default=0,
                         description="maximum retries with trying to connect to RabbitMQ")
 
     nova_2013_1_4.param('rabbit_durable_queues', type='boolean',
-                        default='false', description="use durable queues in RabbitMQ")
+                        default=False, description="use durable queues in RabbitMQ")
 
     nova_2013_1_4.param('rabbit_ha_queues', type='boolean',
-                        default='false', description="use H/A queues in RabbitMQ")
+                        default=False, description="use H/A queues in RabbitMQ")
 
     nova_2013_1_4.param('qpid_hostname', type='string',
                         default='localhost', description="Qpid broker hostname")
 
-    nova_2013_1_4.param('qpid_port', type='string',
-                        default='5672', description="Qpid broker port")
+    nova_2013_1_4.param('qpid_port', type='port',
+                        default=5672, description="Qpid broker port")
 
     nova_2013_1_4.param(
-        'qpid_hosts', type='list', default='$qpid_hostname:$qpid_port',
+        'qpid_hosts', type='list', default=['$qpid_hostname:$qpid_port'],
         description="Qpid HA cluster host:port pairs")
 
     nova_2013_1_4.param('qpid_username', type='string', default='',
@@ -1318,14 +1319,14 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Space separated list of SASL mechanisms to use for "
                         "auth")
 
-    nova_2013_1_4.param('qpid_heartbeat', type='integer', default='60',
+    nova_2013_1_4.param('qpid_heartbeat', type='integer', default=60,
                         description="Seconds between connection keepalive heartbeats")
 
     nova_2013_1_4.param('qpid_protocol', type='string', default='tcp',
                         description="Transport to use, either 'tcp' or 'ssl'")
 
     nova_2013_1_4.param('qpid_tcp_nodelay', type='boolean',
-                        default='true', description="Disable Nagle algorithm")
+                        default=True, description="Disable Nagle algorithm")
 
     nova_2013_1_4.param('rpc_zmq_bind_address', type='string', default='*',
                         description="ZeroMQ bind address. Should be a wildcard")
@@ -1334,14 +1335,14 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='nova.openstack.common.rpc.matchmaker.MatchMakerLocalhost',
                         description="MatchMaker driver")
 
-    nova_2013_1_4.param('rpc_zmq_port', type='integer', default='9501',
+    nova_2013_1_4.param('rpc_zmq_port', type='port', default=9501,
                         description="ZeroMQ receiver listening port")
 
-    nova_2013_1_4.param('rpc_zmq_contexts', type='integer', default='1',
+    nova_2013_1_4.param('rpc_zmq_contexts', type='integer', default=1,
                         description="Number of ZeroMQ contexts, defaults to 1")
 
     nova_2013_1_4.param(
-        'rpc_zmq_topic_backlog', type='integer', default='<None>',
+        'rpc_zmq_topic_backlog', type='integer', default=None,
         description="Maximum number of ingress messages to locally buffer "
         "per topic. Default is unlimited.")
 
@@ -1363,11 +1364,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='nova.scheduler.host_manager.HostManager',
         description="The scheduler host manager class to use")
 
-    nova_2013_1_4.param('scheduler_max_attempts', type='integer', default='3',
+    nova_2013_1_4.param('scheduler_max_attempts', type='integer', default=3,
                         description="Maximum number of attempts to schedule an instance")
 
     nova_2013_1_4.param(
-        'scheduler_host_subset_size', type='integer', default='1',
+        'scheduler_host_subset_size', type='integer', default=1,
         description="New instances will be scheduled on a host chosen "
         "randomly from a subset of the N best hosts. This "
         "property defines the subset size that a host is chosen"
@@ -1384,17 +1385,17 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'disk_allocation_ratio', type='floating point', default='1.0',
         description="virtual disk to physical disk allocation ratio")
 
-    nova_2013_1_4.param('max_io_ops_per_host', type='integer', default='8',
+    nova_2013_1_4.param('max_io_ops_per_host', type='integer', default=8,
                         description="Ignore hosts that have too many builds/resizes/"
                         "snaps/migrations")
 
-    nova_2013_1_4.param('isolated_images', type='list', default='',
+    nova_2013_1_4.param('isolated_images', type='list', default=[],
                         description="Images to run on isolated host")
 
-    nova_2013_1_4.param('isolated_hosts', type='list', default='',
+    nova_2013_1_4.param('isolated_hosts', type='list', default=[],
                         description="Host reserved for specific images")
 
-    nova_2013_1_4.param('max_instances_per_host', type='integer', default='50',
+    nova_2013_1_4.param('max_instances_per_host', type='integer', default=50,
                         description="Ignore hosts that have too many instances")
 
     nova_2013_1_4.param(
@@ -1411,14 +1412,15 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.param(
         'scheduler_default_filters', type='list',
-        default='RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,'
-                'ComputeCapabilitiesFilter,ImagePropertiesFilter',
+        default=['RetryFilter', 'AvailabilityZoneFilter', 'RamFilter',
+                 'ComputeFilter', 'ComputeCapabilitiesFilter',
+                 'ImagePropertiesFilter'],
         description="Which filter class names to use for filtering hosts when not"
                     " specified in the request.")
 
     nova_2013_1_4.param(
         'scheduler_weight_classes', type='list',
-        default='nova.scheduler.weights.all_weighers',
+        default=['nova.scheduler.weights.all_weighers'],
         description="Which weight class names to use for weighing hosts")
 
     nova_2013_1_4.param(
@@ -1443,7 +1445,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'scheduler_json_config_location', type='string', default='',
         description="Absolute path to scheduler configuration JSON file.")
 
-    nova_2013_1_4.param('least_cost_functions', type='list', default='<None>',
+    nova_2013_1_4.param('least_cost_functions', type='list', default=None,
                         description="Which cost functions the LeastCostScheduler should"
                         " use")
 
@@ -1453,7 +1455,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.param(
         'compute_fill_first_cost_fn_weight', type='floating point',
-        default='<None>',
+        default=None,
         description="How much weight to give the fill-first cost function. A "
                     "negative value will reverse behavior: e.g. spread-first")
 
@@ -1470,11 +1472,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Config drive format. One of iso9660")
 
     nova_2013_1_4.param(
-        'config_drive_tempdir', type='string', default='<None>',
+        'config_drive_tempdir', type='string', default=None,
         description="Where to put temporary files associated with config "
         "drive creation")
 
-    nova_2013_1_4.param('force_config_drive', type='string', default='<None>',
+    nova_2013_1_4.param('force_config_drive', type='string', default=None,
                         description="Set to force injection to take place on a config "
                         "drive")
 
@@ -1499,17 +1501,17 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='windowsmkfs.ntfs --force --fast --label %(fs_label)s '
                         '%(target)s', description="")
 
-    nova_2013_1_4.param('timeout_nbd', type='integer', default='10',
+    nova_2013_1_4.param('timeout_nbd', type='integer', default=10,
                         description="time to wait for a NBD device coming up")
 
-    nova_2013_1_4.param('compute_driver', type='string', default='<None>',
+    nova_2013_1_4.param('compute_driver', type='string', default=None,
                         description="Driver to use for controlling virtualization. "
                         "Options include: libvirt.LibvirtDriver, xenapi."
                         "XenAPIDriver, fake.FakeDriver, "
                         "baremetal.BareMetalDriver, vmwareapi.VMWareESXDriver")
 
     nova_2013_1_4.param(
-        'default_ephemeral_format', type='string', default='<None>',
+        'default_ephemeral_format', type='string', default=None,
         description="The default format an ephemeral_volume will be "
         "formatted with on creation.")
 
@@ -1519,58 +1521,58 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         "fully allocated at instance start")
 
     nova_2013_1_4.param('use_cow_images', type='boolean',
-                        default='true', description="Whether to use cow images")
+                        default=True, description="Whether to use cow images")
 
     nova_2013_1_4.param('firewall_driver', type='string',
-                        default='<None>', description="Firewall driver")
+                        default=None, description="Firewall driver")
 
     nova_2013_1_4.param(
-        'allow_same_net_traffic', type='boolean', default='true',
+        'allow_same_net_traffic', type='boolean', default=True,
         description="Whether to allow network traffic from same network")
 
-    nova_2013_1_4.param('vswitch_name', type='string', default='<None>',
+    nova_2013_1_4.param('vswitch_name', type='string', default=None,
                         description="External virtual switch Name, if not provided, the "
                         "first external virtual switch is used")
 
-    nova_2013_1_4.param('limit_cpu_features', type='boolean', default='false',
+    nova_2013_1_4.param('limit_cpu_features', type='boolean', default=False,
                         description="Required for live migration among hosts with different"
                         " CPU features")
 
     nova_2013_1_4.param(
-        'config_drive_inject_password', type='boolean', default='false',
+        'config_drive_inject_password', type='boolean', default=False,
         description="Sets the admin password in the config drive image")
 
     nova_2013_1_4.param('qemu_img_cmd', type='string', default='qemu-img.exe',
                         description="qemu-img is used to convert between different image "
                         "types")
 
-    nova_2013_1_4.param('config_drive_cdrom', type='boolean', default='false',
+    nova_2013_1_4.param('config_drive_cdrom', type='boolean', default=False,
                         description="Attaches the Config Drive image as a cdrom drive "
                         "instead of a disk drive")
 
     nova_2013_1_4.param('hyperv_attaching_volume_retry_count', type='integer',
-                        default='10', description="The number of times we retry on "
+                        default=10, description="The number of times we retry on "
                         "attaching volume ")
 
     nova_2013_1_4.param(
-        'hyperv_wait_between_attach_retry', type='integer', default='5',
+        'hyperv_wait_between_attach_retry', type='integer', default=5,
         description="The seconds to wait between an volume attachment "
         "attempt")
 
     nova_2013_1_4.param('force_volumeutils_v1', type='boolean',
-                        default='false', description="Force volumeutils v1")
+                        default=False, description="Force volumeutils v1")
 
-    nova_2013_1_4.param('force_raw_images', type='boolean', default='true',
+    nova_2013_1_4.param('force_raw_images', type='boolean', default=True,
                         description="Force backing images to raw format")
 
     nova_2013_1_4.param('rescue_image_id', type='string',
-                        default='<None>', description="Rescue ami image")
+                        default=None, description="Rescue ami image")
 
     nova_2013_1_4.param('rescue_kernel_id', type='string',
-                        default='<None>', description="Rescue aki image")
+                        default=None, description="Rescue aki image")
 
     nova_2013_1_4.param('rescue_ramdisk_id', type='string',
-                        default='<None>', description="Rescue ari image")
+                        default=None, description="Rescue ari image")
 
     nova_2013_1_4.param('libvirt_type', type='string',
                         default='kvm', description="Libvirt domain type")
@@ -1579,19 +1581,19 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Override the default libvirt URI")
 
     nova_2013_1_4.param(
-        'libvirt_inject_password', type='boolean', default='false',
+        'libvirt_inject_password', type='boolean', default=False,
         description="Inject the admin password at boot time, without an "
         "agent.")
 
-    nova_2013_1_4.param('libvirt_inject_key', type='boolean', default='true',
+    nova_2013_1_4.param('libvirt_inject_key', type='boolean', default=True,
                         description="Inject the ssh public key at boot time")
 
     nova_2013_1_4.param(
-        'libvirt_inject_partition', type='integer', default='1',
+        'libvirt_inject_partition', type='integer', default=1,
         description="The partition to inject to : -2 => disable, -1 => "
         "inspect")
 
-    nova_2013_1_4.param('use_usb_tablet', type='boolean', default='true',
+    nova_2013_1_4.param('use_usb_tablet', type='boolean', default=True,
                         description="Sync virtual and real mouse cursors in Windows VMs")
 
     nova_2013_1_4.param('live_migration_uri', type='string',
@@ -1609,12 +1611,12 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Migration flags to be set for block migration")
 
     nova_2013_1_4.param(
-        'live_migration_bandwidth', type='integer', default='0',
+        'live_migration_bandwidth', type='integer', default=0,
         description="Maximum bandwidth to be used during migration, in "
         "Mbps")
 
     nova_2013_1_4.param('snapshot_image_format', type='string',
-                        default='<None>', description="Snapshot image format")
+                        default=None, description="Snapshot image format")
 
     nova_2013_1_4.param(
         'libvirt_vif_driver', type='string',
@@ -1623,35 +1625,36 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.param(
         'libvirt_volume_drivers', type='list',
-        default='iscsinova.virt.libvirt.volume.LibvirtISCSIVolumeDriver,'
-                'localnova.virt.libvirt.volume.LibvirtVolumeDriver,fakenova.'
-                'virt.libvirt.volume.LibvirtFakeVolumeDriver,rbdnova.virt.libvirt.'
-                'volume.LibvirtNetVolumeDriver,sheepdognova.virt.libvirt.volume.'
-                'LibvirtNetVolumeDriver,nfsnova.virt.libvirt.volume.'
-                'LibvirtNFSVolumeDriver,aoenova.virt.libvirt.volume.'
-                'LibvirtAOEVolumeDriver,glusterfsnova.virt.libvirt.volume.'
-                'LibvirtGlusterfsVolumeDriver,fibre_channelnova.virt.libvirt.'
-                'volume.LibvirtFibreChannelVolumeDriver,scalitynova.virt.libvirt.'
-                'volume.LibvirtScalityVolumeDriver',
+        default=[
+            'iscsinova.virt.libvirt.volume.LibvirtISCSIVolumeDriver',
+            'localnova.virt.libvirt.volume.LibvirtVolumeDriver',
+            'fakenova.virt.libvirt.volume.LibvirtFakeVolumeDriver',
+            'rbdnova.virt.libvirt.volume.LibvirtNetVolumeDriver',
+            'sheepdognova.virt.libvirt.volume.LibvirtNetVolumeDriver',
+            'nfsnova.virt.libvirt.volume.LibvirtNFSVolumeDriver',
+            'aoenova.virt.libvirt.volume.LibvirtAOEVolumeDriver',
+            'glusterfsnova.virt.libvirt.volume.LibvirtGlusterfsVolumeDriver',
+            'fibre_channelnova.virt.libvirt.volume.LibvirtFibreChannelVolumeDriver',
+            'scalitynova.virt.libvirt.volume.LibvirtScalityVolumeDriver'],
         description="Libvirt handlers for remote volumes.")
 
-    nova_2013_1_4.param('libvirt_disk_prefix', type='string', default='<None>',
+    nova_2013_1_4.param('libvirt_disk_prefix', type='string', default=None,
                         description="Override the default disk prefix for the devices "
                         "attached to a server, which is dependent on "
                         "libvirt_type.")
 
     nova_2013_1_4.param(
-        'libvirt_wait_soft_reboot_seconds', type='integer', default='120',
+        'libvirt_wait_soft_reboot_seconds', type='integer', default=120,
         description="Number of seconds to wait for instance to shut down "
         "after soft reboot request is made. We fall back to "
         "hard reboot if instance does not shutdown within this "
         "window.")
 
-    nova_2013_1_4.param('libvirt_nonblocking', type='boolean', default='true',
+    nova_2013_1_4.param('libvirt_nonblocking', type='boolean', default=True,
                         description="Use a separated OS thread pool to realize non-blocking"
                         " libvirt calls")
 
-    nova_2013_1_4.param('libvirt_cpu_mode', type='string', default='<None>',
+    nova_2013_1_4.param('libvirt_cpu_mode', type='string', default=None,
                         description="Set to 'host-model' to clone the host CPU feature"
                         " flags; to 'host-passthrough' to use the host CPU"
                         " model exactly; to 'custom' to use a named CPU model;"
@@ -1659,7 +1662,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         "libvirt_type='kvm|qemu', it will default to "
                         "'host-model', otherwise it will default to 'none'")
 
-    nova_2013_1_4.param('libvirt_cpu_model', type='string', default='<None>',
+    nova_2013_1_4.param('libvirt_cpu_model', type='string', default=None,
                         description="Set to a named libvirt CPU model")
 
     nova_2013_1_4.param(
@@ -1672,7 +1675,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         'xen_hvmloader_path', type='string', default='/usr/lib/xen/boot/hvmloader',
         description="Location where the Xen hvmloader is kept")
 
-    nova_2013_1_4.param('disk_cachemodes', type='list', default='',
+    nova_2013_1_4.param('disk_cachemodes', type='list', default=[],
                         description="Specific cachemodes to use for different disk types"
                         " e.g: ['file=directsync','block=none']")
 
@@ -1683,15 +1686,15 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         "use_cow_images flag is used instead of this one.")
 
     nova_2013_1_4.param(
-        'libvirt_images_volume_group', type='string', default='<None>',
+        'libvirt_images_volume_group', type='string', default=None,
         description="LVM Volume Group that is used for VM images, when you "
         "specify libvirt_images_type=lvm.")
 
     nova_2013_1_4.param('libvirt_sparse_logical_volumes', type='boolean',
-                        default='false', description="Create sparse logical volumes")
+                        default=False, description="Create sparse logical volumes")
 
     nova_2013_1_4.param('libvirt_lvm_snapshot_size', type='integer',
-                        default='1000', description="The amount of storage")
+                        default=1000, description="The amount of storage")
 
     nova_2013_1_4.param('base_dir_name', type='string', default='_base',
                         description="Where cached images are stored under $instances_path."
@@ -1705,10 +1708,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "locations")
 
     nova_2013_1_4.param('remove_unused_base_images', type='boolean',
-                        default='true', description="Should unused base images be removed?")
+                        default=True, description="Should unused base images be removed?")
 
     nova_2013_1_4.param(
-        'remove_unused_kernels', type='boolean', default='false',
+        'remove_unused_kernels', type='boolean', default=False,
         description="Should unused kernel images be removed? This is only "
         "safe to enable if all compute nodes have been updated "
         "to support this option. This will enabled by default "
@@ -1716,26 +1719,26 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.param(
         'remove_unused_resized_minimum_age_seconds', type='integer',
-        default='3600',
+        default=3600,
         description="Unused resized base images younger than this will not be "
                     "removed")
 
     nova_2013_1_4.param(
         'remove_unused_original_minimum_age_seconds', type='integer',
-        default='86400',
+        default=86400,
         description="Unused unresized base images younger than this will not be "
                     "removed")
 
     nova_2013_1_4.param(
-        'checksum_base_images', type='boolean', default='false',
+        'checksum_base_images', type='boolean', default=False,
         description="Write a checksum for files in _base to disk")
 
     nova_2013_1_4.param('checksum_interval_seconds', type='integer',
-                        default='3600',
+                        default=3600,
                         description="How frequently to checksum base images")
 
     nova_2013_1_4.param(
-        'libvirt_snapshot_compression', type='boolean', default='false',
+        'libvirt_snapshot_compression', type='boolean', default=False,
         description="Compress snapshot images when possible. This currently"
         " applies exclusively to qcow2 images")
 
@@ -1743,16 +1746,16 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         description="Name of Integration Bridge used by Open vSwitch")
 
     nova_2013_1_4.param(
-        'libvirt_use_virtio_for_bridges', type='boolean', default='true',
+        'libvirt_use_virtio_for_bridges', type='boolean', default=True,
         description="Use virtio for bridge interfaces with KVM/QEMU")
 
-    nova_2013_1_4.param('num_iscsi_scan_tries', type='integer', default='3',
+    nova_2013_1_4.param('num_iscsi_scan_tries', type='integer', default=3,
                         description="number of times to rescan iSCSI target to find volume")
 
-    nova_2013_1_4.param('rbd_user', type='string', default='<None>',
+    nova_2013_1_4.param('rbd_user', type='string', default=None,
                         description="the RADOS client name for accessing rbd volumes")
 
-    nova_2013_1_4.param('rbd_secret_uuid', type='string', default='<None>',
+    nova_2013_1_4.param('rbd_secret_uuid', type='string', default=None,
                         description="the libvirt uuid of the secret for the "
                         "rbd_uservolumes")
 
@@ -1761,11 +1764,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Dir where the nfs volume is mounted on the compute "
         "node")
 
-    nova_2013_1_4.param('nfs_mount_options', type='string', default='<None>',
+    nova_2013_1_4.param('nfs_mount_options', type='string', default=None,
                         description="Mount options passed to the nfs client. See section "
                         "of the nfs man page for details")
 
-    nova_2013_1_4.param('num_aoe_discover_tries', type='integer', default='3',
+    nova_2013_1_4.param('num_aoe_discover_tries', type='integer', default=3,
                         description="number of times to rediscover AoE target to find "
                         "volume")
 
@@ -1775,10 +1778,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     " node")
 
     nova_2013_1_4.param(
-        'libvirt_iscsi_use_multipath', type='boolean', default='false',
+        'libvirt_iscsi_use_multipath', type='boolean', default=False,
         description="use multipath connection of the iSCSI volume")
 
-    nova_2013_1_4.param('scality_sofs_config', type='string', default='<None>',
+    nova_2013_1_4.param('scality_sofs_config', type='string', default=None,
                         description="Path or URL to Scality SOFS configuration file")
 
     nova_2013_1_4.param(
@@ -1788,14 +1791,14 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('powervm_mgr_type', type='string',
                         default='ivm', description="PowerVM manager type")
 
-    nova_2013_1_4.param('powervm_mgr', type='string', default='<None>',
+    nova_2013_1_4.param('powervm_mgr', type='string', default=None,
                         description="PowerVM manager host or ip")
 
     nova_2013_1_4.param('powervm_mgr_user', type='string',
-                        default='<None>', description="PowerVM manager user name")
+                        default=None, description="PowerVM manager user name")
 
     nova_2013_1_4.param('powervm_mgr_passwd', type='string',
-                        default='<None>', description="PowerVM manager user password")
+                        default=None, description="PowerVM manager user password")
 
     nova_2013_1_4.param(
         'powervm_img_remote_path', type='string', default='/home/padmin',
@@ -1808,25 +1811,25 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Local directory to download glance images to. Make "
         "sure this path can fit your biggest image in glance")
 
-    nova_2013_1_4.param('vmwareapi_host_ip', type='string', default='<None>',
+    nova_2013_1_4.param('vmwareapi_host_ip', type='string', default=None,
                         description="URL for connection to VMware ESX/VC host. Required if"
                         " compute_driver is vmwareapi.VMwareESXDriver or "
                         "vmwareapi.VMwareVCDriver.")
 
     nova_2013_1_4.param(
-        'vmwareapi_host_username', type='string', default='<None>',
+        'vmwareapi_host_username', type='string', default=None,
         description="Username for connection to VMware ESX/VC host. Used "
         "only if compute_driver is vmwareapi.VMwareESXDriver or"
         " vmwareapi.VMwareVCDriver.")
 
     nova_2013_1_4.param(
-        'vmwareapi_host_password', type='string', default='<None>',
+        'vmwareapi_host_password', type='string', default=None,
         description="Password for connection to VMware ESX/VC host. Used"
         " only if compute_driver is vmwareapi.VMwareESXDriver"
         " or vmwareapi.VMwareVCDriver.")
 
     nova_2013_1_4.param(
-        'vmwareapi_cluster_name', type='string', default='<None>',
+        'vmwareapi_cluster_name', type='string', default=None,
         description="Name of a VMware Cluster ComputeResource. Used only if"
         " compute_driver is vmwareapi.VMwareVCDriver.")
 
@@ -1837,41 +1840,41 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     ".VMwareVCDriver.")
 
     nova_2013_1_4.param(
-        'vmwareapi_api_retry_count', type='integer', default='10',
+        'vmwareapi_api_retry_count', type='integer', default=10,
         description="The number of times we retry on failures, e.g., "
         "socket error, etc. Used only if compute_driver is "
         "vmwareapi.VMwareESXDriver or "
         "vmwareapi.VMwareVCDriver.")
 
-    nova_2013_1_4.param('vnc_port', type='integer',
-                        default='5900', description="VNC starting port")
+    nova_2013_1_4.param('vnc_port', type='port',
+                        default=5900, description="VNC starting port")
 
     nova_2013_1_4.param('vnc_port_total', type='integer',
-                        default='10000', description="Total number of VNC ports")
+                        default=10000, description="Total number of VNC ports")
 
     nova_2013_1_4.param('vnc_password', type='string',
-                        default='<None>', description="VNC password")
+                        default=None, description="VNC password")
 
     nova_2013_1_4.param('use_linked_clone', type='boolean',
-                        default='true', description="Whether to use linked clone")
+                        default=True, description="Whether to use linked clone")
 
     nova_2013_1_4.param(
         'vmwareapi_vlan_interface', type='string', default='vmnic0',
         description="Physical ethernet adapter name for vlan networking")
 
-    nova_2013_1_4.param('vmwareapi_wsdl_loc', type='string', default='<None>',
+    nova_2013_1_4.param('vmwareapi_wsdl_loc', type='string', default=None,
                         description="Optional VIM Service WSDL Location e.g "
                         "http://<server>/vimService.wsdl")
 
-    nova_2013_1_4.param('agent_timeout', type='integer', default='30',
+    nova_2013_1_4.param('agent_timeout', type='integer', default=30,
                         description="number of seconds to wait for agent reply")
 
-    nova_2013_1_4.param('agent_version_timeout', type='integer', default='300',
+    nova_2013_1_4.param('agent_version_timeout', type='integer', default=300,
                         description="number of seconds to wait for agent to be fully"
                         " operational")
 
     nova_2013_1_4.param(
-        'agent_resetnetwork_timeout', type='integer', default='60',
+        'agent_resetnetwork_timeout', type='integer', default=60,
         description="number of seconds to wait for agent reply to"
         " resetnetwork request")
 
@@ -1884,13 +1887,13 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "compute_driver=xenapi.XenAPIDriver and  flat_injected=True")
 
     nova_2013_1_4.param(
-        'xenapi_disable_agent', type='boolean', default='false',
+        'xenapi_disable_agent', type='boolean', default=False,
         description="Disable XenAPI agent. Reduces the amount of time it "
         "takes nova to detect that a VM has started, when that "
         "VM does not have the agent installed")
 
     nova_2013_1_4.param(
-        'xenapi_connection_url', type='string', default='<None>',
+        'xenapi_connection_url', type='string', default=None,
         description="URL for connection to XenServer/Xen Cloud Platform. "
         "Required if compute_driver=xenapi.XenAPIDriver")
 
@@ -1901,13 +1904,13 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         "compute_driver=xenapi.XenAPIDriver")
 
     nova_2013_1_4.param(
-        'xenapi_connection_password', type='string', default='<None>',
+        'xenapi_connection_password', type='string', default=None,
         description="Password for connection to XenServer/Xen Cloud "
         "Platform. Used only if compute_driver=xenapi"
         ".XenAPIDriver")
 
     nova_2013_1_4.param(
-        'xenapi_connection_concurrent', type='integer', default='5',
+        'xenapi_connection_concurrent', type='integer', default=5,
         description="Maximum number of concurrent XenAPI connections. "
         "Used only if compute_driver=xenapi.XenAPIDriver")
 
@@ -1916,12 +1919,12 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="The interval used for polling of coalescing vhds. Used only "
                     "if compute_driver=xenapi.XenAPIDriver")
 
-    nova_2013_1_4.param('xenapi_check_host', type='boolean', default='true',
+    nova_2013_1_4.param('xenapi_check_host', type='boolean', default=True,
                         description="Ensure compute service is running on host XenAPI "
                         "connects to.")
 
     nova_2013_1_4.param(
-        'xenapi_vhd_coalesce_max_attempts', type='integer', default='5',
+        'xenapi_vhd_coalesce_max_attempts', type='integer', default=5,
         description="Max number of times to poll for VHD to coalesce. Used "
         "only if compute_driver=xenapi.XenAPIDriver")
 
@@ -1930,25 +1933,25 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Base path to the storage repository")
 
     nova_2013_1_4.param('target_host', type='string',
-                        default='<None>', description="iSCSI Target Host")
+                        default=None, description="iSCSI Target Host")
 
-    nova_2013_1_4.param('target_port', type='string', default='3260',
+    nova_2013_1_4.param('target_port', type='port', default=3260,
                         description="iSCSI Target Port, 3260 Default")
 
     nova_2013_1_4.param('iqn_prefix', type='string',
                         default='iqn.2010-10.org.openstack', description="IQN Prefix")
 
     nova_2013_1_4.param(
-        'xenapi_remap_vbd_dev', type='boolean', default='false',
+        'xenapi_remap_vbd_dev', type='boolean', default=False,
         description="Used to enable the remapping of VBD dev")
 
     nova_2013_1_4.param('xenapi_remap_vbd_dev_prefix', type='string',
                         default='sd', description="Specify prefix to remap VBD dev to")
 
-    nova_2013_1_4.param('xenapi_login_timeout', type='integer', default='10',
+    nova_2013_1_4.param('xenapi_login_timeout', type='integer', default=10,
                         description="Timeout in seconds for XenAPI login.")
 
-    nova_2013_1_4.param('use_join_force', type='boolean', default='true',
+    nova_2013_1_4.param('use_join_force', type='boolean', default=True,
                         description="To use for hosts with different CPUs")
 
     nova_2013_1_4.param(
@@ -1965,11 +1968,11 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='linux', description="Default OS type")
 
     nova_2013_1_4.param(
-        'block_device_creation_timeout', type='integer', default='10',
+        'block_device_creation_timeout', type='integer', default=10,
         description="Time to wait for a block device to be created")
 
     nova_2013_1_4.param(
-        'max_kernel_ramdisk_size', type='integer', default='16777216',
+        'max_kernel_ramdisk_size', type='integer', default=16777216,
         description="Maximum size in bytes of kernel or ramdisk images")
 
     nova_2013_1_4.param(
@@ -1983,51 +1986,51 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "on the Default SR, as displayed by XenCenter, set this flag "
                     "to: default-sr:true")
 
-    nova_2013_1_4.param('xenapi_sparse_copy', type='boolean', default='true',
+    nova_2013_1_4.param('xenapi_sparse_copy', type='boolean', default=True,
                         description="Whether to use sparse_copy for copying data on a "
                         "resize down")
 
     nova_2013_1_4.param('xenapi_num_vbd_unplug_retries', type='integer',
-                        default='10', description="Maximum number of retries to unplug VBD")
+                        default=10, description="Maximum number of retries to unplug VBD")
 
     nova_2013_1_4.param('xenapi_torrent_images', type='string', default='none',
                         description="Whether or not to download images via Bit Torrent")
 
     nova_2013_1_4.param('xenapi_torrent_base_url', type='string',
-                        default='<None>', description="Base URL for torrent files.")
+                        default=None, description="Base URL for torrent files.")
 
     nova_2013_1_4.param('xenapi_torrent_seed_chance', type='floating point',
                         default='1.0',
                         description="Probability that peer will become a seeder.")
 
     nova_2013_1_4.param(
-        'xenapi_torrent_seed_duration', type='integer', default='3600',
+        'xenapi_torrent_seed_duration', type='integer', default=3600,
         description="Number of seconds after downloading an image via "
         "BitTorrent that it should be seeded for other peers.")
 
     nova_2013_1_4.param(
-        'xenapi_torrent_max_last_accessed', type='integer', default='86400',
+        'xenapi_torrent_max_last_accessed', type='integer', default=86400,
         description="Cached torrent files not accessed within this number "
         "of seconds can be reaped")
 
-    nova_2013_1_4.param('xenapi_torrent_listen_port_start', type='integer',
-                        default='6881', description="Beginning of port range to listen on")
+    nova_2013_1_4.param('xenapi_torrent_listen_port_start', type='port',
+                        default=6881, description="Beginning of port range to listen on")
 
-    nova_2013_1_4.param('xenapi_torrent_listen_port_end', type='integer',
-                        default='6891', description="End of port range to listen on")
+    nova_2013_1_4.param('xenapi_torrent_listen_port_end', type='port',
+                        default=6891, description="End of port range to listen on")
 
     nova_2013_1_4.param(
-        'xenapi_torrent_download_stall_cutoff', type='integer', default='600',
+        'xenapi_torrent_download_stall_cutoff', type='integer', default=600,
         description="Number of seconds a download can remain at the same progress "
                     "percentage w/o being considered a stall")
 
     nova_2013_1_4.param(
         'xenapi_torrent_max_seeder_processes_per_host', type='integer',
-        default='1',
+        default=1,
         description="Maximum number of seeder processes to run concurrently within"
                     " a given dom0.")
 
-    nova_2013_1_4.param('xenapi_running_timeout', type='integer', default='60',
+    nova_2013_1_4.param('xenapi_running_timeout', type='integer', default=60,
                         description="number of seconds to wait for instance to go to "
                         "running state")
 
@@ -2060,16 +2063,16 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='127.0.0.1',
                         description="the address to which proxy clients")
 
-    nova_2013_1_4.param('vnc_enabled', type='boolean', default='true',
+    nova_2013_1_4.param('vnc_enabled', type='boolean', default=True,
                         description="enable vnc related features")
 
     nova_2013_1_4.param('vnc_keymap', type='string',
                         default='en-us', description="keymap for vnc")
 
-    nova_2013_1_4.param('xvpvncproxy_port', type='integer', default='6081',
+    nova_2013_1_4.param('xvpvncproxy_port', type='port', default=6081,
                         description="Port that the XCP VNC proxy should bind to")
 
-    nova_2013_1_4.param('xvpvncproxy_host', type='string', default='0.0.0.0',
+    nova_2013_1_4.param('xvpvncproxy_host', type='host', default='0.0.0.0',
                         description="Address that the XCP VNC proxy should bind to")
 
     nova_2013_1_4.param(
@@ -2083,22 +2086,22 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                     "<service_type>:<service_name>:<endpoint_type>")
 
     nova_2013_1_4.param(
-        'cinder_endpoint_template', type='string', default='<None>',
+        'cinder_endpoint_template', type='string', default=None,
         description="Override service catalog lookup with template for "
         "cinder endpoint e.g. "
         "http://localhost:8776/v1/%(project_id)s")
 
     nova_2013_1_4.param('os_region_name', type='string',
-                        default='<None>', description="region name of this node")
+                        default=None, description="region name of this node")
 
-    nova_2013_1_4.param('cinder_http_retries', type='integer', default='3',
+    nova_2013_1_4.param('cinder_http_retries', type='integer', default=3,
                         description="Number of cinderclient retries on failed http calls")
 
-    nova_2013_1_4.param('cinder_api_insecure', type='boolean', default='false',
+    nova_2013_1_4.param('cinder_api_insecure', type='boolean', default=False,
                         description="Allow to perform insecure SSL requests to cinder")
 
     nova_2013_1_4.param(
-        'cinder_cross_az_attach', type='boolean', default='true',
+        'cinder_cross_az_attach', type='boolean', default=True,
         description="Allow attach between instance and volume in different"
         " availability zones.")
 
@@ -2113,7 +2116,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.section('conductor')
 
-    nova_2013_1_4.param('use_local', type='boolean', default='false',
+    nova_2013_1_4.param('use_local', type='boolean', default=False,
                         description="Perform nova-conductor operations locally")
 
     nova_2013_1_4.param('topic', type='string', default='conductor',
@@ -2131,22 +2134,22 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="Cells communication driver to use")
 
     nova_2013_1_4.param(
-        'instance_updated_at_threshold', type='integer', default='3600',
+        'instance_updated_at_threshold', type='integer', default=3600,
         description="Number of seconds after an instance was updated or "
         "deleted to continue to update cells")
 
     nova_2013_1_4.param(
-        'instance_update_num_instances', type='integer', default='1',
+        'instance_update_num_instances', type='integer', default=1,
         description="Number of instances to update per periodic task run")
 
-    nova_2013_1_4.param('max_hop_count', type='integer', default='10',
+    nova_2013_1_4.param('max_hop_count', type='integer', default=10,
                         description="Maximum number of hops for cells routing.")
 
     nova_2013_1_4.param('scheduler', type='string',
                         default='nova.cells.scheduler.CellsScheduler',
                         description="Cells scheduler to use")
 
-    nova_2013_1_4.param('enable', type='boolean', default='false',
+    nova_2013_1_4.param('enable', type='boolean', default=False,
                         description="Enable cell functionality")
 
     nova_2013_1_4.param('topic', type='string', default='cells',
@@ -2161,10 +2164,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.param(
         'capabilities', type='list',
-        default='hypervisorxenserver;kvm,oslinux;windows',
+        default=['hypervisorxenserver;kvm', 'oslinux;windows'],
         description="Key/Multi-value list with the capabilities of the cell")
 
-    nova_2013_1_4.param('call_timeout', type='integer', default='60',
+    nova_2013_1_4.param('call_timeout', type='integer', default=60,
                         description="Seconds to wait for response from a call to a cell.")
 
     nova_2013_1_4.param(
@@ -2173,29 +2176,29 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         "cells. Various topics by message type will be appended"
         " to this.")
 
-    nova_2013_1_4.param('scheduler_retries', type='integer', default='10',
+    nova_2013_1_4.param('scheduler_retries', type='integer', default=10,
                         description="How many retries when no cells are available.")
 
-    nova_2013_1_4.param('scheduler_retry_delay', type='integer', default='2',
+    nova_2013_1_4.param('scheduler_retry_delay', type='integer', default=2,
                         description="How often to retry in seconds when no cells are "
                         "available.")
 
-    nova_2013_1_4.param('db_check_interval', type='integer', default='60',
+    nova_2013_1_4.param('db_check_interval', type='integer', default=60,
                         description="Seconds between getting fresh cell info from db.")
 
     nova_2013_1_4.section('zookeeper')
 
-    nova_2013_1_4.param('address', type='string', default='<None>',
+    nova_2013_1_4.param('address', type='string', default=None,
                         description="The ZooKeeper addresses for servicegroup service in "
                         "the format of host1:port,host2:port,host3:port")
 
-    nova_2013_1_4.param('recv_timeout', type='integer', default='4000',
+    nova_2013_1_4.param('recv_timeout', type='integer', default=4000,
                         description="recv_timeout parameter for the zk session")
 
     nova_2013_1_4.param('sg_prefix', type='string', default='/servicegroups',
                         description="The prefix used in ZooKeeper to store ephemeral nodes")
 
-    nova_2013_1_4.param('sg_retry_interval', type='integer', default='5',
+    nova_2013_1_4.param('sg_retry_interval', type='integer', default=5,
                         description="Number of seconds to wait until retrying to join the "
                         "session")
 
@@ -2210,7 +2213,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         description="The SQLAlchemy connection string used to connect to the "
                     "bare-metal database")
 
-    nova_2013_1_4.param('inject_password', type='boolean', default='true',
+    nova_2013_1_4.param('inject_password', type='boolean', default=True,
                         description="Whether baremetal compute injects password or not")
 
     nova_2013_1_4.param('injected_network_template', type='string',
@@ -2225,7 +2228,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='nova.virt.baremetal.volume_driver.LibvirtVolumeDriver',
                         description="Baremetal volume driver.")
 
-    nova_2013_1_4.param('instance_type_extra_specs', type='list', default='',
+    nova_2013_1_4.param('instance_type_extra_specs', type='list', default=[],
                         description="a list of additional capabilities corresponding to "
                         "instance_type_extra_specs for this compute host to "
                         "advertise. Valid entries are name=value, pairs For "
@@ -2245,20 +2248,20 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('terminal', type='string', default='shellinaboxd',
                         description="path to baremetal terminal program")
 
-    nova_2013_1_4.param('terminal_cert_dir', type='string', default='<None>',
+    nova_2013_1_4.param('terminal_cert_dir', type='string', default=None,
                         description="path to baremetal terminal SSL cert(PEM)")
 
     nova_2013_1_4.param(
         'terminal_pid_dir', type='string', default='$state_path/baremetal/console',
         description="path to directory stores pidfiles of baremetal_terminal")
 
-    nova_2013_1_4.param('ipmi_power_retry', type='integer', default='5',
+    nova_2013_1_4.param('ipmi_power_retry', type='integer', default=5,
                         description="maximal number of retries for IPMI operations")
 
-    nova_2013_1_4.param('deploy_kernel', type='string', default='<None>',
+    nova_2013_1_4.param('deploy_kernel', type='string', default=None,
                         description="Default kernel image ID used in deployment phase")
 
-    nova_2013_1_4.param('deploy_ramdisk', type='string', default='<None>',
+    nova_2013_1_4.param('deploy_ramdisk', type='string', default=None,
                         description="Default ramdisk image ID used in deployment phase")
 
     nova_2013_1_4.param(
@@ -2266,7 +2269,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='$pybasedir/nova/virt/baremetal/net-dhcp.ubuntu.template',
         description="Template file for injected network config")
 
-    nova_2013_1_4.param('pxe_append_params', type='string', default='<None>',
+    nova_2013_1_4.param('pxe_append_params', type='string', default=None,
                         description="additional append parameters for baremetal PXE boot")
 
     nova_2013_1_4.param(
@@ -2274,7 +2277,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
         default='$pybasedir/nova/virt/baremetal/pxe_config.template',
         description="Template file for PXE configuration")
 
-    nova_2013_1_4.param('pxe_deploy_timeout', type='integer', default='0',
+    nova_2013_1_4.param('pxe_deploy_timeout', type='integer', default=0,
                         description="Timeout for PXE deployments. Default: 0")
 
     nova_2013_1_4.param('virtual_power_ssh_host', type='string',
@@ -2289,7 +2292,7 @@ with nova.version('2013.1.4') as nova_2013_1_4:
     nova_2013_1_4.param('virtual_power_host_pass', type='string',
                         default='', description="password for virtual power host_user")
 
-    nova_2013_1_4.param('use_unsafe_iscsi', type='boolean', default='false',
+    nova_2013_1_4.param('use_unsafe_iscsi', type='boolean', default=False,
                         description="Do not set this out of dev/test environments. If a "
                         "node does not have a fixed PXE IP address, volumes are"
                         " exported with globally opened ACL")
@@ -2301,32 +2304,32 @@ with nova.version('2013.1.4') as nova_2013_1_4:
 
     nova_2013_1_4.section('rpc_notifier2')
 
-    nova_2013_1_4.param('topics', type='list', default='notifications',
+    nova_2013_1_4.param('topics', type='list', default=['notifications'],
                         description="AMQP topic(s) used for openstack notifications")
 
     nova_2013_1_4.section('trusted_computing')
 
     nova_2013_1_4.param('attestation_server', type='string',
-                        default='<None>', description="attestation server http")
+                        default=None, description="attestation server http")
 
     nova_2013_1_4.param(
-        'attestation_server_ca_file', type='string', default='<None>',
+        'attestation_server_ca_file', type='string', default=None,
         description="attestation server Cert file for Identity "
         "verification")
 
-    nova_2013_1_4.param('attestation_port', type='string',
-                        default='8443', description="attestation server port")
+    nova_2013_1_4.param('attestation_port', type='port',
+                        default=8443, description="attestation server port")
 
     nova_2013_1_4.param('attestation_api_url', type='string',
                         default='/OpenAttestationWebServices/V1.0',
                         description="attestation web API URL")
 
     nova_2013_1_4.param(
-        'attestation_auth_blob', type='string', default='<None>',
+        'attestation_auth_blob', type='string', default=None,
         description="attestation authorization blob - must change")
 
     nova_2013_1_4.param(
-        'attestation_auth_timeout', type='integer', default='60',
+        'attestation_auth_timeout', type='integer', default=60,
         description="Attestation status cache valid period length")
 
     nova_2013_1_4.section('vmware')
@@ -2350,10 +2353,10 @@ with nova.version('2013.1.4') as nova_2013_1_4:
                         default='127.0.0.1',
                         description="the address to which proxy clients")
 
-    nova_2013_1_4.param('enabled', type='boolean', default='false',
+    nova_2013_1_4.param('enabled', type='boolean', default=False,
                         description="enable spice related features")
 
-    nova_2013_1_4.param('agent_enabled', type='boolean', default='true',
+    nova_2013_1_4.param('agent_enabled', type='boolean', default=True,
                         description="enable spice guest agent support")
 
     nova_2013_1_4.param('keymap', type='string',
