@@ -228,44 +228,28 @@ class OpenstackComponent(Service):
                         parameter_fullname = section_name + \
                             '.' + parameter_fullname
 
-                    if parameter_schema:
-                        type_validator = TypeValidatorRegistry.get_validator(
-                            parameter_schema.type)
-                        type_validation_result = type_validator.validate(
-                            parameter.value.text)
-                        if isinstance(type_validation_result, Issue):
-                            type_validation_result.mark = parameter\
-                                .value.start_mark.merge(
-                                    type_validation_result.mark)
-                            type_validation_result.message = \
-                                'Property "%s" in section "%s": %s' % (
-                                    parameter.name.text, section_name,
-                                    type_validation_result.message)
-                            report_issue(type_validation_result)
+                    config.set(parameter_fullname, parameter.value.text)
 
-                            config.set(parameter_fullname,
-                                       parameter.value.text)
-                        else:
-                            value = type_validation_result
+                    validation_error = config.validate(parameter_fullname)
+                    if validation_error:
+                        validation_error.mark = parameter\
+                            .value.start_mark.merge(validation_error.mark)
+                        validation_error.message = \
+                            'Property "%s" in section "%s": %s' % (
+                                parameter.name.text, section_name,
+                                validation_error.message)
+                        report_issue(validation_error)
 
-                            config.set(parameter_fullname, value)
-
-                            # if value == parameter_schema.default:
-                            #   report_issue(MarkedIssue(Issue.INFO,
-                            # 'Explicit value equals default: section "%s"
-                            # parameter "%s"' % (section_name,
-                            # parameter.name.text), parameter.start_mark))
-                        if parameter_schema.deprecation_message:
-                            report_issue(
-                                MarkedIssue(
-                                    Issue.WARNING,
-                                    'Deprecated parameter: section "%s" name '
-                                    '"%s". %s' %
-                                    (section_name, parameter.name.text,
-                                     parameter_schema.deprecation_message),
-                                    parameter.start_mark))
-                    else:
-                        config.set(parameter_fullname, parameter.value.text)
+                    if (parameter_schema and
+                            parameter_schema.deprecation_message):
+                        report_issue(
+                            MarkedIssue(
+                                Issue.WARNING,
+                                'Deprecated parameter: section "%s" name '
+                                '"%s". %s' %
+                                (section_name, parameter.name.text,
+                                    parameter_schema.deprecation_message),
+                                parameter.start_mark))
 
         return config
 
