@@ -246,7 +246,7 @@ def find_process(client, pid=None, name=None, sockets=None):
     if pid:
         return find(get_processes(client), lambda p: p.pid == pid)
     elif sockets:
-        currrent_sockets = get_listen_sockets(client)
+        current_sockets = get_listen_sockets(client)
         x = find(current_sockets.items(), lambda x: sockets[0] in x[1])
         if not x:
             return None
