@@ -239,6 +239,15 @@ class ConfigurationTests(unittest.TestCase):
 
         self.assertEqual(456, c.get('param1'))
 
+    def test_type_for_unknown_param(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertEqual('123', c.get('param1'))
+
     def test_typed_param_with_invalid_value_returns_string_value(self):
         schema = ConfigSchema('test', '1.0', 'ini', [
             ConfigParameterSchema('param1', type='integer', section='DEFAULT')
@@ -282,3 +291,12 @@ class ConfigurationTests(unittest.TestCase):
         c.set('param1', 'abc')
 
         self.assertTrue(isinstance(c.validate('param1'), InvalidValueError))
+
+    def test_validate_returns_none_for_unknown_param(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertIsNone(c.validate('param1'))

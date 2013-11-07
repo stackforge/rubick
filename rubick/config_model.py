@@ -129,11 +129,12 @@ class Configuration(object):
         if self.schema:
             param_schema = self.schema.get_parameter(name, section=section)
 
-            type_validator = TypeValidatorRegistry.get_validator(
-                param_schema.type)
-            type_validation_result = type_validator.validate(value)
-            if not isinstance(type_validation_result, InvalidValueError):
-                value = type_validation_result
+            if param_schema:
+                type_validator = TypeValidatorRegistry.get_validator(
+                    param_schema.type)
+                type_validation_result = type_validator.validate(value)
+                if not isinstance(type_validation_result, InvalidValueError):
+                    value = type_validation_result
 
         self._cache[fullname] = value
 
@@ -152,6 +153,9 @@ class Configuration(object):
             ConfigurationWrapper(self, [name]))
 
         param_schema = self.schema.get_parameter(name, section=section)
+
+        if not param_schema:
+            return None
 
         type_validator = TypeValidatorRegistry.get_validator(
             param_schema.type)
