@@ -149,15 +149,8 @@ class ConfigSchema:
 
 class ConfigParameterSchema:
 
-    def __init__(
-        self,
-        name,
-        type,
-        section=None,
-        description=None,
-        default=None,
-        required=False,
-            deprecation_message=None):
+    def __init__(self, name, type, section=None, description=None,
+                 default=None, required=False, deprecation_message=None):
         self.section = section
         self.name = name
         self.type = type
@@ -170,12 +163,8 @@ class ConfigParameterSchema:
         return (
             '<ConfigParameterSchema %s>' % ' '.join(
                 ['%s=%s' % (attr, getattr(self, attr))
-                    for attr in ['section',
-                                 'name',
-                                 'type',
-                                 'description',
-                                 'default',
-                                 'required']])
+                    for attr in ['section', 'name', 'type', 'description',
+                                 'default', 'required']])
         )
 
 
@@ -200,7 +189,7 @@ class SchemaIssue(Issue):
 class InvalidValueError(MarkedIssue):
 
     def __init__(self, message, mark=Mark('', 0, 0)):
-        super(InvalidValueError,self).__init__(
+        super(InvalidValueError, self).__init__(
             Issue.ERROR, 'Invalid value: ' + message, mark)
 
 
