@@ -4,8 +4,8 @@ import sys
 sys.path = sys.path[1:]
 
 import argparse
-import requests
 import json
+import requests
 
 Api_url = None
 Debug = None
@@ -14,18 +14,18 @@ Debug = None
 def arg_parse():
     p = argparse.ArgumentParser(description='Rubick cli interface')
     p.add_argument('-l', '--list-cluster',
-                   help='List cluster', default=None, action='store_true')
+                   help='List clusters', default=None, action='store_true')
     p.add_argument('-a', '--add-cluster',
-                   help='List cluster', default=None, action='store_true')
+                   help='Add cluster', default=None, action='store_true')
     p.add_argument('-v', '--verbose',
-                   help='more verbose', default=None, action='store_true')
+                   help='More verbose', default=None, action='store_true')
     p.add_argument('-i', '--id',
                    help='Specify cluster id', default=None)
 
     p.add_argument('-n', '--name',
                    help='Cluster name', default=None)
     p.add_argument('-d', '--description',
-                   help='Clustr description', default=None)
+                   help='Cluster description', default=None)
 
     p.add_argument('-H', '--host',
                    help='Entry point host in cluster', default=None)
@@ -96,7 +96,7 @@ def rubick_cluster_add(name, description, host, key):
     try:
         with open(key) as f:
             keyData = f.read()
-    except:
+    except Exception:
         return 1
 
     request_payload = {

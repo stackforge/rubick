@@ -39,6 +39,17 @@ Add new cluster by pushing the button “Add cluster” and fill the fields:
  
 After that you can select your cluster to run validations or select the rulest before validation.
 
+Rubick Command Line usage examples
+-------------
+
+```
+$ python rubick/cli.py -h
+$ python rubick/cli.py -l -v http://<host>:8000
+$ python rubick/cli.py -a -n 'New_cluster_name' -d 'New description' -H 'root@10.10.3.1:2022' -k ~/.ssh/id_rsa http://<host>:8008
+```
+
+Note: Your public key must be without passphrase.
+
 Hacking
 -------
 
