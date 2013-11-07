@@ -242,6 +242,26 @@ def find_process_by_name(client, name):
     return None
 
 
+def find_process(client, pid=None, name=None, sockets=None):
+    if pid:
+        return find(get_processes(client), lambda p: p.pid == pid)
+    elif sockets:
+        currrent_sockets = get_listen_sockets(client)
+        x = find(current_sockets.items(), lambda x: sockets[0] in x[1])
+        if not x:
+            return None
+
+        return get_process_by_pid(x[0])
+    elif name:
+        processes = get_processes(client)
+        for process in processes:
+            args = shlex.split(process.command)
+            if os.path.basename(args[0]) == name:
+                return process
+
+    return None
+
+
 def find_python_process(client, name):
     processes = get_processes(client)
     for process in processes:
@@ -363,12 +383,16 @@ def collect_component_configs(client, component,
 
 # Marker class
 class BaseDiscovery(object):
-    def seen(self, host, **data):
+    def seen(self, driver, host, **data):
         return False
 
 
 class HostDiscovery(BaseDiscovery):
     item_type = 'host'
+
+    def __init__(self):
+        super(HostDiscovery, self).__init__()
+        self._seen_items = []
 
     def discover(self, driver, host, **data):
         client = driver.client(host)
@@ -406,7 +430,7 @@ class HostDiscovery(BaseDiscovery):
                 sockets=process_sockets.get(process.pid, []))
 
         for service in ['mysql', 'rabbitmq']:
-            process = find_process_by_name(client, service)
+            process = find_process(client, name=service)
             if not process:
                 continue
 
@@ -414,13 +438,36 @@ class HostDiscovery(BaseDiscovery):
                 service, host=host, pid=process.pid,
                 sockets=process_sockets.get(process.pid, []))
 
+        self._seen_items.append(item)
+
         return item
 
-    def seen(self, host, **data):
-        return False
+    def seen(self, driver, host, **data):
+        item = find(self._seen_items, lambda h: host in h.network_addresses)
+        return item is not None
 
 
-class KeystoneDiscovery(BaseDiscovery):
+class ServiceDiscovery(BaseDiscovery):
+    def __init__(self):
+        super(ServiceDiscovery, self).__init__()
+        self._seen_items = []
+
+    def seen(self, driver, host, **data):
+        if 'sockets' in data:
+            item = find(self._seen_items,
+                        lambda s: sockets == s.listen_sockets)
+        elif 'port' in data:
+            item = find(self._seen_items,
+                        lambda s: (host, data['port']) in s.listen_sockets)
+        else:
+            client = driver.client(host)
+            host_id = client.get_host_id()
+            item = find(self._seen_items, lambda s: host_id == s.host_id)
+
+        return item is not None
+
+
+class KeystoneDiscovery(ServiceDiscovery):
     item_type = 'keystone'
 
     def discover(self, driver, host, **data):
@@ -432,8 +479,9 @@ class KeystoneDiscovery(BaseDiscovery):
 
         keystone = KeystoneComponent()
         keystone.host_id = get_host_id(client)
-        keystone.version = find_python_package_version(
-            client, 'keystone')
+        keystone.listen_sockets = get_process_listen_sockets(client,
+                                                             process.pid)
+        keystone.version = find_python_package_version(client, 'keystone')
         keystone.config_files = []
 
         collect_component_configs(
@@ -451,15 +499,17 @@ class KeystoneDiscovery(BaseDiscovery):
             'OS_SERVICE_ENDPOINT': 'http://%s:%d/v2.0' % (host, port)
         }
 
+        def db(command):
+            return self._get_keystone_db_data(client, command,
+                                              env=keystone_env)
+
         keystone.db = dict()
-        keystone.db['tenants'] = self._get_keystone_db_data(
-            client, 'tenant-list', env=keystone_env)
-        keystone.db['users'] = self._get_keystone_db_data(
-            client, 'user-list', env=keystone_env)
-        keystone.db['services'] = self._get_keystone_db_data(
-            client, 'service-list', env=keystone_env)
-        keystone.db['endpoints'] = self._get_keystone_db_data(
-            client, 'endpoint-list', env=keystone_env)
+        keystone.db['tenants'] = db('tenant-list')
+        keystone.db['users'] = db('user-list')
+        keystone.db['services'] = db('service-list')
+        keystone.db['endpoints'] = db('endpoint-list')
+
+        self._seen_items.append(keystone)
 
         return keystone
 
@@ -497,7 +547,7 @@ class KeystoneDiscovery(BaseDiscovery):
         return data
 
 
-class NovaApiDiscovery(BaseDiscovery):
+class NovaApiDiscovery(ServiceDiscovery):
     item_type = 'nova-api'
 
     def discover(self, driver, host, **data):
@@ -509,6 +559,8 @@ class NovaApiDiscovery(BaseDiscovery):
 
         nova_api = NovaApiComponent()
         nova_api.host_id = get_host_id(client)
+        nova_api.listen_sockets = get_process_listen_sockets(client,
+                                                             process.pid)
         nova_api.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
@@ -524,10 +576,12 @@ class NovaApiDiscovery(BaseDiscovery):
         nova_api.paste_config_file = collect_file(
             client, paste_config_path)
 
+        self._seen_items.append(nova_api)
+
         return nova_api
 
 
-class NovaComputeDiscovery(BaseDiscovery):
+class NovaComputeDiscovery(ServiceDiscovery):
     item_type = 'nova-compute'
 
     def discover(self, driver, host, **data):
@@ -539,16 +593,20 @@ class NovaComputeDiscovery(BaseDiscovery):
 
         nova_compute = NovaComputeComponent()
         nova_compute.host_id = get_host_id(client)
+        nova_compute.listen_sockets = get_process_listen_sockets(client,
+                                                                 process.pid)
         nova_compute.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
             client, nova_compute, process.command,
             default_config='/etc/nova/nova.conf')
 
+        self._seen_items.append(nova_compute)
+
         return nova_compute
 
 
-class NovaSchedulerDiscovery(BaseDiscovery):
+class NovaSchedulerDiscovery(ServiceDiscovery):
     item_type = 'nova-scheduler'
 
     def discover(self, driver, host, **data):
@@ -560,16 +618,20 @@ class NovaSchedulerDiscovery(BaseDiscovery):
 
         nova_scheduler = NovaSchedulerComponent()
         nova_scheduler.host_id = get_host_id(client)
+        nova_scheduler.listen_sockets = get_process_listen_sockets(client,
+                                                                   process.pid)
         nova_scheduler.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
             client, nova_scheduler, process.command,
             default_config='/etc/nova/nova.conf')
 
+        self._seen_items.append(nova_scheduler)
+
         return nova_scheduler
 
 
-class GlanceApiDiscovery(BaseDiscovery):
+class GlanceApiDiscovery(ServiceDiscovery):
     item_type = 'glance-api'
 
     def discover(self, driver, host, **data):
@@ -581,16 +643,20 @@ class GlanceApiDiscovery(BaseDiscovery):
 
         glance_api = GlanceApiComponent()
         glance_api.host_id = get_host_id(client)
+        glance_api.listen_sockets = get_process_listen_sockets(client,
+                                                               process.pid)
         glance_api.version = find_python_package_version(client, 'glance')
 
         collect_component_configs(
             client, glance_api, process.command,
             default_config='/etc/glance/glance.conf')
 
+        self._seen_items.append(glance_api)
+
         return glance_api
 
 
-class GlanceRegistryDiscovery(BaseDiscovery):
+class GlanceRegistryDiscovery(ServiceDiscovery):
     item_type = 'glance-registry'
 
     def discover(self, driver, host, **data):
@@ -602,16 +668,20 @@ class GlanceRegistryDiscovery(BaseDiscovery):
 
         glance_registry = GlanceRegistryComponent()
         glance_registry.host_id = get_host_id(client)
+        glance_registry.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         glance_registry.version = find_python_package_version(client, 'glance')
 
         collect_component_configs(
             client, glance_registry, process.command,
             default_config='/etc/glance/glance.conf')
 
+        self._seen_items.append(glance_registry)
+
         return glance_registry
 
 
-class CinderApiDiscovery(BaseDiscovery):
+class CinderApiDiscovery(ServiceDiscovery):
     item_type = 'cinder-api'
 
     def discover(self, driver, host, **data):
@@ -623,6 +693,8 @@ class CinderApiDiscovery(BaseDiscovery):
 
         cinder_api = CinderApiComponent()
         cinder_api.host_id = get_host_id(client)
+        cinder_api.listen_sockets = get_process_listen_sockets(client,
+                                                               process.pid)
         cinder_api.version = find_python_package_version(client, 'cinder')
 
         collect_component_configs(
@@ -638,10 +710,12 @@ class CinderApiDiscovery(BaseDiscovery):
         cinder_api.paste_config_file = collect_file(
             client, paste_config_path)
 
+        self._seen_items.append(cinder_api)
+
         return cinder_api
 
 
-class CinderVolumeDiscovery(BaseDiscovery):
+class CinderVolumeDiscovery(ServiceDiscovery):
     item_type = 'cinder-volume'
 
     def discover(self, driver, host, **data):
@@ -653,6 +727,8 @@ class CinderVolumeDiscovery(BaseDiscovery):
 
         cinder_volume = CinderVolumeComponent()
         cinder_volume.host_id = get_host_id(client)
+        cinder_volume.listen_sockets = get_process_listen_sockets(client,
+                                                                  process.pid)
         cinder_volume.version = find_python_package_version(client, 'cinder')
 
         collect_component_configs(
@@ -668,10 +744,12 @@ class CinderVolumeDiscovery(BaseDiscovery):
         cinder_volume.rootwrap_config = collect_file(
             client, rootwrap_config_path)
 
+        self._seen_items.append(cinder_volume)
+
         return cinder_volume
 
 
-class CinderSchedulerDiscovery(BaseDiscovery):
+class CinderSchedulerDiscovery(ServiceDiscovery):
     item_type = 'cinder-scheduler'
 
     def discover(self, driver, host, **data):
@@ -683,6 +761,8 @@ class CinderSchedulerDiscovery(BaseDiscovery):
 
         cinder_scheduler = CinderSchedulerComponent()
         cinder_scheduler.host_id = get_host_id(client)
+        cinder_scheduler.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         cinder_scheduler.version = find_python_package_version(client,
                                                                'cinder')
 
@@ -690,16 +770,18 @@ class CinderSchedulerDiscovery(BaseDiscovery):
             client, cinder_scheduler, process.command,
             default_config='/etc/cinder/cinder.conf')
 
+        self._seen_items.append(cinder_scheduler)
+
         return cinder_scheduler
 
 
-class MysqlDiscovery(BaseDiscovery):
+class MysqlDiscovery(ServiceDiscovery):
     item_type = 'mysql'
 
     def discover(self, driver, host, **data):
         client = driver.client(host)
 
-        process = find_process_by_name(client, 'mysqld')
+        process = find_process(client, name='mysqld')
         if not process:
             return None
 
@@ -707,6 +789,7 @@ class MysqlDiscovery(BaseDiscovery):
 
         mysql = MysqlComponent()
         mysql.host_id = get_host_id(client)
+        mysql.listen_sockets = get_process_listen_sockets(client, process.pid)
 
         version_result = client.run(['mysqld', '--version'])
         m = mysqld_version_re.match(version_result.output)
@@ -724,18 +807,20 @@ class MysqlDiscovery(BaseDiscovery):
             if f:
                 mysql.config_files.append(f)
 
+        self._seen_items.append(mysql)
+
         return mysql
 
 
-class RabbitmqDiscovery(BaseDiscovery):
+class RabbitmqDiscovery(ServiceDiscovery):
     item_type = 'rabbitmq'
 
     def discover(self, driver, host, **data):
         client = driver.client(host)
 
-        process = find_process_by_name(client, 'beam.smp')
+        process = find_process(client, name='beam.smp')
         if not process:
-            process = find_process_by_name(client, 'beam')
+            process = find_process(client, name='beam')
             if not process:
                 return None
 
@@ -744,6 +829,8 @@ class RabbitmqDiscovery(BaseDiscovery):
 
         rabbitmq = RabbitMqComponent()
         rabbitmq.host_id = get_host_id(client)
+        rabbitmq.listen_sockets = get_process_listen_sockets(client,
+                                                             process.pid)
         rabbitmq.version = 'unknown'
 
         env_file = '/etc/rabbitmq/rabbitmq-env.conf'
@@ -765,10 +852,12 @@ class RabbitmqDiscovery(BaseDiscovery):
             if s == '-rabbit' and i + 2 <= len(args):
                 rabbitmq.config.set_cli(args[i + 1], args[i + 2])
 
+        self._seen_items.append(rabbitmq)
+
         return rabbitmq
 
 
-class SwiftProxyServerDiscovery(BaseDiscovery):
+class SwiftProxyServerDiscovery(ServiceDiscovery):
     item_type = 'swift-proxy-server'
 
     def discover(self, driver, host, **data):
@@ -780,6 +869,8 @@ class SwiftProxyServerDiscovery(BaseDiscovery):
 
         swift_proxy_server = SwiftProxyServerComponent()
         swift_proxy_server.host_id = get_host_id(client)
+        swift_proxy_server.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         swift_proxy_server.version = find_python_package_version(client,
                                                                  'swift')
 
@@ -787,10 +878,12 @@ class SwiftProxyServerDiscovery(BaseDiscovery):
             client, swift_proxy_server, process.command,
             default_config='/etc/swift/proxy-server.conf')
 
+        self._seen_items.append(swift_proxy_server)
+
         return swift_proxy_server
 
 
-class SwiftContainerServerDiscovery(BaseDiscovery):
+class SwiftContainerServerDiscovery(ServiceDiscovery):
     item_type = 'swift-container-server'
 
     def discover(self, driver, host, **data):
@@ -802,6 +895,8 @@ class SwiftContainerServerDiscovery(BaseDiscovery):
 
         swift_container_server = SwiftContainerServerComponent()
         swift_container_server.host_id = get_host_id(client)
+        swift_container_server.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         swift_container_server.version = find_python_package_version(client,
                                                                      'swift')
 
@@ -809,10 +904,12 @@ class SwiftContainerServerDiscovery(BaseDiscovery):
             client, swift_container_server, process.command,
             default_config='/etc/swift/container-server/1.conf')
 
+        self._seen_items.append(swift_container_server)
+
         return swift_container_server
 
 
-class SwiftAccountServerDiscovery(BaseDiscovery):
+class SwiftAccountServerDiscovery(ServiceDiscovery):
     item_type = 'swift-account-server'
 
     def discover(self, driver, host, **data):
@@ -824,6 +921,8 @@ class SwiftAccountServerDiscovery(BaseDiscovery):
 
         swift_account_server = SwiftAccountServerComponent()
         swift_account_server.host_id = get_host_id(client)
+        swift_account_server.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         swift_account_server.version = find_python_package_version(client,
                                                                    'swift')
 
@@ -831,10 +930,12 @@ class SwiftAccountServerDiscovery(BaseDiscovery):
             client, swift_account_server, process.command,
             default_config='/etc/swift/account-server/1.conf')
 
+        self._seen_items.append(swift_account_server)
+
         return swift_account_server
 
 
-class SwiftObjectServerDiscovery(BaseDiscovery):
+class SwiftObjectServerDiscovery(ServiceDiscovery):
     item_type = 'swift-object-server'
 
     def discover(self, driver, host, **data):
@@ -846,6 +947,8 @@ class SwiftObjectServerDiscovery(BaseDiscovery):
 
         swift_object_server = SwiftObjectServerComponent()
         swift_object_server.host_id = get_host_id(client)
+        swift_object_server.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         swift_object_server.version = find_python_package_version(client,
                                                                   'swift')
 
@@ -853,10 +956,12 @@ class SwiftObjectServerDiscovery(BaseDiscovery):
             client, swift_object_server, process.command,
             default_config='/etc/swift/object-server/1.conf')
 
+        self._seen_items.append(swift_object_server)
+
         return swift_object_server
 
 
-class NeutronServerDiscovery(BaseDiscovery):
+class NeutronServerDiscovery(ServiceDiscovery):
     item_type = 'neutron-server'
 
     def discover(self, driver, host, **data):
@@ -868,16 +973,20 @@ class NeutronServerDiscovery(BaseDiscovery):
 
         neutron_server = NeutronServerComponent()
         neutron_server.host_id = get_host_id(client)
+        neutron_server.listen_sockets = get_process_listen_sockets(client,
+                                                                   process.pid)
         neutron_server.version = find_python_package_version(client, 'neutron')
 
         collect_component_configs(
             client, neutron_server, process.command,
             default_config='/etc/neutron/neutron.conf')
 
+        self._seen_items.append(neutron_server)
+
         return neutron_server
 
 
-class NeutronDhcpAgentDiscovery(BaseDiscovery):
+class NeutronDhcpAgentDiscovery(ServiceDiscovery):
     item_type = 'neutron-dhcp-agent'
 
     def discover(self, driver, host, **data):
@@ -889,6 +998,8 @@ class NeutronDhcpAgentDiscovery(BaseDiscovery):
 
         neutron_dhcp_agent = NeutronDhcpAgentComponent()
         neutron_dhcp_agent.host_id = get_host_id(client)
+        neutron_dhcp_agent.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         neutron_dhcp_agent.version = find_python_package_version(client,
                                                                  'neutron')
 
@@ -896,10 +1007,12 @@ class NeutronDhcpAgentDiscovery(BaseDiscovery):
             client, neutron_dhcp_agent, process.command,
             default_config='/etc/neutron/dhcp_agent.ini')
 
+        self._seen_items.append(neutron_dhcp_agent)
+
         return neutron_dhcp_agent
 
 
-class NeutronL3AgentDiscovery(BaseDiscovery):
+class NeutronL3AgentDiscovery(ServiceDiscovery):
     item_type = 'neutron-l3-agent'
 
     def discover(self, driver, host, **data):
@@ -911,6 +1024,8 @@ class NeutronL3AgentDiscovery(BaseDiscovery):
 
         neutron_l3_agent = NeutronL3AgentComponent()
         neutron_l3_agent.host_id = get_host_id(client)
+        neutron_l3_agent.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         neutron_l3_agent.version = find_python_package_version(client,
                                                                'neutron')
 
@@ -918,10 +1033,12 @@ class NeutronL3AgentDiscovery(BaseDiscovery):
             client, neutron_l3_agent, process.command,
             default_config='/etc/neutron/l3_agent.ini')
 
+        self._seen_items.append(neutron_l3_agent)
+
         return neutron_l3_agent
 
 
-class NeutronMetadataAgentDiscovery(BaseDiscovery):
+class NeutronMetadataAgentDiscovery(ServiceDiscovery):
     item_type = 'neutron-metadata-agent'
 
     def discover(self, driver, host, **data):
@@ -933,6 +1050,8 @@ class NeutronMetadataAgentDiscovery(BaseDiscovery):
 
         neutron_metadata_agent = NeutronMetadataAgentComponent()
         neutron_metadata_agent.host_id = get_host_id(client)
+        neutron_metadata_agent.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         neutron_metadata_agent.version = find_python_package_version(client,
                                                                      'neutron')
 
@@ -940,10 +1059,12 @@ class NeutronMetadataAgentDiscovery(BaseDiscovery):
             client, neutron_metadata_agent, process.command,
             default_config='/etc/neutron/metadata_agent.ini')
 
+        self._seen_items.append(neutron_metadata_agent)
+
         return neutron_metadata_agent
 
 
-class NeutronOpenvswitchAgentDiscovery(BaseDiscovery):
+class NeutronOpenvswitchAgentDiscovery(ServiceDiscovery):
     item_type = 'neutron-openvswitch-agent'
 
     def discover(self, driver, host, **data):
@@ -955,12 +1076,16 @@ class NeutronOpenvswitchAgentDiscovery(BaseDiscovery):
 
         neutron_openvswitch_agent = NeutronOpenvswitchAgentComponent()
         neutron_openvswitch_agent.host_id = get_host_id(client)
+        neutron_openvswitch_agent.listen_sockets = get_process_listen_sockets(
+            client, process.pid)
         neutron_openvswitch_agent.version = find_python_package_version(
             client, 'neutron')
 
         collect_component_configs(
             client, neutron_openvswitch_agent, process.command,
             default_config='/etc/neutron/plugins/ml2/ml2_conf.ini')
+
+        self._seen_items.append(neutron_openvswitch_agent)
 
         return neutron_openvswitch_agent
 
@@ -1026,8 +1151,12 @@ class OpenstackDiscovery(object):
             self.logger.info('Processing item of type %s, host = %s' %
                              (task.type, task.host))
             if task.type in agents.keys():
-                item = agents[task.type].discover(
-                    driver, task.host, **task.data)
+                agent = agents[task.type]
+
+                if agent.seen(driver, task.host, **task.data):
+                    continue
+
+                item = agent.discover(driver, task.host, **task.data)
 
                 if item:
                     items.append(item)
