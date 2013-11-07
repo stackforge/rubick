@@ -383,16 +383,15 @@ def collect_component_configs(client, component,
 
 # Marker class
 class BaseDiscovery(object):
+    def __init__(self):
+        self._seen_items = []
+
     def seen(self, driver, host, **data):
         return False
 
 
 class HostDiscovery(BaseDiscovery):
     item_type = 'host'
-
-    def __init__(self):
-        super(HostDiscovery, self).__init__()
-        self._seen_items = []
 
     def discover(self, driver, host, **data):
         client = driver.client(host)
@@ -448,10 +447,6 @@ class HostDiscovery(BaseDiscovery):
 
 
 class ServiceDiscovery(BaseDiscovery):
-    def __init__(self):
-        super(ServiceDiscovery, self).__init__()
-        self._seen_items = []
-
     def seen(self, driver, host, **data):
         if 'sockets' in data:
             item = find(self._seen_items,
