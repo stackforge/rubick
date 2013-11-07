@@ -12,10 +12,10 @@ with keystone.version('2013.2') as keystone_2013_2:
     keystone_2013_2.param('bind_host', type='host', default='0.0.0.0',
                           description="The IP address of the network interface to listen on")
 
-    keystone_2013_2.param('public_port', type='string', default='5000',
+    keystone_2013_2.param('public_port', type='port', default=5000,
                           description="The port number which the public service listens on")
 
-    keystone_2013_2.param('admin_port', type='string', default='35357',
+    keystone_2013_2.param('admin_port', type='port', default=35357,
                           description="The port number which the public admin listens on")
 
     keystone_2013_2.param(
@@ -26,7 +26,7 @@ with keystone.version('2013.2') as keystone_2013_2:
         'admin_endpoint', type='string', default='http://localhost:%(admin_port)s/',
         description="The base endpoint URLs for keystone that are advertised to clients (NOTE: this does NOT affect how keystone listens for connections)")
 
-    keystone_2013_2.param('compute_port', type='string', default='8774',
+    keystone_2013_2.param('compute_port', type='port', default=8774,
                           description="The port number which the OpenStack Compute service listens on")
 
     keystone_2013_2.param('policy_file', type='string', default='policy.json',

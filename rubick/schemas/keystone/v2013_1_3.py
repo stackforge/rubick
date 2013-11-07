@@ -20,13 +20,13 @@ with keystone.version('2013.1.3', checkpoint=True) as keystone_2013_1_3:
     keystone_2013_1_3.param(
         'public_port',
         type='port',
-        default='5000',
+        default=5000,
         description="The port number which the public service listens on")
 
     keystone_2013_1_3.param(
         'admin_port',
         type='port',
-        default='35357',
+        default=35357,
         description="The port number which the public admin listens on")
 
     keystone_2013_1_3.param(
@@ -46,7 +46,7 @@ with keystone.version('2013.1.3', checkpoint=True) as keystone_2013_1_3:
     keystone_2013_1_3.param(
         'compute_port',
         type='port',
-        default='8774',
+        default=8774,
         description="The port number which the OpenStack Compute service "
                     "listens on")
 
