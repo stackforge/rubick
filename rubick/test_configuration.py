@@ -1,6 +1,8 @@
 import unittest
 
 from rubick.config_model import Configuration
+from rubick.schema import ConfigSchema, ConfigParameterSchema, \
+    InvalidValueError
 
 
 class ConfigurationTests(unittest.TestCase):
@@ -165,7 +167,7 @@ class ConfigurationTests(unittest.TestCase):
 
         self.assertEqual(self.value, c.get(self.fullparam))
 
-    def test_contains(self):
+    def test_section_in(self):
         c = Configuration()
 
         self.assertFalse(self.section in c)
@@ -210,3 +212,73 @@ class ConfigurationTests(unittest.TestCase):
         c.set('b', 'x')
 
         self.assertEqual('$b', c.get('a', raw=True))
+
+    def test_typed_params(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertEqual(123, c.get('param1'))
+
+    def test_typed_params_update(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertEqual(123, c.get('param1'))
+
+        c.set('param1', '456')
+
+        self.assertEqual(456, c.get('param1'))
+
+    def test_typed_param_with_invalid_value_returns_string_value(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123a')
+
+        self.assertEqual('123a', c.get('param1'))
+
+    def test_getting_typed_param_raw_value(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertEqual('123', c.get('param1', raw=True))
+
+    def test_validate_returns_none_if_value_is_valid(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', '123')
+
+        self.assertIsNone(c.validate('param1'))
+
+    def test_validate_returns_error_if_valid_is_invalid(self):
+        schema = ConfigSchema('test', '1.0', 'ini', [
+            ConfigParameterSchema('param1', type='integer', section='DEFAULT')
+        ])
+
+        c = Configuration(schema)
+
+        c.set('param1', 'abc')
+
+        self.assertTrue(isinstance(c.validate('param1'), InvalidValueError))

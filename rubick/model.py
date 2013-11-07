@@ -133,7 +133,7 @@ class OpenstackComponent(Service):
         return self._parse_config_resources(self.config_files, schema)
 
     def _parse_config_resources(self, resources, schema=None):
-        config = Configuration()
+        config = Configuration(schema)
 
         # Apply defaults
         if schema:
@@ -147,21 +147,14 @@ class OpenstackComponent(Service):
 
         for resource in reversed(resources):
             self._parse_config_file(
-                Mark(resource.path),
-                resource.contents,
-                config,
-                schema,
+                Mark(resource.path), resource.contents, config, schema,
                 issue_reporter=resource)
 
         return config
 
-    def _parse_config_file(
-        self,
-        base_mark,
-        config_contents,
-        config=Configuration(),
-        schema=None,
-            issue_reporter=None):
+    def _parse_config_file(self, base_mark, config_contents,
+                           config=Configuration(), schema=None,
+                           issue_reporter=None):
         if issue_reporter:
             def report_issue(issue):
                 issue_reporter.report_issue(issue)
@@ -250,9 +243,8 @@ class OpenstackComponent(Service):
                                     type_validation_result.message)
                             report_issue(type_validation_result)
 
-                            config.set(
-                                parameter_fullname,
-                                parameter.value.text)
+                            config.set(parameter_fullname,
+                                       parameter.value.text)
                         else:
                             value = type_validation_result
 
@@ -281,16 +273,6 @@ class OpenstackComponent(Service):
 class KeystoneComponent(OpenstackComponent):
     component = 'keystone'
     name = 'keystone'
-
-
-class GlanceApiComponent(OpenstackComponent):
-    component = 'glance_api'
-    name = 'glance-api'
-
-
-class GlanceRegistryComponent(OpenstackComponent):
-    component = 'glance_registry'
-    name = 'glance-registry'
 
 
 class NovaApiComponent(OpenstackComponent):

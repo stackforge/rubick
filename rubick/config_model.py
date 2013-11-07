@@ -1,5 +1,7 @@
 import string
 
+from rubick.schema import TypeValidatorRegistry, InvalidValueError
+
 
 class ConfigurationSection(object):
 
@@ -74,12 +76,14 @@ class ConfigurationWrapper(object):
 
 class Configuration(object):
 
-    def __init__(self):
+    def __init__(self, schema=None):
         super(Configuration, self).__init__()
         self._defaults = dict()
         self._normal = dict()
         self._cli = dict()
         self._env = dict()
+        self._cache = dict()
+        self.schema = schema
 
     def _normalize_name(self, name):
         if name.find('.') == -1:
@@ -95,8 +99,11 @@ class Configuration(object):
 
         return '%s.%s' % (section, param)
 
-    def get(self, name, default=None, raw=False, _state=[]):
-        section, name = self._normalize_name(name)
+    def get(self, fullname, default=None, raw=False, _state=[]):
+        if not raw and fullname in self._cache:
+            return self._cache[fullname]
+
+        section, name = self._normalize_name(fullname)
 
         if section in self._cli and name in self._cli[section]:
             value = self._cli[section][name]
@@ -116,9 +123,43 @@ class Configuration(object):
             return value
 
         tmpl = string.Template(value)
-        return (
-            tmpl.safe_substitute(ConfigurationWrapper(self, _state + [name]))
-        )
+        value = tmpl.safe_substitute(
+            ConfigurationWrapper(self, _state + [name]))
+
+        if self.schema:
+            param_schema = self.schema.get_parameter(name, section=section)
+
+            type_validator = TypeValidatorRegistry.get_validator(
+                param_schema.type)
+            type_validation_result = type_validator.validate(value)
+            if not isinstance(type_validation_result, InvalidValueError):
+                value = type_validation_result
+
+        self._cache[fullname] = value
+
+        return value
+
+    def validate(self, fullname):
+        if not self.schema:
+            return None
+
+        section, name = self._normalize_name(fullname)
+
+        value = self.get(fullname, raw=True)
+
+        tmpl = string.Template(value)
+        value = tmpl.safe_substitute(
+            ConfigurationWrapper(self, [name]))
+
+        param_schema = self.schema.get_parameter(name, section=section)
+
+        type_validator = TypeValidatorRegistry.get_validator(
+            param_schema.type)
+        type_validation_result = type_validator.validate(value)
+        if not isinstance(type_validation_result, InvalidValueError):
+            return None
+
+        return type_validation_result
 
     def contains(self, name, ignoreDefault=False):
         section, name = self._normalize_name(name)
@@ -148,25 +189,39 @@ class Configuration(object):
             (section in self._defaults and name in self._defaults[section])
         )
 
-    def set_env(self, name, value):
-        section, name = self._normalize_name(name)
+    def set_env(self, fullname, value):
+        section, name = self._normalize_name(fullname)
 
         self._env.setdefault(section, {})[name] = value
 
-    def set_cli(self, name, value):
-        section, name = self._normalize_name(name)
+        self._invalidate_cache(fullname)
+
+    def set_cli(self, fullname, value):
+        section, name = self._normalize_name(fullname)
 
         self._cli.setdefault(section, {})[name] = value
 
-    def set_default(self, name, value):
-        section, name = self._normalize_name(name)
+        self._invalidate_cache(fullname)
+
+    def set_default(self, fullname, value):
+        section, name = self._normalize_name(fullname)
 
         self._defaults.setdefault(section, {})[name] = value
 
-    def set(self, name, value):
-        section, name = self._normalize_name(name)
+        self._invalidate_cache(fullname)
+
+    def set(self, fullname, value):
+        section, name = self._normalize_name(fullname)
 
         self._normal.setdefault(section, {})[name] = value
+
+        self._invalidate_cache(fullname)
+
+    def _invalidate_cache(self, fullname):
+        # We need to invalidate not only value of given parameter
+        # but also values that depend on that parameter
+        # Since this is hard, we'll just invalidate all cached values
+        self._cache = dict()
 
     def section(self, section):
         return ConfigurationSection(self, section)
