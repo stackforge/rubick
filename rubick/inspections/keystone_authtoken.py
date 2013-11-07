@@ -47,7 +47,7 @@ class KeystoneAuthtokenSettingsInspection(Inspection):
                 )
 
             auth_host = get_value('auth_host')
-            auth_port = get_value('auth_port')
+            auth_port = int(get_value('auth_port'))
             auth_protocol = get_value('auth_protocol')
             admin_user = get_value('admin_user')
             # admin_password = get_value('admin_password')
