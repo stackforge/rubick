@@ -987,7 +987,7 @@ class NeutronDhcpAgentDiscovery(ServiceDiscovery):
     def discover(self, driver, host, **data):
         client = driver.client(host)
 
-        process = self._find_python_process(client, 'neutron-dhcp-agent')
+        process = find_python_process(client, 'neutron-dhcp-agent')
         if not process:
             return None
 
