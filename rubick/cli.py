@@ -96,7 +96,7 @@ def rubick_cluster_add(name, description, host, key):
     try:
         with open(key) as f:
             keyData = f.read()
-    except Exception:
+    except IOError:
         return 1
 
     request_payload = {
