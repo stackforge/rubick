@@ -1,0 +1,2888 @@
+project: nova
+version: '2013.1.4'
+parameters:
+
+  - name: internal_service_availability_zone
+    type: string
+    default: 'internal'
+    help: 'availability_zone to show internal services under'
+
+  - name: default_availability_zone
+    type: string
+    default: 'nova'
+    help: 'default compute node availability_zone'
+
+  - name: ca_file
+    type: string
+    default: 'cacert.pem'
+    help: 'Filename of root CA'
+
+  - name: key_file
+    type: string
+    default: 'private/cakey.pem'
+    help: 'Filename of private key'
+
+  - name: crl_file
+    type: string
+    default: 'crl.pem'
+    help: 'Filename of root Certificate Revocation List'
+
+  - name: keys_path
+    type: string
+    default: '$state_path/keys'
+    help: 'Where we keep our keys'
+
+  - name: ca_path
+    type: string
+    default: '$state_path/CA'
+    help: 'Where we keep our root CA'
+
+  - name: use_project_ca
+    type: boolean
+    default: False
+    help: 'Should we use a CA for each project?'
+
+  - name: user_cert_subject
+    type: string
+    default: '/CUS/STCalifornia/OOpenStack/OUNovaDev/CN%.16s-%.16s-%s'
+    help: 'Subject for certificate for users, %s for project, user, timestamp'
+
+  - name: project_cert_subject
+    type: string
+    default: '/CUS/STCalifornia/OOpenStack/OUNovaDev/CNproject-ca-%.16s-%s'
+    help: 'Subject for certificate for projects, %s for project, timestamp'
+
+  - name: fatal_exception_format_errors
+    type: boolean
+    default: False
+    help: 'make exception message format errors fatal'
+
+  - name: run_external_periodic_tasks
+    type: boolean
+    default: True
+    help: 'Some periodic tasks can be run in a separate process. Should we run them here?'
+
+  - name: my_ip
+    type: string
+    default: '10.0.0.1'
+    help: 'ip address of this host'
+
+  - name: host
+    type: string
+    default: 'nova'
+    help: 'Name of this node.  This can be an opaque identifier.  It is not necessarily a hostname, FQDN, or IP address. However, the node name must be valid within an AMQP key, and if using ZeroMQ, a valid hostname, FQDN, or IP address'
+
+  - name: use_ipv6
+    type: boolean
+    default: False
+    help: 'use ipv6'
+
+  - name: notify_on_any_change
+    type: boolean
+    default: False
+    help: 'If set, send compute.instance.update notifications on instance state changes.  Valid values are False for no notifications, True for notifications on any instance changes.'
+
+  - name: notify_api_faults
+    type: boolean
+    default: False
+    help: 'If set, send api.fault notifications on caught exceptions in the API service.'
+
+  - name: notify_on_state_change
+    type: string
+    default: None
+    help: "If set, send compute.instance.update notifications on instance state changes.  Valid values are None for no notifications, 'vm_state' for notifications on VM state changes, or 'vm_and_task_state' for notifications on VM and task state changes."
+
+  - name: pybasedir
+    type: string
+    default: '/usr/lib/python/site-packages'
+    help: 'Directory where the nova python module is installed'
+
+  - name: bindir
+    type: string
+    default: '$pybasedir/bin'
+    help: 'Directory where nova binaries are installed'
+
+  - name: state_path
+    type: string
+    default: '$pybasedir'
+    help: "Top-level directory for maintaining nova's state"
+
+  - name: policy_file
+    type: string
+    default: 'policy.json'
+    help: 'JSON file representing policy'
+
+  - name: policy_default_rule
+    type: string
+    default: 'default'
+    help: 'Rule checked when requested rule is not found'
+
+  - name: quota_instances
+    type: integer
+    default: 10
+    help: 'number of instances allowed per project'
+
+  - name: quota_cores
+    type: integer
+    default: 20
+    help: 'number of instance cores allowed per project'
+
+  - name: quota_ram
+    type: integer
+    default: 51200
+    help: 'megabytes of instance ram allowed per project'
+
+  - name: quota_floating_ips
+    type: integer
+    default: 10
+    help: 'number of floating ips allowed per project'
+
+  - name: quota_metadata_items
+    type: integer
+    default: 128
+    help: 'number of metadata items allowed per instance'
+
+  - name: quota_injected_files
+    type: integer
+    default: 5
+    help: 'number of injected files allowed'
+
+  - name: quota_injected_file_content_bytes
+    type: integer
+    default: 10240
+    help: 'number of bytes allowed per injected file'
+
+  - name: quota_injected_file_path_bytes
+    type: integer
+    default: 255
+    help: 'number of bytes allowed per injected file path'
+
+  - name: quota_security_groups
+    type: integer
+    default: 10
+    help: 'number of security groups per project'
+
+  - name: quota_security_group_rules
+    type: integer
+    default: 20
+    help: 'number of security rules per security group'
+
+  - name: quota_key_pairs
+    type: integer
+    default: 100
+    help: 'number of key pairs per user'
+
+  - name: reservation_expire
+    type: integer
+    default: 86400
+    help: 'number of seconds until a reservation expires'
+
+  - name: until_refresh
+    type: integer
+    default: 0
+    help: 'count of reservations until usage is refreshed'
+
+  - name: max_age
+    type: integer
+    default: 0
+    help: 'number of seconds between subsequent usage refreshes'
+
+  - name: quota_driver
+    type: string
+    default: 'nova.quota.DbQuotaDriver'
+    help: 'default driver to use for quota checks'
+
+  - name: report_interval
+    type: integer
+    default: 10
+    help: 'seconds between nodes reporting state to datastore'
+
+  - name: periodic_enable
+    type: boolean
+    default: True
+    help: 'enable periodic tasks'
+
+  - name: periodic_fuzzy_delay
+    type: integer
+    default: 60
+    help: 'range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding.'
+
+  - name: enabled_apis
+    type: list
+    default: ['ec2', 'osapi_compute', 'metadata']
+    help: 'a list of APIs to enable by default'
+
+  - name: enabled_ssl_apis
+    type: list
+    default: []
+    help: 'a list of APIs with enabled SSL'
+
+  - name: ec2_listen
+    type: string
+    default: '0.0.0.0'
+    help: 'IP address for EC2 API to listen'
+
+  - name: ec2_listen_port
+    type: port
+    default: 8773
+    help: 'port for ec2 api to listen'
+
+  - name: ec2_workers
+    type: integer
+    default: None
+    help: 'Number of workers for EC2 API service'
+
+  - name: osapi_compute_listen
+    type: string
+    default: '0.0.0.0'
+    help: 'IP address for OpenStack API to listen'
+
+  - name: osapi_compute_listen_port
+    type: port
+    default: 8774
+    help: 'list port for osapi compute'
+
+  - name: osapi_compute_workers
+    type: integer
+    default: None
+    help: 'Number of workers for OpenStack API service'
+
+  - name: metadata_manager
+    type: string
+    default: 'nova.api.manager.MetadataManager'
+    help: 'OpenStack metadata service manager'
+
+  - name: metadata_listen
+    type: string
+    default: '0.0.0.0'
+    help: 'IP address for metadata api to listen'
+
+  - name: metadata_listen_port
+    type: port
+    default: 8775
+    help: 'port for metadata api to listen'
+
+  - name: metadata_workers
+    type: integer
+    default: None
+    help: 'Number of workers for metadata service'
+
+  - name: compute_manager
+    type: string
+    default: 'nova.compute.manager.ComputeManager'
+    help: 'full class name for the Manager for compute'
+
+  - name: console_manager
+    type: string
+    default: 'nova.console.manager.ConsoleProxyManager'
+    help: 'full class name for the Manager for console proxy'
+
+  - name: cert_manager
+    type: string
+    default: 'nova.cert.manager.CertManager'
+    help: 'full class name for the Manager for cert'
+
+  - name: network_manager
+    type: string
+    default: 'nova.network.manager.VlanManager'
+    help: 'full class name for the Manager for network'
+
+  - name: scheduler_manager
+    type: string
+    default: 'nova.scheduler.manager.SchedulerManager'
+    help: 'full class name for the Manager for scheduler'
+
+  - name: service_down_time
+    type: integer
+    default: 60
+    help: 'maximum time since last check-in for up service'
+
+  - name: sqlite_clean_db
+    type: string
+    default: 'clean.sqlite'
+    help: 'File name of clean sqlite db'
+
+  - name: monkey_patch
+    type: boolean
+    default: False
+    help: 'Whether to log monkey patching'
+
+  - name: monkey_patch_modules
+    type: list
+    default: ['nova.api.ec2.cloud:nova.openstack.common.notifier.api.notify_decorator', 'nova.compute.api:nova.openstack.common.notifier.api.notify_decorator']
+    help: 'List of modules/decorators to monkey patch'
+
+  - name: password_length
+    type: integer
+    default: 12
+    help: 'Length of generated instance admin passwords'
+
+  - name: disable_process_locking
+    type: boolean
+    default: False
+    help: 'Whether to disable inter-process locks'
+
+  - name: instance_usage_audit_period
+    type: string
+    default: 'month'
+    help: 'time period to generate instance usages for.  Time period must be hour, day, month or year'
+
+  - name: rootwrap_config
+    type: string
+    default: '/etc/nova/rootwrap.conf'
+    help: 'Path to the rootwrap configuration file to use for running commands as root'
+
+  - name: tempdir
+    type: string
+    default: None
+    help: 'Explicitly specify the temporary working directory'
+
+  - name: api_paste_config
+    type: string
+    default: 'api-paste.ini'
+    help: 'File name for the paste.deploy config for nova-api'
+
+  - name: wsgi_log_format
+    type: string
+    default: '%(client_ip)s "%(request_line)s" status: %(status_code)s len: %(body_length)s time: %(wall_seconds).7f'
+    help: 'A python format string that is used as the template to generate log lines. The following values can be formatted into it: client_ip, date_time, request_line, status_code, body_length, wall_seconds.'
+
+  - name: ssl_ca_file
+    type: string
+    default: None
+    help: 'CA certificate file to use to verify connecting clients'
+
+  - name: ssl_cert_file
+    type: string
+    default: None
+    help: 'SSL certificate of API server'
+
+  - name: ssl_key_file
+    type: string
+    default: None
+    help: 'SSL private key of API server'
+
+  - name: tcp_keepidle
+    type: integer
+    default: 600
+    help: 'Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X.'
+
+  - name: api_rate_limit
+    type: boolean
+    default: True
+    help: 'whether to rate limit the api'
+
+  - name: auth_strategy
+    type: string
+    default: 'noauth'
+    help: 'The strategy to use for auth: noauth or keystone.'
+
+  - name: use_forwarded_for
+    type: boolean
+    default: False
+    help: 'Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy.'
+
+  - name: lockout_attempts
+    type: integer
+    default: 5
+    help: 'Number of failed auths before lockout.'
+
+  - name: lockout_minutes
+    type: integer
+    default: 15
+    help: 'Number of minutes to lockout if triggered.'
+
+  - name: lockout_window
+    type: integer
+    default: 15
+    help: 'Number of minutes for lockout window.'
+
+  - name: keystone_ec2_url
+    type: string
+    default: 'http://localhost:5000/v2.0/ec2tokens'
+    help: 'URL to get token from ec2 request.'
+
+  - name: ec2_private_dns_show_ip
+    type: boolean
+    default: False
+    help: 'Return the IP address as private dns hostname in describe instances'
+
+  - name: ec2_strict_validation
+    type: boolean
+    default: True
+    help: 'Validate security group names according to EC2 specification'
+
+  - name: ec2_timestamp_expiry
+    type: integer
+    default: 300
+    help: 'Time in seconds before ec2 timestamp expires'
+
+  - name: ec2_host
+    type: host
+    default: '$my_ip'
+    help: 'the ip of the ec2 api server'
+
+  - name: ec2_dmz_host
+    type: host
+    default: '$my_ip'
+    help: 'the internal ip of the ec2 api server'
+
+  - name: ec2_port
+    type: port
+    default: 8773
+    help: 'the port of the ec2 api server'
+
+  - name: ec2_scheme
+    type: string
+    default: 'http'
+    help: 'the protocol to use when connecting to the ec2 api server'
+
+  - name: ec2_path
+    type: string
+    default: '/services/Cloud'
+    help: 'the path prefix used to call the ec2 api server'
+
+  - name: region_list
+    type: list
+    default: []
+    help: 'list of region=fqdn pairs separated by commas'
+
+  - name: config_drive_skip_versions
+    type: string
+    default: '1.0 2007-01-19 2007-03-01 2007-08-29 2007-10-10 2007-12-15 2008-02-01 2008-09-01'
+    help: 'List of metadata versions to skip placing into the config drive'
+
+  - name: service_quantum_metadata_proxy
+    type: boolean
+    default: False
+    help: 'Set flag to indicate Quantum will proxy metadata requests and resolve instance ids.'
+
+  - name: quantum_metadata_proxy_shared_secret
+    type: string
+    default: ''
+    help: 'Shared secret to validate proxies Quantum metadata requests'
+
+  - name: osapi_max_limit
+    type: integer
+    default: 1000
+    help: 'the maximum number of items returned in a single response from a collection resource'
+
+  - name: osapi_compute_link_prefix
+    type: string
+    default: None
+    help: 'Base URL that will be presented to users in links to the OpenStack Compute API'
+
+  - name: osapi_glance_link_prefix
+    type: string
+    default: None
+    help: 'Base URL that will be presented to users in links to glance resources'
+
+  - name: allow_instance_snapshots
+    type: boolean
+    default: True
+    help: 'Permit instance snapshot operations.'
+
+  - name: osapi_compute_ext_list
+    type: list
+    default: []
+    help: 'Specify list of extensions to load when using osapi_compute_extension option with nova.api.openstack.compute.contrib.select_extensions'
+
+  - name: fping_path
+    type: string
+    default: '/usr/sbin/fping'
+    help: 'Full path to fping.'
+
+  - name: osapi_hide_server_address_states
+    type: list
+    default: ['building']
+    help: 'List of instance states that should hide network info'
+
+  - name: enable_network_quota
+    type: boolean
+    default: False
+    help: 'Enables or disables quotaing of tenant networks'
+
+  - name: use_quantum_default_nets
+    type: boolean
+    default: False
+    help: 'Control for checking for default networks'
+
+  - name: quantum_default_tenant_id
+    type: string
+    default: 'default'
+    help: 'Default tenant id when creating quantum networks'
+
+  - name: osapi_compute_extension
+    type: multi
+    default: 'nova.api.openstack.compute.contrib.standard_extensions'
+    help: 'osapi compute extension to load'
+
+  - name: enable_instance_password
+    type: boolean
+    default: True
+    help: 'Allows use of instance password during server creation'
+
+  - name: osapi_max_request_body_size
+    type: integer
+    default: 114688
+    help: 'the maximum body size per each osapi request(bytes)'
+
+  - name: cert_topic
+    type: string
+    default: 'cert'
+    help: 'the topic cert nodes listen on'
+
+  - name: vpn_image_id
+    type: string
+    default: '0'
+    help: 'image id used when starting up a cloudpipe vpn server'
+
+  - name: vpn_instance_type
+    type: string
+    default: 'm1.tiny'
+    help: 'Instance type for vpn instances'
+
+  - name: boot_script_template
+    type: string
+    default: '$pybasedir/nova/cloudpipe/bootscript.template'
+    help: 'Template for cloudpipe instance boot script'
+
+  - name: dmz_net
+    type: network
+    default: '10.0.0.0'
+    help: 'Network to push into openvpn config'
+
+  - name: dmz_mask
+    type: network_mask
+    default: '255.255.255.0'
+    help: 'Netmask to push into openvpn config'
+
+  - name: vpn_key_suffix
+    type: string
+    default: '-vpn'
+    help: 'Suffix to add to project name for vpn key and secgroups'
+
+  - name: memcached_servers
+    type: list
+    default: None
+    help: 'Memcached servers or None for in process cache.'
+
+  - name: compute_api_class
+    type: string
+    default: 'nova.compute.api.API'
+    help: 'The full class name of the compute API class to use'
+
+  - name: allow_resize_to_same_host
+    type: boolean
+    default: False
+    help: 'Allow destination machine to match source for resize. Useful when testing in single-host environments.'
+
+  - name: default_schedule_zone
+    type: string
+    default: None
+    help: "availability zone to use when user doesn't specify one"
+
+  - name: non_inheritable_image_properties
+    type: list
+    default: ['cache_in_nova', 'bittorrent']
+    help: 'These are image properties which a snapshot should not inherit from an instance'
+
+  - name: null_kernel
+    type: string
+    default: 'nokernel'
+    help: 'kernel image that indicates not to use a kernel, but to use a raw disk image instead'
+
+  - name: multi_instance_display_name_template
+    type: string
+    default: '%(name)s-%(uuid)s'
+    help: "When creating multiple instances with a single request using the os-multiple-create API extension, this template will be used to build the display name for each instance. The benefit is that the instances end up with different hostnames. To restore legacy behavior of every instance having the same name, set this option to '%(name)s'.  Valid keys for the template are: name, uuid, count."
+
+  - name: default_instance_type
+    type: string
+    default: 'm1.small'
+    help: 'default instance type to use, testing only'
+
+  - name: console_host
+    type: string
+    default: 'nova'
+    help: 'Console proxy host to use to connect to instances on this host.'
+
+  - name: default_access_ip_network_name
+    type: string
+    default: None
+    help: 'Name of network to use to set access ips for instances'
+
+  - name: defer_iptables_apply
+    type: boolean
+    default: False
+    help: 'Whether to batch up the application of IPTables rules during a host restart and apply all at the end of the init phase'
+
+  - name: instances_path
+    type: string
+    default: '$state_path/instances'
+    help: 'where instances are stored on disk'
+
+  - name: instance_usage_audit
+    type: boolean
+    default: False
+    help: 'Generate periodic compute.instance.exists notifications'
+
+  - name: live_migration_retry_count
+    type: integer
+    default: 30
+    help: 'Number of 1 second retries needed in live_migration'
+
+  - name: resume_guests_state_on_host_boot
+    type: boolean
+    default: False
+    help: 'Whether to start guests that were running before the host rebooted'
+
+  - name: bandwidth_poll_interval
+    type: integer
+    default: 600
+    help: 'interval to pull bandwidth usage info'
+
+  - name: heal_instance_info_cache_interval
+    type: integer
+    default: 60
+    help: 'Number of seconds between instance info_cache self healing updates'
+
+  - name: host_state_interval
+    type: integer
+    default: 120
+    help: 'Interval in seconds for querying the host status'
+
+  - name: image_cache_manager_interval
+    type: integer
+    default: 2400
+    help: 'Number of seconds to wait between runs of the image cache manager'
+
+  - name: reclaim_instance_interval
+    type: integer
+    default: 0
+    help: 'Interval in seconds for reclaiming deleted instances'
+
+  - name: volume_usage_poll_interval
+    type: integer
+    default: 0
+    help: 'Interval in seconds for gathering volume usages'
+
+  - name: running_deleted_instance_action
+    type: string
+    default: 'log'
+    help: "Action to take if a running deleted instance is detected.Valid options are 'noop', 'log' and 'reap'. Set to 'noop' to disable."
+
+  - name: running_deleted_instance_poll_interval
+    type: integer
+    default: 1800
+    help: 'Number of seconds to wait between runs of the cleanup task.'
+
+  - name: running_deleted_instance_timeout
+    type: integer
+    default: 0
+    help: 'Number of seconds after being deleted when a running instance should be considered eligible for cleanup.'
+
+  - name: reboot_timeout
+    type: integer
+    default: 0
+    help: 'Automatically hard reboot an instance if it has been stuck in a rebooting state longer than N seconds. Set to 0 to disable.'
+
+  - name: instance_build_timeout
+    type: integer
+    default: 0
+    help: 'Amount of time in seconds an instance can be in BUILD before going into ERROR status.Set to 0 to disable.'
+
+  - name: rescue_timeout
+    type: integer
+    default: 0
+    help: 'Automatically unrescue an instance after N seconds. Set to 0 to disable.'
+
+  - name: resize_confirm_window
+    type: integer
+    default: 0
+    help: 'Automatically confirm resizes after N seconds. Set to 0 to disable.'
+
+  - name: reserved_host_disk_mb
+    type: integer
+    default: 0
+    help: 'Amount of disk in MB to reserve for the host'
+
+  - name: reserved_host_memory_mb
+    type: integer
+    default: 512
+    help: 'Amount of memory in MB to reserve for the host'
+
+  - name: compute_stats_class
+    type: string
+    default: 'nova.compute.stats.Stats'
+    help: 'Class that will manage stats for the local compute host'
+
+  - name: compute_topic
+    type: string
+    default: 'compute'
+    help: 'the topic compute nodes listen on'
+
+  - name: console_driver
+    type: string
+    default: 'nova.console.xvp.XVPConsoleProxy'
+    help: 'Driver to use for the console proxy'
+
+  - name: stub_compute
+    type: boolean
+    default: False
+    help: 'Stub calls to compute worker for tests'
+
+  - name: console_public_hostname
+    type: string
+    default: 'nova'
+    help: 'Publicly visible name for this console host'
+
+  - name: console_topic
+    type: string
+    default: 'console'
+    help: 'the topic console proxy nodes listen on'
+
+  - name: console_vmrc_port
+    type: port
+    default: 443
+    help: 'port for VMware VMRC connections'
+
+  - name: console_vmrc_error_retries
+    type: integer
+    default: 10
+    help: 'number of retries for retrieving VMRC information'
+
+  - name: console_xvp_conf_template
+    type: string
+    default: '$pybasedir/nova/console/xvp.conf.template'
+    help: 'XVP conf template'
+
+  - name: console_xvp_conf
+    type: string
+    default: '/etc/xvp.conf'
+    help: 'generated XVP conf file'
+
+  - name: console_xvp_pid
+    type: string
+    default: '/var/run/xvp.pid'
+    help: 'XVP master process pid file'
+
+  - name: console_xvp_log
+    type: string
+    default: '/var/log/xvp.log'
+    help: 'XVP log file'
+
+  - name: console_xvp_multiplex_port
+    type: port
+    default: 5900
+    help: 'port for XVP to multiplex VNC connections on'
+
+  - name: consoleauth_topic
+    type: string
+    default: 'consoleauth'
+    help: 'the topic console auth proxy nodes listen on'
+
+  - name: console_token_ttl
+    type: integer
+    default: 600
+    help: 'How many seconds before deleting tokens'
+
+  - name: consoleauth_manager
+    type: string
+    default: 'nova.consoleauth.manager.ConsoleAuthManager'
+    help: 'Manager for console auth'
+
+  - name: enable_new_services
+    type: boolean
+    default: True
+    help: 'Services to be added to the available pool on create'
+
+  - name: instance_name_template
+    type: string
+    default: 'instance-%08x'
+    help: 'Template string to be used to generate instance names'
+
+  - name: snapshot_name_template
+    type: string
+    default: 'snapshot-%s'
+    help: 'Template string to be used to generate snapshot names'
+
+  - name: db_driver
+    type: string
+    default: 'nova.db'
+    help: 'driver to use for database access'
+
+  - name: osapi_compute_unique_server_name_scope
+    type: string
+    default: ''
+    help: "When set, compute API will consider duplicate hostnames invalid within the specified scope, regardless of case. Should be empty, 'project' or 'global'."
+
+  - name: glance_host
+    type: string
+    default: '$my_ip'
+    help: 'default glance hostname or ip'
+
+  - name: glance_port
+    type: port
+    default: 9292
+    help: 'default glance port'
+
+  - name: glance_protocol
+    type: string
+    default: 'http'
+    help: 'Default protocol to use when connecting to glance. Set to https for SSL.'
+
+  - name: glance_api_servers
+    type: list
+    default: ['$glance_host:$glance_port']
+    help: 'A list of the glance api servers available to nova. Prefix with https:// for ssl-based glance api servers.'
+
+  - name: glance_api_insecure
+    type: boolean
+    default: False
+    help: 'Allow to perform insecure SSL'
+
+  - name: glance_num_retries
+    type: integer
+    default: 0
+    help: 'Number retries when downloading an image from glance'
+
+  - name: allowed_direct_url_schemes
+    type: list
+    default: []
+    help: 'A list of url scheme that can be downloaded directly via the direct_url.  Currently supported schemes: [file].'
+
+  - name: image_decryption_dir
+    type: string
+    default: '/tmp'
+    help: 'parent dir for tempdir used for image decryption'
+
+  - name: s3_host
+    type: string
+    default: '$my_ip'
+    help: 'hostname or ip for openstack to use when accessing the s3 api'
+
+  - name: s3_port
+    type: port
+    default: 3333
+    help: 'port used when accessing the s3 api'
+
+  - name: s3_access_key
+    type: string
+    default: 'notchecked'
+    help: 'access key to use for s3 server for images'
+
+  - name: s3_secret_key
+    type: string
+    default: 'notchecked'
+    help: 'secret key to use for s3 server for images'
+
+  - name: s3_use_ssl
+    type: boolean
+    default: False
+    help: 'whether to use ssl when talking to s3'
+
+  - name: s3_affix_tenant
+    type: boolean
+    default: False
+    help: 'whether to affix the tenant id to the access key when downloading from s3'
+
+  - name: ipv6_backend
+    type: string
+    default: 'rfc2462'
+    help: 'Backend to use for IPv6 generation'
+
+  - name: network_api_class
+    type: string
+    default: 'nova.network.api.API'
+    help: 'The full class name of the network API class to use'
+
+  - name: network_driver
+    type: string
+    default: 'nova.network.linux_net'
+    help: 'Driver to use for network creation'
+
+  - name: default_floating_pool
+    type: string
+    default: 'nova'
+    help: 'Default pool for floating ips'
+
+  - name: auto_assign_floating_ip
+    type: boolean
+    default: False
+    help: 'Autoassigning floating ip to VM'
+
+  - name: floating_ip_dns_manager
+    type: string
+    default: 'nova.network.noop_dns_driver.NoopDNSDriver'
+    help: 'full class name for the DNS Manager for floating IPs'
+
+  - name: instance_dns_manager
+    type: string
+    default: 'nova.network.noop_dns_driver.NoopDNSDriver'
+    help: 'full class name for the DNS Manager for instance IPs'
+
+  - name: instance_dns_domain
+    type: string
+    default: ''
+    help: 'full class name for the DNS Zone for instance IPs'
+
+  - name: ldap_dns_url
+    type: string
+    default: 'ldap://ldap.example.com:389'
+    help: 'URL for ldap server which will store dns entries'
+
+  - name: ldap_dns_user
+    type: string
+    default: 'uidadmin,oupeople,dcexample,dcorg'
+    help: 'user for ldap DNS'
+
+  - name: ldap_dns_password
+    type: string
+    default: 'password'
+    help: 'password for ldap DNS'
+
+  - name: ldap_dns_soa_hostmaster
+    type: string
+    default: 'hostmaster@example.org'
+    help: 'Hostmaster for ldap dns driver Statement of Authority'
+
+  - name: ldap_dns_servers
+    type: multi
+    default: 'dns.example.org'
+    help: 'DNS Servers for ldap dns driver'
+
+  - name: ldap_dns_base_dn
+    type: string
+    default: 'ouhosts,dcexample,dcorg'
+    help: 'Base DN for DNS entries in ldap'
+
+  - name: ldap_dns_soa_refresh
+    type: integer
+    default: 1800
+    help: 'Refresh interval'
+
+  - name: ldap_dns_soa_retry
+    type: integer
+    default: 3600
+    help: 'Retry interval'
+
+  - name: ldap_dns_soa_expiry
+    type: integer
+    default: 86400
+    help: 'Expiry interval'
+
+  - name: ldap_dns_soa_minimum
+    type: integer
+    default: 7200
+    help: 'Minimum interval'
+
+  - name: dhcpbridge_flagfile
+    type: multi
+    default: '/etc/nova/nova-dhcpbridge.conf'
+    help: 'location of flagfiles for dhcpbridge'
+
+  - name: networks_path
+    type: string
+    default: '$state_path/networks'
+    help: 'Location to keep network config files'
+
+  - name: public_interface
+    type: string
+    default: 'eth0'
+    help: 'Interface for public IP addresses'
+
+  - name: network_device_mtu
+    type: string
+    default: None
+    help: 'MTU setting for vlan'
+
+  - name: dhcpbridge
+    type: string
+    default: '$bindir/nova-dhcpbridge'
+    help: 'location of nova-dhcpbridge'
+
+  - name: routing_source_ip
+    type: string
+    default: '$my_ip'
+    help: 'Public IP of network host'
+
+  - name: dhcp_lease_time
+    type: integer
+    default: 120
+    help: 'Lifetime of a DHCP lease in seconds'
+
+  - name: dns_server
+    type: multi
+    default: ''
+    help: 'if set, uses specific dns server for dnsmasq. Canbe specified multiple times.'
+
+  - name: use_network_dns_servers
+    type: boolean
+    default: False
+    help: 'if set, uses the dns1 and dns2 from the network ref.as dns servers.'
+
+  - name: dmz_cidr
+    type: list
+    default: []
+    help: 'A list of dmz range that should be accepted'
+
+  - name: force_snat_range
+    type: multi
+    default: ''
+    help: 'Traffic to this range will always be snatted to the fallback ip, even if it would normally be bridged out of the node. Can be specified multiple times.'
+
+  - name: dnsmasq_config_file
+    type: string
+    default: ''
+    help: 'Override the default dnsmasq settings with this file'
+
+  - name: linuxnet_interface_driver
+    type: string
+    default: 'nova.network.linux_net.LinuxBridgeInterfaceDriver'
+    help: 'Driver used to create ethernet devices.'
+
+  - name: linuxnet_ovs_integration_bridge
+    type: string
+    default: 'br-int'
+    help: 'Name of Open vSwitch bridge used with linuxnet'
+
+  - name: send_arp_for_ha
+    type: boolean
+    default: False
+    help: 'send gratuitous ARPs for HA setup'
+
+  - name: send_arp_for_ha_count
+    type: integer
+    default: 3
+    help: 'send this many gratuitous ARPs for HA setup'
+
+  - name: use_single_default_gateway
+    type: boolean
+    default: False
+    help: 'Use single default gateway. Only first nic of vm will get default gateway from dhcp server'
+
+  - name: forward_bridge_interface
+    type: multi
+    default: 'all'
+    help: 'An interface that bridges can forward to. If this is set to all then all traffic will be forwarded. Can be specified multiple times.'
+
+  - name: metadata_host
+    type: string
+    default: '$my_ip'
+    help: 'the ip for the metadata api server'
+
+  - name: metadata_port
+    type: port
+    default: 8775
+    help: 'the port for the metadata api port'
+
+  - name: iptables_top_regex
+    type: string
+    default: ''
+    help: 'Regular expression to match iptables rule that shouldalways be on the top.'
+
+  - name: iptables_bottom_regex
+    type: string
+    default: ''
+    help: 'Regular expression to match iptables rule that shouldalways be on the bottom.'
+
+  - name: flat_network_bridge
+    type: string
+    default: None
+    help: 'Bridge for simple network instances'
+
+  - name: flat_network_dns
+    type: string
+    default: '8.8.4.4'
+    help: 'Dns for simple network'
+
+  - name: flat_injected
+    type: boolean
+    default: False
+    help: 'Whether to attempt to inject network setup into guest'
+
+  - name: flat_interface
+    type: string
+    default: None
+    help: 'FlatDhcp will bridge into this interface if set'
+
+  - name: vlan_start
+    type: integer
+    default: 100
+    help: 'First VLAN for private networks'
+
+  - name: vlan_interface
+    type: string
+    default: None
+    help: 'vlans will bridge into this interface if set'
+
+  - name: num_networks
+    type: integer
+    default: 1
+    help: 'Number of networks to support'
+
+  - name: vpn_ip
+    type: string
+    default: '$my_ip'
+    help: 'Public IP for the cloudpipe VPN servers'
+
+  - name: vpn_start
+    type: integer
+    default: 1000
+    help: 'First Vpn port for private networks'
+
+  - name: network_size
+    type: integer
+    default: 256
+    help: 'Number of addresses in each private subnet'
+
+  - name: fixed_range
+    type: string
+    default: '10.0.0.0/8'
+    help: 'Fixed IP address block'
+
+  - name: fixed_range_v6
+    type: string
+    default: 'fd00::/48'
+    help: 'Fixed IPv6 address block'
+
+  - name: gateway
+    type: string
+    default: None
+    help: 'Default IPv4 gateway'
+
+  - name: gateway_v6
+    type: string
+    default: None
+    help: 'Default IPv6 gateway'
+
+  - name: cnt_vpn_clients
+    type: integer
+    default: 0
+    help: 'Number of addresses reserved for vpn clients'
+
+  - name: fixed_ip_disassociate_timeout
+    type: integer
+    default: 600
+    help: 'Seconds after which a deallocated ip is disassociated'
+
+  - name: create_unique_mac_address_attempts
+    type: integer
+    default: 5
+    help: 'Number of attempts to create unique mac address'
+
+  - name: fake_network
+    type: boolean
+    default: False
+    help: 'If passed, use fake network devices and addresses'
+
+  - name: fake_call
+    type: boolean
+    default: False
+    help: 'If True, skip using the queue and make local calls'
+
+  - name: teardown_unused_network_gateway
+    type: boolean
+    default: False
+    help: 'If True, unused gateway devices'
+
+  - name: force_dhcp_release
+    type: boolean
+    default: False
+    help: 'If True, send a dhcp release on instance termination'
+
+  - name: share_dhcp_address
+    type: boolean
+    default: False
+    help: 'If True in multi_host mode, all compute hosts share the same dhcp address.'
+
+  - name: update_dns_entries
+    type: boolean
+    default: False
+    help: 'If True, when a DNS entry must be updated, it sends a fanout cast to all network hosts to update their DNS entries in multi host mode'
+
+  - name: dns_update_periodic_interval
+    type: integer
+    default: -1
+    help: 'Number of seconds to wait between runs of updates to DNS entries.'
+
+  - name: dhcp_domain
+    type: string
+    default: 'novalocal'
+    help: 'domain to use for building the hostnames'
+
+  - name: l3_lib
+    type: string
+    default: 'nova.network.l3.LinuxNetL3'
+    help: 'Indicates underlying L3 management library'
+
+  - name: quantum_url
+    type: string
+    default: 'http://127.0.0.1:9696'
+    help: 'URL for connecting to quantum'
+
+  - name: quantum_url_timeout
+    type: integer
+    default: 30
+    help: 'timeout value for connecting to quantum in seconds'
+
+  - name: quantum_admin_username
+    type: string
+    default: None
+    help: 'username for connecting to quantum in admin context'
+
+  - name: quantum_admin_password
+    type: string
+    default: None
+    help: 'password for connecting to quantum in admin context'
+
+  - name: quantum_admin_tenant_name
+    type: string
+    default: None
+    help: 'tenant name for connecting to quantum in admin context'
+
+  - name: quantum_region_name
+    type: string
+    default: None
+    help: 'region name for connecting to quantum in admin context'
+
+  - name: quantum_admin_auth_url
+    type: string
+    default: 'http://localhost:5000/v2.0'
+    help: 'auth url for connecting to quantum in admin context'
+
+  - name: quantum_api_insecure
+    type: boolean
+    default: False
+    help: 'if set, ignore any SSL validation issues'
+
+  - name: quantum_auth_strategy
+    type: string
+    default: 'keystone'
+    help: 'auth strategy for connecting to quantum in admin context'
+
+  - name: quantum_ovs_bridge
+    type: string
+    default: 'br-int'
+    help: 'Name of Integration Bridge used by Open vSwitch'
+
+  - name: quantum_extension_sync_interval
+    type: integer
+    default: 600
+    help: 'Number of seconds before querying quantum for extensions'
+
+  - name: network_topic
+    type: string
+    default: 'network'
+    help: 'the topic network nodes listen on'
+
+  - name: multi_host
+    type: boolean
+    default: False
+    help: 'Default value for multi_host in networks. Also, if set, some rpc network calls will be sent directly to host.'
+
+  - name: security_group_api
+    type: string
+    default: 'nova'
+    help: 'The full class name of the security API class'
+
+  - name: security_group_handler
+    type: string
+    default: 'nova.network.sg.NullSecurityGroupHandler'
+    help: 'The full class name of the security group handler class'
+
+  - name: queues
+    type: multi
+    default: ''
+    help: 'Queues to delete'
+
+  - name: delete_exchange
+    type: boolean
+    default: False
+    help: 'delete nova exchange too.'
+
+  - name: record
+    type: boolean
+    default: False
+    help: 'Record sessions to FILE.[session_number]'
+
+  - name: daemon
+    type: boolean
+    default: False
+    help: 'Become a daemon'
+
+  - name: ssl_only
+    type: boolean
+    default: False
+    help: 'Disallow non-encrypted connections'
+
+  - name: source_is_ipv6
+    type: boolean
+    default: False
+    help: 'Source is ipv6'
+
+  - name: cert
+    type: string
+    default: 'self.pem'
+    help: 'SSL certificate file'
+
+  - name: key
+    type: string
+    default: None
+    help: 'SSL key file'
+
+  - name: web
+    type: string
+    default: '/usr/share/novnc'
+    help: 'Run webserver on same port. Serve files from DIR.'
+
+  - name: novncproxy_host
+    type: string
+    default: '0.0.0.0'
+    help: 'Host on which to listen for incoming requests'
+
+  - name: novncproxy_port
+    type: port
+    default: 6080
+    help: 'Port on which to listen for incoming requests'
+
+  - name: buckets_path
+    type: string
+    default: '$state_path/buckets'
+    help: 'path to s3 buckets'
+
+  - name: s3_listen
+    type: string
+    default: '0.0.0.0'
+    help: 'IP address for S3 API to listen'
+
+  - name: s3_listen_port
+    type: port
+    default: 3333
+    help: 'port for s3 api to listen'
+
+  - name: baremetal.db_backend
+    type: string
+    default: 'sqlalchemy'
+    help: 'The backend to use for bare-metal database'
+
+  - name: dbapi_use_tpool
+    type: boolean
+    default: False
+    help: 'Enable the experimental use of thread pooling for all DB API calls'
+
+  - name: baremetal.sql_connection
+    type: string
+    default: 'sqlite:///$state_path/baremetal_$sqlite_db'
+    help: 'The SQLAlchemy connection string used to connect to the bare-metal database'
+
+  - name: sqlite_db
+    type: string
+    default: 'nova.sqlite'
+    help: 'the filename to use with sqlite'
+
+  - name: sql_idle_timeout
+    type: integer
+    default: 3600
+    help: 'timeout before idle sql connections are reaped'
+
+  - name: sqlite_synchronous
+    type: boolean
+    default: True
+    help: 'If passed, use synchronous mode for sqlite'
+
+  - name: sql_min_pool_size
+    type: integer
+    default: 1
+    help: 'Minimum number of SQL connections to keep open in a pool'
+
+  - name: sql_max_pool_size
+    type: integer
+    default: 5
+    help: 'Maximum number of SQL connections to keep open in a pool'
+
+  - name: sql_max_retries
+    type: integer
+    default: 10
+    help: 'maximum db connection retries during startup.'
+
+  - name: sql_retry_interval
+    type: integer
+    default: 10
+    help: 'interval between retries of opening a sql connection'
+
+  - name: sql_max_overflow
+    type: integer
+    default: None
+    help: 'If set, use this value for max_overflow with sqlalchemy'
+
+  - name: sql_connection_debug
+    type: integer
+    default: 0
+    help: 'Verbosity of SQL debugging information. 0=None, 100=Everything'
+
+  - name: sql_connection_trace
+    type: boolean
+    default: False
+    help: 'Add python stack traces to SQL as comment strings'
+
+  - name: backdoor_port
+    type: port
+    default: None
+    help: 'port for eventlet backdoor to listen'
+
+  - name: lock_path
+    type: string
+    default: None
+    help: 'Directory to use for lock files. Default to a temp directory'
+
+  - name: debug
+    type: boolean
+    default: False
+    help: 'Print debugging output'
+
+  - name: verbose
+    type: boolean
+    default: False
+    help: 'Print more verbose output'
+
+  - name: use_stderr
+    type: boolean
+    default: True
+    help: 'Log output to standard error'
+
+  - name: logfile_mode
+    type: string
+    default: 420
+    help: 'Default file mode used when creating log files'
+
+  - name: logging_context_format_string
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s'
+    help: 'format string to use for log messages with context'
+
+  - name: logging_default_format_string
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s'
+    help: 'format string to use for log messages without context'
+
+  - name: logging_debug_format_suffix
+    type: string
+    default: '%(funcName)s %(pathname)s:%(lineno)d'
+    help: 'data to append to log format when level is DEBUG'
+
+  - name: logging_exception_prefix
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s'
+    help: 'prefix each line of exception output with this format'
+
+  - name: default_log_levels
+    type: list
+    default: ['amqplibWARN', 'sqlalchemyWARN', 'botoWARN', 'sudsINFO', 'keystoneINFO', 'eventlet.wsgi.serverWARN']
+    help: 'list of logger=LEVEL pairs'
+
+  - name: publish_errors
+    type: boolean
+    default: False
+    help: 'publish error events'
+
+  - name: fatal_deprecations
+    type: boolean
+    default: False
+    help: 'make deprecations fatal'
+
+  - name: instance_format
+    type: string
+    default: '"[instance: %(uuid)s] "'
+    help: 'If an instance is passed with the log message, format it like this'
+
+  - name: instance_uuid_format
+    type: string
+    default: '"[instance: %(uuid)s] "'
+    help: 'If an instance UUID is passed with the log message, format it like this'
+
+  - name: log_config
+    type: string
+    default: None
+    help: 'If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.'
+
+  - name: log_format
+    type: string
+    default: '%(asctime)s %(levelname)8s [%(name)s] %(message)s'
+    help: 'A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. Default: %(default)s'
+
+  - name: log_date_format
+    type: string
+    default: '%Y-%m-%d %H:%M:%S'
+    help: 'Format string for %%(asctime)s in log records. Default: %(default)s'
+
+  - name: log_file
+    type: string
+    default: None
+    help: '(Optional) Name of log file to output to. If not set, logging will go to stdout.'
+
+  - name: log_dir
+    type: string
+    default: None
+    help: '(Optional) The directory to keep log files in'
+
+  - name: use_syslog
+    type: boolean
+    default: False
+    help: 'Use syslog for logging.'
+
+  - name: syslog_log_facility
+    type: string
+    default: 'LOG_USER'
+    help: 'syslog facility to receive log lines'
+
+  - name: notification_driver
+    type: multi
+    default: ''
+    help: 'Driver or drivers to handle sending notifications'
+
+  - name: default_notification_level
+    type: string
+    default: 'INFO'
+    help: 'Default notification level for outgoing notifications'
+
+  - name: default_publisher_id
+    type: string
+    default: '$host'
+    help: 'Default publisher_id for outgoing notifications'
+
+  - name: notification_topics
+    type: list
+    default: ['notifications']
+    help: 'AMQP topic used for openstack notifications'
+
+  - name: rpc_backend
+    type: string
+    default: 'nova.openstack.common.rpc.impl_kombu'
+    help: 'The messaging module to use, defaults to kombu.'
+
+  - name: rpc_thread_pool_size
+    type: integer
+    default: 64
+    help: 'Size of RPC thread pool'
+
+  - name: rpc_conn_pool_size
+    type: integer
+    default: 30
+    help: 'Size of RPC connection pool'
+
+  - name: rpc_response_timeout
+    type: integer
+    default: 60
+    help: 'Seconds to wait for a response from call or multicall'
+
+  - name: rpc_cast_timeout
+    type: integer
+    default: 30
+    help: 'Seconds to wait before a cast expires'
+
+  - name: allowed_rpc_exception_modules
+    type: list
+    default: ['nova.openstack.common.exception', 'nova.exception', 'cinder.exception,exceptions']
+    help: 'Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call.'
+
+  - name: fake_rabbit
+    type: boolean
+    default: False
+    help: 'If passed, use a fake RabbitMQ provider'
+
+  - name: control_exchange
+    type: string
+    default: 'openstack'
+    help: 'AMQP exchange to connect to if using RabbitMQ or Qpid'
+
+  - name: amqp_rpc_single_reply_queue
+    type: boolean
+    default: False
+    help: 'Enable a fast single reply queue if using AMQP based RPC like RabbitMQ or Qpid.'
+
+  - name: kombu_ssl_version
+    type: string
+    default: ''
+    help: 'SSL version to use'
+
+  - name: kombu_ssl_keyfile
+    type: string
+    default: ''
+    help: 'SSL key file'
+
+  - name: kombu_ssl_certfile
+    type: string
+    default: ''
+    help: 'SSL cert file'
+
+  - name: kombu_ssl_ca_certs
+    type: string
+    default: ''
+    help: 'SSL certification authority file'
+
+  - name: rabbit_host
+    type: string
+    default: 'localhost'
+    help: 'The RabbitMQ broker address where a single node is used'
+
+  - name: rabbit_port
+    type: port
+    default: 5672
+    help: 'The RabbitMQ broker port where a single node is used'
+
+  - name: rabbit_hosts
+    type: list
+    default: ['$rabbit_host:$rabbit_port']
+    help: 'RabbitMQ HA cluster host:port pairs'
+
+  - name: rabbit_use_ssl
+    type: boolean
+    default: False
+    help: 'connect over SSL for RabbitMQ'
+
+  - name: rabbit_userid
+    type: string
+    default: 'guest'
+    help: 'the RabbitMQ userid'
+
+  - name: rabbit_password
+    type: string
+    default: 'guest'
+    help: 'the RabbitMQ password'
+
+  - name: rabbit_virtual_host
+    type: string
+    default: '/'
+    help: 'the RabbitMQ virtual host'
+
+  - name: rabbit_retry_interval
+    type: integer
+    default: 1
+    help: 'how frequently to retry connecting with RabbitMQ'
+
+  - name: rabbit_retry_backoff
+    type: integer
+    default: 2
+    help: 'how long to backoff for between retries when connecting to RabbitMQ'
+
+  - name: rabbit_max_retries
+    type: integer
+    default: 0
+    help: 'maximum retries with trying to connect to RabbitMQ'
+
+  - name: rabbit_durable_queues
+    type: boolean
+    default: False
+    help: 'use durable queues in RabbitMQ'
+
+  - name: rabbit_ha_queues
+    type: boolean
+    default: False
+    help: 'use H/A queues in RabbitMQ'
+
+  - name: qpid_hostname
+    type: string
+    default: 'localhost'
+    help: 'Qpid broker hostname'
+
+  - name: qpid_port
+    type: port
+    default: 5672
+    help: 'Qpid broker port'
+
+  - name: qpid_hosts
+    type: list
+    default: ['$qpid_hostname:$qpid_port']
+    help: 'Qpid HA cluster host:port pairs'
+
+  - name: qpid_username
+    type: string
+    default: ''
+    help: 'Username for qpid connection'
+
+  - name: qpid_password
+    type: string
+    default: ''
+    help: 'Password for qpid connection'
+
+  - name: qpid_sasl_mechanisms
+    type: string
+    default: ''
+    help: 'Space separated list of SASL mechanisms to use for auth'
+
+  - name: qpid_heartbeat
+    type: integer
+    default: 60
+    help: 'Seconds between connection keepalive heartbeats'
+
+  - name: qpid_protocol
+    type: string
+    default: 'tcp'
+    help: "Transport to use, either 'tcp' or 'ssl'"
+
+  - name: qpid_tcp_nodelay
+    type: boolean
+    default: True
+    help: 'Disable Nagle algorithm'
+
+  - name: rpc_zmq_bind_address
+    type: string
+    default: '*'
+    help: 'ZeroMQ bind address. Should be a wildcard'
+
+  - name: rpc_zmq_matchmaker
+    type: string
+    default: 'nova.openstack.common.rpc.matchmaker.MatchMakerLocalhost'
+    help: 'MatchMaker driver'
+
+  - name: rpc_zmq_port
+    type: port
+    default: 9501
+    help: 'ZeroMQ receiver listening port'
+
+  - name: rpc_zmq_contexts
+    type: integer
+    default: 1
+    help: 'Number of ZeroMQ contexts, defaults to 1'
+
+  - name: rpc_zmq_topic_backlog
+    type: integer
+    default: None
+    help: 'Maximum number of ingress messages to locally buffer per topic. Default is unlimited.'
+
+  - name: rpc_zmq_ipc_dir
+    type: string
+    default: '/var/run/openstack'
+    help: 'Directory for holding IPC sockets'
+
+  - name: rpc_zmq_host
+    type: string
+    default: 'sorcha'
+    help: "Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova."
+
+  - name: matchmaker_ringfile
+    type: string
+    default: '/etc/nova/matchmaker_ring.json'
+    help: 'Matchmaker ring file'
+
+  - name: scheduler_host_manager
+    type: string
+    default: 'nova.scheduler.host_manager.HostManager'
+    help: 'The scheduler host manager class to use'
+
+  - name: scheduler_max_attempts
+    type: integer
+    default: 3
+    help: 'Maximum number of attempts to schedule an instance'
+
+  - name: scheduler_host_subset_size
+    type: integer
+    default: 1
+    help: 'New instances will be scheduled on a host chosen randomly from a subset of the N best hosts. This property defines the subset size that a host is chosen from. A value of 1 chooses the first host returned by the weighing functions. This value must be at least 1. Any value less than 1 will be ignored, and 1 will be used instead'
+
+  - name: cpu_allocation_ratio
+    type: floating point
+    default: '16.0'
+    help: 'Virtual CPU to Physical CPU allocation ratio'
+
+  - name: disk_allocation_ratio
+    type: floating point
+    default: '1.0'
+    help: 'virtual disk to physical disk allocation ratio'
+
+  - name: max_io_ops_per_host
+    type: integer
+    default: 8
+    help: 'Ignore hosts that have too many builds/resizes/snaps/migrations'
+
+  - name: isolated_images
+    type: list
+    default: []
+    help: 'Images to run on isolated host'
+
+  - name: isolated_hosts
+    type: list
+    default: []
+    help: 'Host reserved for specific images'
+
+  - name: max_instances_per_host
+    type: integer
+    default: 50
+    help: 'Ignore hosts that have too many instances'
+
+  - name: ram_allocation_ratio
+    type: floating point
+    default: '1.5'
+    help: 'virtual ram to physical ram allocation ratio'
+
+  - name: scheduler_available_filters
+    type: multi
+    default: 'nova.scheduler.filters.all_filters'
+    help: "Filter classes available to the scheduler which may be specified more than once.  An entry of 'nova.scheduler.filters.standard_filters' maps to all filters included with nova."
+
+  - name: scheduler_default_filters
+    type: list
+    default: ['RetryFilter', 'AvailabilityZoneFilter', 'RamFilter', 'ComputeFilter', 'ComputeCapabilitiesFilter', 'ImagePropertiesFilter']
+    help: 'Which filter class names to use for filtering hosts when not specified in the request.'
+
+  - name: scheduler_weight_classes
+    type: list
+    default: ['nova.scheduler.weights.all_weighers']
+    help: 'Which weight class names to use for weighing hosts'
+
+  - name: scheduler_driver
+    type: string
+    default: 'nova.scheduler.filter_scheduler.FilterScheduler'
+    help: 'Default driver to use for the scheduler'
+
+  - name: compute_scheduler_driver
+    type: string
+    default: 'nova.scheduler.filter_scheduler.FilterScheduler'
+    help: 'Driver to use for scheduling compute calls'
+
+  - name: default_scheduler_driver
+    type: string
+    default: 'nova.scheduler.chance.ChanceScheduler'
+    help: 'Default driver to use for scheduling calls'
+
+  - name: scheduler_topic
+    type: string
+    default: 'scheduler'
+    help: 'the topic scheduler nodes listen on'
+
+  - name: scheduler_json_config_location
+    type: string
+    default: ''
+    help: 'Absolute path to scheduler configuration JSON file.'
+
+  - name: least_cost_functions
+    type: list
+    default: None
+    help: 'Which cost functions the LeastCostScheduler should use'
+
+  - name: noop_cost_fn_weight
+    type: floating point
+    default: '1.0'
+    help: 'How much weight to give the noop cost function'
+
+  - name: compute_fill_first_cost_fn_weight
+    type: floating point
+    default: None
+    help: 'How much weight to give the fill-first cost function. A negative value will reverse behavior: e.g. spread-first'
+
+  - name: ram_weight_multiplier
+    type: floating point
+    default: '1.0'
+    help: 'Multiplier used for weighing ram.  Negative numbers mean to stack vs spread.'
+
+  - name: servicegroup_driver
+    type: string
+    default: 'db'
+    help: 'The driver for servicegroup service'
+
+  - name: config_drive_format
+    type: string
+    default: 'iso9660'
+    help: 'Config drive format. One of iso9660'
+
+  - name: config_drive_tempdir
+    type: string
+    default: None
+    help: 'Where to put temporary files associated with config drive creation'
+
+  - name: force_config_drive
+    type: string
+    default: None
+    help: 'Set to force injection to take place on a config drive'
+
+  - name: mkisofs_cmd
+    type: string
+    default: 'genisoimage'
+    help: 'Name and optionally path of the tool used for ISO image creation'
+
+  - name: baremetal.injected_network_template
+    type: string
+    default: '$pybasedir/nova/virt/baremetal/interfaces.template'
+    help: 'Template file for injected network'
+
+  - name: virt_mkfs
+    type: string
+    default: 'windowsmkfs.ntfs --force --fast --label %(fs_label)s %(target)s'
+
+  - name: timeout_nbd
+    type: integer
+    default: 10
+    help: 'time to wait for a NBD device coming up'
+
+  - name: compute_driver
+    type: string
+    default: None
+    help: 'Driver to use for controlling virtualization. Options include: libvirt.LibvirtDriver, xenapi.XenAPIDriver, fake.FakeDriver, baremetal.BareMetalDriver, vmwareapi.VMWareESXDriver'
+
+  - name: default_ephemeral_format
+    type: string
+    default: None
+    help: 'The default format an ephemeral_volume will be formatted with on creation.'
+
+  - name: preallocate_images
+    type: string
+    default: 'none'
+    help: "VM image preallocation mode: 'none' => no storage provisioning is done up front, 'space' => storage is fully allocated at instance start"
+
+  - name: use_cow_images
+    type: boolean
+    default: True
+    help: 'Whether to use cow images'
+
+  - name: firewall_driver
+    type: string
+    default: None
+    help: 'Firewall driver'
+
+  - name: allow_same_net_traffic
+    type: boolean
+    default: True
+    help: 'Whether to allow network traffic from same network'
+
+  - name: vswitch_name
+    type: string
+    default: None
+    help: 'External virtual switch Name, if not provided, the first external virtual switch is used'
+
+  - name: limit_cpu_features
+    type: boolean
+    default: False
+    help: 'Required for live migration among hosts with different CPU features'
+
+  - name: config_drive_inject_password
+    type: boolean
+    default: False
+    help: 'Sets the admin password in the config drive image'
+
+  - name: qemu_img_cmd
+    type: string
+    default: 'qemu-img.exe'
+    help: 'qemu-img is used to convert between different image types'
+
+  - name: config_drive_cdrom
+    type: boolean
+    default: False
+    help: 'Attaches the Config Drive image as a cdrom drive instead of a disk drive'
+
+  - name: hyperv_attaching_volume_retry_count
+    type: integer
+    default: 10
+    help: 'The number of times we retry on attaching volume '
+
+  - name: hyperv_wait_between_attach_retry
+    type: integer
+    default: 5
+    help: 'The seconds to wait between an volume attachment attempt'
+
+  - name: force_volumeutils_v1
+    type: boolean
+    default: False
+    help: 'Force volumeutils v1'
+
+  - name: force_raw_images
+    type: boolean
+    default: True
+    help: 'Force backing images to raw format'
+
+  - name: rescue_image_id
+    type: string
+    default: None
+    help: 'Rescue ami image'
+
+  - name: rescue_kernel_id
+    type: string
+    default: None
+    help: 'Rescue aki image'
+
+  - name: rescue_ramdisk_id
+    type: string
+    default: None
+    help: 'Rescue ari image'
+
+  - name: libvirt_type
+    type: string
+    default: 'kvm'
+    help: 'Libvirt domain type'
+
+  - name: libvirt_uri
+    type: string
+    default: ''
+    help: 'Override the default libvirt URI'
+
+  - name: libvirt_inject_password
+    type: boolean
+    default: False
+    help: 'Inject the admin password at boot time, without an agent.'
+
+  - name: libvirt_inject_key
+    type: boolean
+    default: True
+    help: 'Inject the ssh public key at boot time'
+
+  - name: libvirt_inject_partition
+    type: integer
+    default: 1
+    help: 'The partition to inject to : -2 => disable, -1 => inspect'
+
+  - name: use_usb_tablet
+    type: boolean
+    default: True
+    help: 'Sync virtual and real mouse cursors in Windows VMs'
+
+  - name: live_migration_uri
+    type: string
+    default: 'qemu+tcp://%s/system'
+    help: 'Migration target URI'
+
+  - name: live_migration_flag
+    type: string
+    default: 'VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER'
+    help: 'Migration flags to be set for live migration'
+
+  - name: block_migration_flag
+    type: string
+    default: 'VIR_MIGRATE_UNDEFINE_SOURCE, VIR_MIGRATE_PEER2PEER, VIR_MIGRATE_NON_SHARED_INC'
+    help: 'Migration flags to be set for block migration'
+
+  - name: live_migration_bandwidth
+    type: integer
+    default: 0
+    help: 'Maximum bandwidth to be used during migration, in Mbps'
+
+  - name: snapshot_image_format
+    type: string
+    default: None
+    help: 'Snapshot image format'
+
+  - name: libvirt_vif_driver
+    type: string
+    default: 'nova.virt.libvirt.vif.LibvirtGenericVIFDriver'
+    help: 'The libvirt VIF driver to configure the VIFs.'
+
+  - name: libvirt_volume_drivers
+    type: list
+    default: ['iscsinova.virt.libvirt.volume.LibvirtISCSIVolumeDriver', 'localnova.virt.libvirt.volume.LibvirtVolumeDriver', 'fakenova.virt.libvirt.volume.LibvirtFakeVolumeDriver', 'rbdnova.virt.libvirt.volume.LibvirtNetVolumeDriver', 'sheepdognova.virt.libvirt.volume.LibvirtNetVolumeDriver', 'nfsnova.virt.libvirt.volume.LibvirtNFSVolumeDriver', 'aoenova.virt.libvirt.volume.LibvirtAOEVolumeDriver', 'glusterfsnova.virt.libvirt.volume.LibvirtGlusterfsVolumeDriver', 'fibre_channelnova.virt.libvirt.volume.LibvirtFibreChannelVolumeDriver', 'scalitynova.virt.libvirt.volume.LibvirtScalityVolumeDriver']
+    help: 'Libvirt handlers for remote volumes.'
+
+  - name: libvirt_disk_prefix
+    type: string
+    default: None
+    help: 'Override the default disk prefix for the devices attached to a server, which is dependent on libvirt_type.'
+
+  - name: libvirt_wait_soft_reboot_seconds
+    type: integer
+    default: 120
+    help: 'Number of seconds to wait for instance to shut down after soft reboot request is made. We fall back to hard reboot if instance does not shutdown within this window.'
+
+  - name: libvirt_nonblocking
+    type: boolean
+    default: True
+    help: 'Use a separated OS thread pool to realize non-blocking libvirt calls'
+
+  - name: libvirt_cpu_mode
+    type: string
+    default: None
+    help: "Set to 'host-model' to clone the host CPU feature flags; to 'host-passthrough' to use the host CPU model exactly; to 'custom' to use a named CPU model; to 'none' to not set any CPU model. If libvirt_type='kvm|qemu', it will default to 'host-model', otherwise it will default to 'none'"
+
+  - name: libvirt_cpu_model
+    type: string
+    default: None
+    help: 'Set to a named libvirt CPU model'
+
+  - name: libvirt_snapshots_directory
+    type: string
+    default: '$instances_path/snapshots'
+    help: 'Location where libvirt driver will store snapshots before uploading them to image service'
+
+  - name: xen_hvmloader_path
+    type: string
+    default: '/usr/lib/xen/boot/hvmloader'
+    help: 'Location where the Xen hvmloader is kept'
+
+  - name: disk_cachemodes
+    type: list
+    default: []
+    help: "Specific cachemodes to use for different disk types e.g: ['file=directsync','block=none']"
+
+  - name: libvirt_images_type
+    type: string
+    default: 'default'
+    help: 'VM Images format. Acceptable values are: raw, qcow2, lvm, default. If default is specified, then use_cow_images flag is used instead of this one.'
+
+  - name: libvirt_images_volume_group
+    type: string
+    default: None
+    help: 'LVM Volume Group that is used for VM images, when you specify libvirt_images_type=lvm.'
+
+  - name: libvirt_sparse_logical_volumes
+    type: boolean
+    default: False
+    help: 'Create sparse logical volumes'
+
+  - name: libvirt_lvm_snapshot_size
+    type: integer
+    default: 1000
+    help: 'The amount of storage'
+
+  - name: base_dir_name
+    type: string
+    default: '_base'
+    help: 'Where cached images are stored under $instances_path.This is NOT the full path - just a folder name.For per-compute-host cached images, set to _base_$my_ip'
+
+  - name: image_info_filename_pattern
+    type: string
+    default: '$instances_path/$base_dir_name/%(image)s.info'
+    help: 'Allows image information files to be stored in non-standard locations'
+
+  - name: remove_unused_base_images
+    type: boolean
+    default: True
+    help: 'Should unused base images be removed?'
+
+  - name: remove_unused_kernels
+    type: boolean
+    default: False
+    help: 'Should unused kernel images be removed? This is only safe to enable if all compute nodes have been updated to support this option. This will enabled by default in future.'
+
+  - name: remove_unused_resized_minimum_age_seconds
+    type: integer
+    default: 3600
+    help: 'Unused resized base images younger than this will not be removed'
+
+  - name: remove_unused_original_minimum_age_seconds
+    type: integer
+    default: 86400
+    help: 'Unused unresized base images younger than this will not be removed'
+
+  - name: checksum_base_images
+    type: boolean
+    default: False
+    help: 'Write a checksum for files in _base to disk'
+
+  - name: checksum_interval_seconds
+    type: integer
+    default: 3600
+    help: 'How frequently to checksum base images'
+
+  - name: libvirt_snapshot_compression
+    type: boolean
+    default: False
+    help: 'Compress snapshot images when possible. This currently applies exclusively to qcow2 images'
+
+  - name: libvirt_ovs_bridge
+    type: string
+    default: 'br-int'
+    help: 'Name of Integration Bridge used by Open vSwitch'
+
+  - name: libvirt_use_virtio_for_bridges
+    type: boolean
+    default: True
+    help: 'Use virtio for bridge interfaces with KVM/QEMU'
+
+  - name: num_iscsi_scan_tries
+    type: integer
+    default: 3
+    help: 'number of times to rescan iSCSI target to find volume'
+
+  - name: rbd_user
+    type: string
+    default: None
+    help: 'the RADOS client name for accessing rbd volumes'
+
+  - name: rbd_secret_uuid
+    type: string
+    default: None
+    help: 'the libvirt uuid of the secret for the rbd_uservolumes'
+
+  - name: nfs_mount_point_base
+    type: string
+    default: '$state_path/mnt'
+    help: 'Dir where the nfs volume is mounted on the compute node'
+
+  - name: nfs_mount_options
+    type: string
+    default: None
+    help: 'Mount options passed to the nfs client. See section of the nfs man page for details'
+
+  - name: num_aoe_discover_tries
+    type: integer
+    default: 3
+    help: 'number of times to rediscover AoE target to find volume'
+
+  - name: glusterfs_mount_point_base
+    type: string
+    default: '$state_path/mnt'
+    help: 'Dir where the glusterfs volume is mounted on the compute node'
+
+  - name: libvirt_iscsi_use_multipath
+    type: boolean
+    default: False
+    help: 'use multipath connection of the iSCSI volume'
+
+  - name: scality_sofs_config
+    type: string
+    default: None
+    help: 'Path or URL to Scality SOFS configuration file'
+
+  - name: scality_sofs_mount_point
+    type: string
+    default: '$state_path/scality'
+    help: 'Base dir where Scality SOFS shall be mounted'
+
+  - name: powervm_mgr_type
+    type: string
+    default: 'ivm'
+    help: 'PowerVM manager type'
+
+  - name: powervm_mgr
+    type: string
+    default: None
+    help: 'PowerVM manager host or ip'
+
+  - name: powervm_mgr_user
+    type: string
+    default: None
+    help: 'PowerVM manager user name'
+
+  - name: powervm_mgr_passwd
+    type: string
+    default: None
+    help: 'PowerVM manager user password'
+
+  - name: powervm_img_remote_path
+    type: string
+    default: '/home/padmin'
+    help: 'PowerVM image remote path where images will be moved. Make sure this path can fit your biggest image in glance'
+
+  - name: powervm_img_local_path
+    type: string
+    default: '/tmp'
+    help: 'Local directory to download glance images to. Make sure this path can fit your biggest image in glance'
+
+  - name: vmwareapi_host_ip
+    type: string
+    default: None
+    help: 'URL for connection to VMware ESX/VC host. Required if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.'
+
+  - name: vmwareapi_host_username
+    type: string
+    default: None
+    help: 'Username for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.'
+
+  - name: vmwareapi_host_password
+    type: string
+    default: None
+    help: 'Password for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.'
+
+  - name: vmwareapi_cluster_name
+    type: string
+    default: None
+    help: 'Name of a VMware Cluster ComputeResource. Used only if compute_driver is vmwareapi.VMwareVCDriver.'
+
+  - name: vmwareapi_task_poll_interval
+    type: floating point
+    default: '5.0'
+    help: 'The interval used for polling of remote tasks. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.'
+
+  - name: vmwareapi_api_retry_count
+    type: integer
+    default: 10
+    help: 'The number of times we retry on failures, e.g., socket error, etc. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver.'
+
+  - name: vnc_port
+    type: port
+    default: 5900
+    help: 'VNC starting port'
+
+  - name: vnc_port_total
+    type: integer
+    default: 10000
+    help: 'Total number of VNC ports'
+
+  - name: vnc_password
+    type: string
+    default: None
+    help: 'VNC password'
+
+  - name: use_linked_clone
+    type: boolean
+    default: True
+    help: 'Whether to use linked clone'
+
+  - name: vmwareapi_vlan_interface
+    type: string
+    default: 'vmnic0'
+    help: 'Physical ethernet adapter name for vlan networking'
+
+  - name: vmwareapi_wsdl_loc
+    type: string
+    default: None
+    help: 'Optional VIM Service WSDL Location e.g http://<server>/vimService.wsdl'
+
+  - name: agent_timeout
+    type: integer
+    default: 30
+    help: 'number of seconds to wait for agent reply'
+
+  - name: agent_version_timeout
+    type: integer
+    default: 300
+    help: 'number of seconds to wait for agent to be fully operational'
+
+  - name: agent_resetnetwork_timeout
+    type: integer
+    default: 60
+    help: 'number of seconds to wait for agent reply to resetnetwork request'
+
+  - name: xenapi_agent_path
+    type: string
+    default: 'usr/sbin/xe-update-networking'
+    help: 'Specifies the path in which the xenapi guest agent should be located. If the agent is present, network configuration is not injected into the image. Used if compute_driver=xenapi.XenAPIDriver and  flat_injected=True'
+
+  - name: xenapi_disable_agent
+    type: boolean
+    default: False
+    help: 'Disable XenAPI agent. Reduces the amount of time it takes nova to detect that a VM has started, when that VM does not have the agent installed'
+
+  - name: xenapi_connection_url
+    type: string
+    default: None
+    help: 'URL for connection to XenServer/Xen Cloud Platform. Required if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_connection_username
+    type: string
+    default: 'root'
+    help: 'Username for connection to XenServer/Xen Cloud Platform. Used only if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_connection_password
+    type: string
+    default: None
+    help: 'Password for connection to XenServer/Xen Cloud Platform. Used only if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_connection_concurrent
+    type: integer
+    default: 5
+    help: 'Maximum number of concurrent XenAPI connections. Used only if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_vhd_coalesce_poll_interval
+    type: floating point
+    default: '5.0'
+    help: 'The interval used for polling of coalescing vhds. Used only if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_check_host
+    type: boolean
+    default: True
+    help: 'Ensure compute service is running on host XenAPI connects to.'
+
+  - name: xenapi_vhd_coalesce_max_attempts
+    type: integer
+    default: 5
+    help: 'Max number of times to poll for VHD to coalesce. Used only if compute_driver=xenapi.XenAPIDriver'
+
+  - name: xenapi_sr_base_path
+    type: string
+    default: '/var/run/sr-mount'
+    help: 'Base path to the storage repository'
+
+  - name: target_host
+    type: string
+    default: None
+    help: 'iSCSI Target Host'
+
+  - name: target_port
+    type: port
+    default: 3260
+    help: 'iSCSI Target Port, 3260 Default'
+
+  - name: iqn_prefix
+    type: string
+    default: 'iqn.2010-10.org.openstack'
+    help: 'IQN Prefix'
+
+  - name: xenapi_remap_vbd_dev
+    type: boolean
+    default: False
+    help: 'Used to enable the remapping of VBD dev'
+
+  - name: xenapi_remap_vbd_dev_prefix
+    type: string
+    default: 'sd'
+    help: 'Specify prefix to remap VBD dev to'
+
+  - name: xenapi_login_timeout
+    type: integer
+    default: 10
+    help: 'Timeout in seconds for XenAPI login.'
+
+  - name: use_join_force
+    type: boolean
+    default: True
+    help: 'To use for hosts with different CPUs'
+
+  - name: xenapi_ovs_integration_bridge
+    type: string
+    default: 'xapi1'
+    help: 'Name of Integration Bridge used by Open vSwitch'
+
+  - name: cache_images
+    type: string
+    default: 'all'
+    help: 'Cache glance images locally. `all` will cache all images, `some` will only cache images that have the image_property `cache_in_nova=True`, and `none` turns off caching entirely'
+
+  - name: default_os_type
+    type: string
+    default: 'linux'
+    help: 'Default OS type'
+
+  - name: block_device_creation_timeout
+    type: integer
+    default: 10
+    help: 'Time to wait for a block device to be created'
+
+  - name: max_kernel_ramdisk_size
+    type: integer
+    default: 16777216
+    help: 'Maximum size in bytes of kernel or ramdisk images'
+
+  - name: sr_matching_filter
+    type: string
+    default: 'other-config:i18n-keylocal-storage'
+    help: 'Filter for finding the SR to be used to install guest instances on. The default value is the Local Storage in default XenServer/XCP installations. To select an SR with a different matching criteria, you could set it to other- config:my_favorite_sr=true. On the other hand, to fall back on the Default SR, as displayed by XenCenter, set this flag to: default-sr:true'
+
+  - name: xenapi_sparse_copy
+    type: boolean
+    default: True
+    help: 'Whether to use sparse_copy for copying data on a resize down'
+
+  - name: xenapi_num_vbd_unplug_retries
+    type: integer
+    default: 10
+    help: 'Maximum number of retries to unplug VBD'
+
+  - name: xenapi_torrent_images
+    type: string
+    default: 'none'
+    help: 'Whether or not to download images via Bit Torrent'
+
+  - name: xenapi_torrent_base_url
+    type: string
+    default: None
+    help: 'Base URL for torrent files.'
+
+  - name: xenapi_torrent_seed_chance
+    type: floating point
+    default: '1.0'
+    help: 'Probability that peer will become a seeder.'
+
+  - name: xenapi_torrent_seed_duration
+    type: integer
+    default: 3600
+    help: 'Number of seconds after downloading an image via BitTorrent that it should be seeded for other peers.'
+
+  - name: xenapi_torrent_max_last_accessed
+    type: integer
+    default: 86400
+    help: 'Cached torrent files not accessed within this number of seconds can be reaped'
+
+  - name: xenapi_torrent_listen_port_start
+    type: port
+    default: 6881
+    help: 'Beginning of port range to listen on'
+
+  - name: xenapi_torrent_listen_port_end
+    type: port
+    default: 6891
+    help: 'End of port range to listen on'
+
+  - name: xenapi_torrent_download_stall_cutoff
+    type: integer
+    default: 600
+    help: 'Number of seconds a download can remain at the same progress percentage w/o being considered a stall'
+
+  - name: xenapi_torrent_max_seeder_processes_per_host
+    type: integer
+    default: 1
+    help: 'Maximum number of seeder processes to run concurrently within a given dom0.'
+
+  - name: xenapi_running_timeout
+    type: integer
+    default: 60
+    help: 'number of seconds to wait for instance to go to running state'
+
+  - name: xenapi_vif_driver
+    type: string
+    default: 'nova.virt.xenapi.vif.XenAPIBridgeDriver'
+    help: 'The XenAPI VIF driver using XenServer Network APIs.'
+
+  - name: xenapi_image_upload_handler
+    type: string
+    default: 'nova.virt.xenapi.imageupload.glance.GlanceStore'
+    help: 'Object Store Driver used to handle image uploads.'
+
+  - name: novncproxy_base_url
+    type: string
+    default: 'http://127.0.0.1:6080/vnc_auto.html'
+    help: "location of vnc console proxy, in the form 'http://127.0.0.1:6080/vnc_auto.html'"
+
+  - name: xvpvncproxy_base_url
+    type: string
+    default: 'http://127.0.0.1:6081/console'
+    help: "location of nova xvp vnc console proxy, in the form 'http://127.0.0.1:6081/console'"
+
+  - name: vncserver_listen
+    type: string
+    default: '127.0.0.1'
+    help: 'IP address on which instance vncservers should listen'
+
+  - name: vncserver_proxyclient_address
+    type: string
+    default: '127.0.0.1'
+    help: 'the address to which proxy clients'
+
+  - name: vnc_enabled
+    type: boolean
+    default: True
+    help: 'enable vnc related features'
+
+  - name: vnc_keymap
+    type: string
+    default: 'en-us'
+    help: 'keymap for vnc'
+
+  - name: xvpvncproxy_port
+    type: port
+    default: 6081
+    help: 'Port that the XCP VNC proxy should bind to'
+
+  - name: xvpvncproxy_host
+    type: host
+    default: '0.0.0.0'
+    help: 'Address that the XCP VNC proxy should bind to'
+
+  - name: volume_api_class
+    type: string
+    default: 'nova.volume.cinder.API'
+    help: 'The full class name of the volume API class to use'
+
+  - name: cinder_catalog_info
+    type: string
+    default: 'volume:cinder:publicURL'
+    help: 'Info to match when looking for cinder in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type>'
+
+  - name: cinder_endpoint_template
+    type: string
+    default: None
+    help: 'Override service catalog lookup with template for cinder endpoint e.g. http://localhost:8776/v1/%(project_id)s'
+
+  - name: os_region_name
+    type: string
+    default: None
+    help: 'region name of this node'
+
+  - name: cinder_http_retries
+    type: integer
+    default: 3
+    help: 'Number of cinderclient retries on failed http calls'
+
+  - name: cinder_api_insecure
+    type: boolean
+    default: False
+    help: 'Allow to perform insecure SSL requests to cinder'
+
+  - name: cinder_cross_az_attach
+    type: boolean
+    default: True
+    help: 'Allow attach between instance and volume in different availability zones.'
+
+  - name: HYPERV.instances_path_share
+    type: string
+    default: ''
+    help: "The name of a Windows share name mapped to the 'instances_path' dir and used by the resize feature to copy files to the target host. If left blank, an administrative share will be used, looking for the same 'instances_path' used locally"
+
+  - name: conductor.use_local
+    type: boolean
+    default: False
+    help: 'Perform nova-conductor operations locally'
+
+  - name: cells.topic
+    type: string
+    default: 'cells'
+    help: 'the topic cells nodes listen on'
+
+  - name: cells.manager
+    type: string
+    default: 'nova.cells.manager.CellsManager'
+    help: 'Manager for cells'
+
+  - name: baremetal.driver
+    type: string
+    default: 'nova.virt.baremetal.pxe.PXE'
+    help: 'Baremetal driver back-end'
+
+  - name: cells.instance_updated_at_threshold
+    type: integer
+    default: 3600
+    help: 'Number of seconds after an instance was updated or deleted to continue to update cells'
+
+  - name: cells.instance_update_num_instances
+    type: integer
+    default: 1
+    help: 'Number of instances to update per periodic task run'
+
+  - name: cells.max_hop_count
+    type: integer
+    default: 10
+    help: 'Maximum number of hops for cells routing.'
+
+  - name: cells.scheduler
+    type: string
+    default: 'nova.cells.scheduler.CellsScheduler'
+    help: 'Cells scheduler to use'
+
+  - name: cells.enable
+    type: boolean
+    default: False
+    help: 'Enable cell functionality'
+
+  - name: cells.name
+    type: string
+    default: 'nova'
+    help: 'name of this cell'
+
+  - name: cells.capabilities
+    type: list
+    default: ['hypervisorxenserver;kvm', 'oslinux;windows']
+    help: 'Key/Multi-value list with the capabilities of the cell'
+
+  - name: cells.call_timeout
+    type: integer
+    default: 60
+    help: 'Seconds to wait for response from a call to a cell.'
+
+  - name: cells.rpc_driver_queue_base
+    type: string
+    default: 'cells.intercell'
+    help: 'Base queue name to use when communicating between cells. Various topics by message type will be appended to this.'
+
+  - name: cells.scheduler_retries
+    type: integer
+    default: 10
+    help: 'How many retries when no cells are available.'
+
+  - name: cells.scheduler_retry_delay
+    type: integer
+    default: 2
+    help: 'How often to retry in seconds when no cells are available.'
+
+  - name: cells.db_check_interval
+    type: integer
+    default: 60
+    help: 'Seconds between getting fresh cell info from db.'
+
+  - name: zookeeper.address
+    type: string
+    default: None
+    help: 'The ZooKeeper addresses for servicegroup service in the format of host1:port,host2:port,host3:port'
+
+  - name: zookeeper.recv_timeout
+    type: integer
+    default: 4000
+    help: 'recv_timeout parameter for the zk session'
+
+  - name: zookeeper.sg_prefix
+    type: string
+    default: '/servicegroups'
+    help: 'The prefix used in ZooKeeper to store ephemeral nodes'
+
+  - name: zookeeper.sg_retry_interval
+    type: integer
+    default: 5
+    help: 'Number of seconds to wait until retrying to join the session'
+
+  - name: baremetal.inject_password
+    type: boolean
+    default: True
+    help: 'Whether baremetal compute injects password or not'
+
+  - name: baremetal.vif_driver
+    type: string
+    default: 'nova.virt.baremetal.vif_driver.BareMetalVIFDriver'
+    help: 'Baremetal VIF driver.'
+
+  - name: baremetal.volume_driver
+    type: string
+    default: 'nova.virt.baremetal.volume_driver.LibvirtVolumeDriver'
+    help: 'Baremetal volume driver.'
+
+  - name: baremetal.instance_type_extra_specs
+    type: list
+    default: []
+    help: "a list of additional capabilities corresponding to instance_type_extra_specs for this compute host to advertise. Valid entries are name=value, pairs For example, 'key1:val1, key2:val2'"
+
+  - name: baremetal.power_manager
+    type: string
+    default: 'nova.virt.baremetal.ipmi.IPMI'
+    help: 'Baremetal power management method'
+
+  - name: baremetal.tftp_root
+    type: string
+    default: '/tftpboot'
+    help: "Baremetal compute node's tftp root path"
+
+  - name: baremetal.terminal
+    type: string
+    default: 'shellinaboxd'
+    help: 'path to baremetal terminal program'
+
+  - name: baremetal.terminal_cert_dir
+    type: string
+    default: None
+    help: 'path to baremetal terminal SSL cert(PEM)'
+
+  - name: baremetal.terminal_pid_dir
+    type: string
+    default: '$state_path/baremetal/console'
+    help: 'path to directory stores pidfiles of baremetal_terminal'
+
+  - name: baremetal.ipmi_power_retry
+    type: integer
+    default: 5
+    help: 'maximal number of retries for IPMI operations'
+
+  - name: baremetal.deploy_kernel
+    type: string
+    default: None
+    help: 'Default kernel image ID used in deployment phase'
+
+  - name: baremetal.deploy_ramdisk
+    type: string
+    default: None
+    help: 'Default ramdisk image ID used in deployment phase'
+
+  - name: baremetal.net_config_template
+    type: string
+    default: '$pybasedir/nova/virt/baremetal/net-dhcp.ubuntu.template'
+    help: 'Template file for injected network config'
+
+  - name: baremetal.pxe_append_params
+    type: string
+    default: None
+    help: 'additional append parameters for baremetal PXE boot'
+
+  - name: baremetal.pxe_config_template
+    type: string
+    default: '$pybasedir/nova/virt/baremetal/pxe_config.template'
+    help: 'Template file for PXE configuration'
+
+  - name: baremetal.pxe_deploy_timeout
+    type: integer
+    default: 0
+    help: 'Timeout for PXE deployments. Default: 0'
+
+  - name: baremetal.virtual_power_ssh_host
+    type: string
+    default: ''
+    help: 'ip or name to virtual power host'
+
+  - name: baremetal.virtual_power_type
+    type: string
+    default: 'vbox'
+    help: 'base command to use for virtual power(vbox,virsh)'
+
+  - name: baremetal.virtual_power_host_user
+    type: string
+    default: ''
+    help: 'user to execute virtual power commands as'
+
+  - name: baremetal.virtual_power_host_pass
+    type: string
+    default: ''
+    help: 'password for virtual power host_user'
+
+  - name: baremetal.use_unsafe_iscsi
+    type: boolean
+    default: False
+    help: 'Do not set this out of dev/test environments. If a node does not have a fixed PXE IP address, volumes are exported with globally opened ACL'
+
+  - name: baremetal.iscsi_iqn_prefix
+    type: string
+    default: 'iqn.2010-10.org.openstack.baremetal'
+    help: 'iSCSI IQN prefix used in baremetal volume connections.'
+
+  - name: rpc_notifier2.topics
+    type: list
+    default: ['notifications']
+    help: 'AMQP topic(s) used for openstack notifications'
+
+  - name: trusted_computing.attestation_server
+    type: string
+    default: None
+    help: 'attestation server http'
+
+  - name: trusted_computing.attestation_server_ca_file
+    type: string
+    default: None
+    help: 'attestation server Cert file for Identity verification'
+
+  - name: trusted_computing.attestation_port
+    type: port
+    default: 8443
+    help: 'attestation server port'
+
+  - name: trusted_computing.attestation_api_url
+    type: string
+    default: '/OpenAttestationWebServices/V1.0'
+    help: 'attestation web API URL'
+
+  - name: trusted_computing.attestation_auth_blob
+    type: string
+    default: None
+    help: 'attestation authorization blob - must change'
+
+  - name: trusted_computing.attestation_auth_timeout
+    type: integer
+    default: 60
+    help: 'Attestation status cache valid period length'
+
+  - name: vmware.integration_bridge
+    type: string
+    default: 'br-int'
+    help: 'Name of Integration Bridge'
+
+  - name: spice.html5proxy_base_url
+    type: string
+    default: 'http://127.0.0.1:6082/spice_auto.html'
+    help: "location of spice html5 console proxy, in the form 'http://127.0.0.1:6082/spice_auto.html'"
+
+  - name: spice.server_listen
+    type: string
+    default: '127.0.0.1'
+    help: 'IP address on which instance spice server should listen'
+
+  - name: spice.server_proxyclient_address
+    type: string
+    default: '127.0.0.1'
+    help: 'the address to which proxy clients'
+
+  - name: spice.enabled
+    type: boolean
+    default: False
+    help: 'enable spice related features'
+
+  - name: spice.agent_enabled
+    type: boolean
+    default: True
+    help: 'enable spice guest agent support'
+
+  - name: spice.keymap
+    type: string
+    default: 'en-us'
+    help: 'keymap for spice'
+

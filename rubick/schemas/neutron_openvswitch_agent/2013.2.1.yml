@@ -1,0 +1,38 @@
+project: neutron_openvswitch_agent
+version: '2013.2.1'
+parameters:
+
+  - name: ml2.type_drivers
+    type: string
+    default: 'local,flat,vlan,gre,vxlan'
+
+  - name: ml2.tenant_network_types
+    type: string
+    default: 'local'
+
+  - name: ml2.mechanism_drivers
+    type: string
+    default: ''
+    help: '(ListOpt) Ordered list of networking mechanism driver entrypoints to be loaded from the neutron.ml2.mechanism_drivers namespace.'
+
+  - name: ml2_type_flat.flat_networks
+    type: string
+    default: ''
+
+  - name: ml2_type_vlan.network_vlan_ranges
+    type: string
+    default: ''
+
+  - name: ml2_type_gre.tunnel_id_ranges
+    type: string
+    default: ''
+    help: '(ListOpt) Comma-separated list of <tun_min>:<tun_max> tuples enumerating ranges of GRE tunnel IDs that are available for tenant network allocation'
+
+  - name: ml2_type_vxlan.vni_ranges
+    type: string
+    default: ''
+
+  - name: ml2_type_vxlan.vxlan_group
+    type: string
+    default: ''
+

@@ -1,0 +1,54 @@
+project: rabbitmq
+version: '3.0.0'
+parameters:
+
+  - name: tcp_listeners
+    type: rabbitmq_bind_list
+    default: [5672]
+    help: 'List of ports on which to listen for AMQP connections (without SSL)'
+
+  - name: ssl_listeners
+    type: rabbitmq_bind_list
+    default: []
+    help: 'List of ports on which to listen for AMQP connections (SSL)'
+
+  - name: ssl_options
+    type: string_list
+    default: []
+
+  - name: vm_memory_high_watermark
+    type: float
+    default: 0.4
+
+  - name: vm_memory_high_watermark_paging_ratio
+    type: float
+    default: 0.5
+
+  - name: disk_free_limit
+    type: integer
+    default: '50000000'
+
+  - name: log_levels
+    type: string_list
+    default: ['{connection, info}']
+
+  - name: frame_max
+    type: integer
+    default: 131072
+
+  - name: heartbeat
+    type: integer
+    default: 600
+
+  - name: default_vhost
+    type: string
+    default: '/'
+
+  - name: default_user
+    type: string
+    default: 'guest'
+
+  - name: default_pass
+    type: string
+    default: 'guest'
+

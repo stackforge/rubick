@@ -1,0 +1,1889 @@
+project: cinder
+version: '2013.1.3'
+parameters:
+
+  - name: fatal_exception_format_errors
+    type: boolean
+    default: 'false'
+    help: 'make exception message format errors fatal'
+
+  - name: policy_file
+    type: string
+    default: 'policy.json'
+    help: 'JSON file representing policy'
+
+  - name: policy_default_rule
+    type: string
+    default: 'default'
+    help: 'Rule checked when requested rule is not found'
+
+  - name: quota_volumes
+    type: integer
+    default: '10'
+    help: 'number of volumes allowed per project'
+
+  - name: quota_snapshots
+    type: integer
+    default: '10'
+    help: 'number of volume snapshots allowed per project'
+
+  - name: quota_gigabytes
+    type: integer
+    default: '1000'
+    help: 'number of volume gigabytes'
+
+  - name: reservation_expire
+    type: integer
+    default: '86400'
+    help: 'number of seconds until a reservation expires'
+
+  - name: until_refresh
+    type: integer
+    default: '0'
+    help: 'count of reservations until usage is refreshed'
+
+  - name: max_age
+    type: integer
+    default: '0'
+    help: 'number of seconds between subsequent usage refreshes'
+
+  - name: quota_driver
+    type: string
+    default: 'cinder_2013_1_3.quota.DbQuotaDriver'
+    help: 'default driver to use for quota checks'
+
+  - name: use_default_quota_class
+    type: boolean
+    default: 'true'
+    help: 'whether to use default quota class for default quota'
+
+  - name: report_interval
+    type: integer
+    default: '10'
+    help: 'seconds between nodes reporting state to datastore'
+
+  - name: periodic_interval
+    type: integer
+    default: '60'
+    help: 'seconds between running periodic tasks'
+
+  - name: periodic_fuzzy_delay
+    type: integer
+    default: '60'
+    help: 'range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding.'
+
+  - name: osapi_volume_listen
+    type: string
+    default: '0.0.0.0'
+    help: 'IP address for OpenStack Volume API to listen'
+
+  - name: osapi_volume_listen_port
+    type: integer
+    default: '8776'
+    help: 'port for os volume api to listen'
+
+  - name: sqlite_clean_db
+    type: string
+    default: 'clean.sqlite'
+    help: 'File name of clean sqlite db'
+
+  - name: fake_tests
+    type: boolean
+    default: 'true'
+    help: 'should we use everything for testing'
+
+  - name: backlog
+    type: integer
+    default: '4096'
+    help: 'Number of backlog requests to configure the socket with'
+
+  - name: tcp_keepidle
+    type: integer
+    default: '600'
+    help: 'Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X.'
+
+  - name: ssl_ca_file
+    type: string
+    default: '<None>'
+    help: 'CA certificate file to use to verify connecting clients'
+
+  - name: ssl_cert_file
+    type: string
+    default: '<None>'
+    help: 'Certificate file to use when starting the server securely'
+
+  - name: ssl_key_file
+    type: string
+    default: '<None>'
+    help: 'Private key file to use when starting the server securely'
+
+  - name: osapi_max_limit
+    type: integer
+    default: '1000'
+    help: 'the maximum number of items returned in a single response from a collection resource'
+
+  - name: osapi_volume_base_URL
+    type: string
+    default: '<None>'
+    help: 'Base URL that will be presented to users in links to the OpenStack Volume API'
+
+  - name: use_forwarded_for
+    type: boolean
+    default: 'false'
+    help: 'Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy.'
+
+  - name: osapi_max_request_body_size
+    type: integer
+    default: '114688'
+    help: 'Max size for body of a request'
+
+  - name: backup_ceph_conf
+    type: string
+    default: '/etc/ceph/ceph.conf'
+    help: 'Ceph config file to use.'
+
+  - name: backup_ceph_user
+    type: string
+    default: 'cinder'
+    help: 'the Ceph user to connect with'
+
+  - name: backup_ceph_chunk_size
+    type: integer
+    default: '134217728'
+    help: 'the chunk size in bytes that a backup will be broken into before transfer to backup store'
+
+  - name: backup_ceph_pool
+    type: string
+    default: 'backups'
+    help: 'the Ceph pool to backup to'
+
+  - name: backup_ceph_stripe_unit
+    type: integer
+    default: '0'
+    help: 'RBD stripe unit to use when creating a backup image'
+
+  - name: backup_ceph_stripe_count
+    type: integer
+    default: '0'
+    help: 'RBD stripe count to use when creating a backup image'
+
+  - name: restore_discard_excess_bytes
+    type: boolean
+    default: 'true'
+    help: 'If True, always discard excess bytes when restoring volumes.'
+
+  - name: backup_swift_url
+    type: string
+    default: 'http://localhost:8080/v1/AUTH_'
+    help: 'The URL of the Swift endpoint'
+
+  - name: backup_swift_auth
+    type: string
+    default: 'per_user'
+    help: 'Swift authentication mechanism'
+
+  - name: backup_swift_user
+    type: string
+    default: '<None>'
+    help: 'Swift user name'
+
+  - name: backup_swift_key
+    type: string
+    default: '<None>'
+    help: 'Swift key for authentication'
+
+  - name: backup_swift_container
+    type: string
+    default: 'volumebackups'
+    help: 'The default Swift container to use'
+
+  - name: backup_swift_object_size
+    type: integer
+    default: '52428800'
+    help: 'The size in bytes of Swift backup objects'
+
+  - name: backup_swift_retry_attempts
+    type: integer
+    default: '3'
+    help: 'The number of retries to make for Swift operations'
+
+  - name: backup_swift_retry_backoff
+    type: integer
+    default: '2'
+    help: 'The backoff time in seconds between Swift retries'
+
+  - name: backup_compression_algorithm
+    type: string
+    default: 'zlib'
+    help: 'Compression algorithm'
+
+  - name: backup_tsm_volume_prefix
+    type: string
+    default: 'backup'
+    help: 'Volume prefix for the backup id when backing up to TSM'
+
+  - name: backup_tsm_password
+    type: string
+    default: 'password'
+    help: 'TSM password for the running username'
+
+  - name: backup_tsm_compression
+    type: boolean
+    default: 'true'
+    help: 'Enable or Disable compression for backups'
+
+  - name: backup_driver
+    type: string
+    default: 'cinder_2013_1_3.backup.drivers.swift_proxy_server'
+    help: 'Driver to use for backups.'
+
+  - name: num_volume_device_scan_tries
+    type: integer
+    default: '3'
+    help: 'The maximum number of times to rescan targetsto find volume'
+
+  - name: iscsi_helper
+    type: string
+    default: 'tgtadm'
+    help: 'iscsi target user-land tool to use'
+
+  - name: volumes_dir
+    type: string
+    default: '$state_path/volumes'
+    help: 'Volume configuration file storage directory'
+
+  - name: iet_conf
+    type: string
+    default: '/etc/iet/ietd.conf'
+    help: 'IET configuration file'
+
+  - name: lio_initiator_iqns
+    type: string
+    default: ''
+    help: 'Comma-separatd list of initiator IQNs allowed to connect to the iSCSI target.'
+
+  - name: iscsi_iotype
+    type: string
+    default: 'fileio'
+    help: 'Sets the behavior of the iSCSI target to either perform blockio or fileio optionally, auto can be set and Cinder will autodetect type of backing device'
+
+  - name: iser_helper
+    type: string
+    default: 'tgtadm'
+    help: 'iser target user-land tool to use'
+
+  - name: nfs_mount_point_base
+    type: string
+    default: '$state_path/mnt'
+    help: 'Base dir containing mount points for nfs shares'
+
+  - name: nfs_mount_options
+    type: string
+    default: '<None>'
+    help: 'Mount options passed to the nfs client. See section of the nfs man page for details'
+
+  - name: glusterfs_mount_point_base
+    type: string
+    default: '$state_path/mnt'
+    help: 'Base dir containing mount points for gluster shares'
+
+  - name: connection_type
+    type: string
+    default: '<None>'
+    help: 'Virtualization api connection type : libvirt, xenapi, or fake'
+
+  - name: api_paste_config
+    type: string
+    default: 'api-paste.ini'
+    help: 'File name for the paste.deploy config for cinder-api'
+
+  - name: pybasedir
+    type: string
+    default: '/usr/lib/python/site-packages'
+    help: 'Directory where the cinder python module is installed'
+
+  - name: bindir
+    type: string
+    default: '$pybasedir/bin'
+    help: 'Directory where cinder binaries are installed'
+
+  - name: state_path
+    type: string
+    default: '$pybasedir'
+    help: "Top-level directory for maintaining cinder's state"
+
+  - name: my_ip
+    type: string
+    default: '10.0.0.1'
+    help: 'ip address of this host'
+
+  - name: glance_host
+    type: string
+    default: '$my_ip'
+    help: 'default glance hostname or ip'
+
+  - name: glance_port
+    type: integer
+    default: '9292'
+    help: 'default glance port'
+
+  - name: glance_api_servers
+    type: list
+    default: '$glance_host:$glance_port'
+    help: 'A list of the glance api servers available to cinder'
+
+  - name: glance_api_version
+    type: integer
+    default: '1'
+    help: 'Version of the glance api to use'
+
+  - name: glance_num_retries
+    type: integer
+    default: '0'
+    help: 'Number retries when downloading an image from glance'
+
+  - name: glance_api_insecure
+    type: boolean
+    default: 'false'
+    help: 'Allow to perform insecure SSL'
+
+  - name: glance_api_ssl_compression
+    type: boolean
+    default: 'false'
+    help: 'Whether to attempt to negotiate SSL layer compression when using SSL'
+
+  - name: glance_request_timeout
+    type: integer
+    default: '<None>'
+    help: 'http/https timeout value for glance operations. If no value'
+
+  - name: scheduler_topic
+    type: string
+    default: 'cinder-scheduler'
+    help: 'the topic scheduler nodes listen on'
+
+  - name: volume_topic
+    type: string
+    default: 'cinder-volume'
+    help: 'the topic volume nodes listen on'
+
+  - name: backup_topic
+    type: string
+    default: 'cinder-backup'
+    help: 'the topic volume backup nodes listen on'
+
+  - name: enable_v1_api
+    type: boolean
+    default: 'true'
+    help: 'Deploy v1 of the Cinder API. '
+
+  - name: enable_v2_api
+    type: boolean
+    default: 'true'
+    help: 'Deploy v2 of the Cinder API. '
+
+  - name: api_rate_limit
+    type: boolean
+    default: 'true'
+    help: 'whether to rate limit the api'
+
+  - name: osapi_volume_ext_list
+    type: list
+    default: ''
+    help: 'Specify list of extensions to load when using osapi_volume_extension option with cinder_2013_1_3.api.contrib.select_extensions'
+
+  - name: osapi_volume_extension
+    type: multi
+    default: 'cinder_2013_1_3.api.contrib.standard_extensions'
+    help: 'osapi volume extension to load'
+
+  - name: volume_manager
+    type: string
+    default: 'cinder_2013_1_3.volume.manager.VolumeManager'
+    help: 'full class name for the Manager for volume'
+
+  - name: backup_manager
+    type: string
+    default: 'cinder_2013_1_3.backup.manager.BackupManager'
+    help: 'full class name for the Manager for volume backup'
+
+  - name: scheduler_manager
+    type: string
+    default: 'cinder_2013_1_3.scheduler.manager.SchedulerManager'
+    help: 'full class name for the Manager for scheduler'
+
+  - name: host
+    type: string
+    default: '127.0.0.1'
+    help: 'Host to locate redis'
+
+  - name: storage_availability_zone
+    type: string
+    default: 'nova'
+    help: 'availability zone of this node'
+
+  - name: default_availability_zone
+    type: string
+    default: '<None>'
+    help: 'default availability zone to use when creating a new volume. If this is not set then we use the value from the storage_availability_zone option as the default availability_zone for new volumes.'
+
+  - name: memcached_servers
+    type: list
+    default: '<None>'
+    help: 'Memcached servers or None for in process cache.'
+
+  - name: default_volume_type
+    type: string
+    default: '<None>'
+    help: 'default volume type to use'
+
+  - name: volume_usage_audit_period
+    type: string
+    default: 'month'
+    help: 'time period to generate volume usages for.  Time period must be hour, day, month or year'
+
+  - name: root_helper
+    type: string
+    default: 'sudo'
+    help: 'Deprecated: command to use for running commands as root'
+
+  - name: rootwrap_config
+    type: string
+    default: '/etc/cinder/rootwrap.conf'
+    help: 'Path to the rootwrap configuration file to use for running commands as root'
+
+  - name: monkey_patch
+    type: boolean
+    default: 'false'
+    help: 'Enable monkey patching'
+
+  - name: monkey_patch_modules
+    type: list
+    default: ''
+    help: 'List of modules/decorators to monkey patch'
+
+  - name: service_down_time
+    type: integer
+    default: '60'
+    help: 'maximum time since last check-in for up service'
+
+  - name: volume_api_class
+    type: string
+    default: 'cinder_2013_1_3.volume.api.API'
+    help: 'The full class name of the volume API class to use'
+
+  - name: backup_api_class
+    type: string
+    default: 'cinder_2013_1_3.backup.api.API'
+    help: 'The full class name of the volume backup API class'
+
+  - name: auth_strategy
+    type: string
+    default: 'noauth'
+    help: 'The strategy to use for auth. Supports noauth, keystone, and deprecated.'
+
+  - name: enabled_backends
+    type: list
+    default: '<None>'
+    help: 'A list of backend names to use. These backend names should be backed by a unique [CONFIG] group with its options'
+
+  - name: no_snapshot_gb_quota
+    type: boolean
+    default: 'false'
+    help: 'Whether snapshots count against GigaByte quota'
+
+  - name: transfer_api_class
+    type: string
+    default: 'cinder_2013_1_3.transfer.api.API'
+    help: 'The full class name of the volume transfer API class'
+
+  - name: compute_api_class
+    type: string
+    default: 'cinder_2013_1_3.compute.nova.API'
+    help: 'The full class name of the compute API class to use'
+
+  - name: nova_catalog_info
+    type: string
+    default: 'compute:nova:publicURL'
+    help: 'Info to match when looking for nova in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type>'
+
+  - name: nova_catalog_admin_info
+    type: string
+    default: 'compute:nova:adminURL'
+    help: 'Same as nova_catalog_info, but for admin endpoint.'
+
+  - name: nova_endpoint_template
+    type: string
+    default: '<None>'
+    help: 'Override service catalog lookup with template for nova endpoint e.g. http://localhost:8774/v2/%(tenant_id)s'
+
+  - name: nova_endpoint_admin_template
+    type: string
+    default: '<None>'
+    help: 'Same as nova_endpoint_template, but for admin endpoint.'
+
+  - name: os_region_name
+    type: string
+    default: '<None>'
+    help: 'region name of this node'
+
+  - name: nova_ca_certificates_file
+    type: string
+    default: '<None>'
+    help: 'Location of ca certicates file to use for nova client requests.'
+
+  - name: nova_api_insecure
+    type: boolean
+    default: 'false'
+    help: 'Allow to perform insecure SSL requests to nova'
+
+  - name: db_backend
+    type: string
+    default: 'sqlalchemy'
+    help: 'The backend to use for db'
+
+  - name: enable_new_services
+    type: boolean
+    default: 'true'
+    help: 'Services to be added to the available pool on create'
+
+  - name: volume_name_template
+    type: string
+    default: 'volume-%s'
+    help: 'Template string to be used to generate volume names'
+
+  - name: snapshot_name_template
+    type: string
+    default: 'snapshot-%s'
+    help: 'Template string to be used to generate snapshot names'
+
+  - name: backup_name_template
+    type: string
+    default: 'backup-%s'
+    help: 'Template string to be used to generate backup names'
+
+  - name: db_driver
+    type: string
+    default: 'cinder_2013_1_3.db'
+    help: 'driver to use for database access'
+
+  - name: allowed_direct_url_schemes
+    type: list
+    default: ''
+    help: 'A list of url schemes that can be downloaded directly via the direct_url.  Currently supported schemes: [file].'
+
+  - name: image_conversion_dir
+    type: string
+    default: '$state_path/conversion'
+    help: 'Directory used for temporary storage during image conversion'
+
+  - name: keymgr_api_class
+    type: string
+    default: 'cinder_2013_1_3.keymgr.not_implemented_key_mgr.NotImplementedKeyManager'
+    help: 'The full class name of the key manager API class'
+
+  - name: backend
+    type: string
+    default: 'sqlalchemy'
+    help: 'The backend to use for db'
+
+  - name: use_tpool
+    type: boolean
+    default: 'false'
+    help: 'Enable the experimental use of thread pooling for all DB API calls'
+
+  - name: connection
+    type: string
+    default: 'sqlite:////cinder/openstack/common/db/$sqlite_db'
+    help: 'The SQLAlchemy connection string used to connect to the database'
+
+  - name: sql_connection
+    type: string
+    default: 'sqlite:////nova/openstack/common/db/$sqlite_db'
+    help: 'The SQLAlchemy connection string used to connect to the database'
+
+  - name: idle_timeout
+    type: integer
+    default: '3600'
+    help: 'timeout before idle sql connections are reaped'
+
+  - name: min_pool_size
+    type: integer
+    default: '1'
+    help: 'Minimum number of SQL connections to keep open in a pool'
+
+  - name: max_pool_size
+    type: integer
+    default: '5'
+    help: 'Maximum number of SQL connections to keep open in a pool'
+
+  - name: max_retries
+    type: integer
+    default: '10'
+    help: 'maximum db connection retries during startup.'
+
+  - name: retry_interval
+    type: integer
+    default: '10'
+    help: 'interval between retries of opening a sql connection'
+
+  - name: max_overflow
+    type: integer
+    default: '<None>'
+    help: 'If set, use this value for max_overflow with sqlalchemy'
+
+  - name: connection_debug
+    type: integer
+    default: '0'
+    help: 'Verbosity of SQL debugging information. 0=None, 100=Everything'
+
+  - name: connection_trace
+    type: boolean
+    default: 'false'
+    help: 'Add python stack traces to SQL as comment strings'
+
+  - name: sqlite_db
+    type: string
+    default: 'cinder_2013_1_3.sqlite'
+    help: 'the filename to use with sqlite'
+
+  - name: sqlite_synchronous
+    type: boolean
+    default: 'true'
+    help: 'If true, use synchronous mode for sqlite'
+
+  - name: backdoor_port
+    type: integer
+    default: '<None>'
+    help: 'port for eventlet backdoor to listen'
+
+  - name: disable_process_locking
+    type: boolean
+    default: 'false'
+    help: 'Whether to disable inter-process locks'
+
+  - name: lock_path
+    type: string
+    default: '<None>'
+    help: 'Directory to use for lock files. Default to a temp directory'
+
+  - name: debug
+    type: boolean
+    default: 'false'
+    help: 'Print debugging output'
+
+  - name: verbose
+    type: boolean
+    default: 'false'
+    help: 'Print more verbose output'
+
+  - name: use_stderr
+    type: boolean
+    default: 'true'
+    help: 'Log output to standard error'
+
+  - name: logging_context_format_string
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s'
+    help: 'format string to use for log messages with context'
+
+  - name: logging_default_format_string
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s'
+    help: 'format string to use for log messages without context'
+
+  - name: logging_debug_format_suffix
+    type: string
+    default: '%(funcName)s %(pathname)s:%(lineno)d'
+    help: 'data to append to log format when level is DEBUG'
+
+  - name: logging_exception_prefix
+    type: string
+    default: '%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s'
+    help: 'prefix each line of exception output with this format'
+
+  - name: default_log_levels
+    type: list
+    default: 'amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,eventlet.wsgi.serverWARN'
+    help: 'list of logger=LEVEL pairs'
+
+  - name: publish_errors
+    type: boolean
+    default: 'false'
+    help: 'publish error events'
+
+  - name: fatal_deprecations
+    type: boolean
+    default: 'false'
+    help: 'make deprecations fatal'
+
+  - name: instance_format
+    type: string
+    default: '"[instance: %(uuid)s] "'
+    help: 'If an instance is passed with the log message, format it like this'
+
+  - name: instance_uuid_format
+    type: string
+    default: '"[instance: %(uuid)s] "'
+    help: 'If an instance UUID is passed with the log message, format it like this'
+
+  - name: log_config
+    type: string
+    default: '<None>'
+    help: 'If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.'
+
+  - name: log_format
+    type: string
+    default: '<None>'
+    help: 'A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead.'
+
+  - name: log_date_format
+    type: string
+    default: '%Y-%m-%d %H:%M:%S'
+    help: 'Format string for %%(asctime)s in log records. Default: %(default)s'
+
+  - name: log_file
+    type: string
+    default: '<None>'
+    help: '(Optional) Name of log file to output to. If no default is set, logging will go to stdout.'
+
+  - name: log_dir
+    type: string
+    default: '<None>'
+    help: '(Optional) The base directory used for relative --log-file paths'
+
+  - name: use_syslog
+    type: boolean
+    default: 'false'
+    help: 'Use syslog for logging.'
+
+  - name: syslog_log_facility
+    type: string
+    default: 'LOG_USER'
+    help: 'syslog facility to receive log lines'
+
+  - name: default_notification_level
+    type: string
+    default: 'INFO'
+    help: 'Default notification level for outgoing notifications'
+
+  - name: default_publisher_id
+    type: string
+    default: '<None>'
+    help: 'Default publisher_id for outgoing notifications'
+
+  - name: notification_topics
+    type: list
+    default: 'notifications'
+    help: 'AMQP topic used for OpenStack notifications'
+
+  - name: topics
+    type: list
+    default: 'notifications'
+    help: 'AMQP topic(s) used for OpenStack notifications'
+
+  - name: run_external_periodic_tasks
+    type: boolean
+    default: 'true'
+    help: 'Some periodic tasks can be run in a separate process. Should we run them here?'
+
+  - name: rpc_backend
+    type: string
+    default: 'cinder_2013_1_3.openstack.common.rpc.impl_kombu'
+    help: 'The messaging module to use, defaults to kombu.'
+
+  - name: rpc_thread_pool_size
+    type: integer
+    default: '64'
+    help: 'Size of RPC thread pool'
+
+  - name: rpc_conn_pool_size
+    type: integer
+    default: '30'
+    help: 'Size of RPC connection pool'
+
+  - name: rpc_response_timeout
+    type: integer
+    default: '60'
+    help: 'Seconds to wait for a response from call or multicall'
+
+  - name: rpc_cast_timeout
+    type: integer
+    default: '30'
+    help: 'Seconds to wait before a cast expires'
+
+  - name: allowed_rpc_exception_modules
+    type: list
+    default: 'cinder_2013_1_3.openstack.common.exception,nova.exception,cinder_2013_1_3.exception,exceptions'
+    help: 'Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call.'
+
+  - name: fake_rabbit
+    type: boolean
+    default: 'false'
+    help: 'If passed, use a fake RabbitMQ provider'
+
+  - name: control_exchange
+    type: string
+    default: 'openstack'
+    help: 'AMQP exchange to connect to if using RabbitMQ or Qpid'
+
+  - name: amqp_rpc_single_reply_queue
+    type: boolean
+    default: 'false'
+    help: 'Enable a fast single reply queue if using AMQP based RPC like RabbitMQ or Qpid.'
+
+  - name: amqp_durable_queues
+    type: boolean
+    default: 'false'
+    help: 'Use durable queues in amqp.'
+
+  - name: amqp_auto_delete
+    type: boolean
+    default: 'false'
+    help: 'Auto-delete queues in amqp.'
+
+  - name: kombu_ssl_version
+    type: string
+    default: ''
+    help: 'SSL version to use'
+
+  - name: kombu_ssl_keyfile
+    type: string
+    default: ''
+    help: 'SSL key file'
+
+  - name: kombu_ssl_certfile
+    type: string
+    default: ''
+    help: 'SSL cert file'
+
+  - name: kombu_ssl_ca_certs
+    type: string
+    default: ''
+    help: 'SSL certification authority file'
+
+  - name: rabbit_host
+    type: string
+    default: 'localhost'
+    help: 'The RabbitMQ broker address where a single node is used'
+
+  - name: rabbit_port
+    type: integer
+    default: '5672'
+    help: 'The RabbitMQ broker port where a single node is used'
+
+  - name: rabbit_hosts
+    type: list
+    default: '$rabbit_host:$rabbit_port'
+    help: 'RabbitMQ HA cluster host:port pairs'
+
+  - name: rabbit_use_ssl
+    type: boolean
+    default: 'false'
+    help: 'connect over SSL for RabbitMQ'
+
+  - name: rabbit_userid
+    type: string
+    default: 'guest'
+    help: 'the RabbitMQ userid'
+
+  - name: rabbit_password
+    type: string
+    default: 'guest'
+    help: 'the RabbitMQ password'
+
+  - name: rabbit_virtual_host
+    type: string
+    default: '/'
+    help: 'the RabbitMQ virtual host'
+
+  - name: rabbit_retry_interval
+    type: integer
+    default: '1'
+    help: 'how frequently to retry connecting with RabbitMQ'
+
+  - name: rabbit_retry_backoff
+    type: integer
+    default: '2'
+    help: 'how long to backoff for between retries when connecting to RabbitMQ'
+
+  - name: rabbit_max_retries
+    type: integer
+    default: '0'
+    help: 'maximum retries with trying to connect to RabbitMQ'
+
+  - name: rabbit_ha_queues
+    type: boolean
+    default: 'false'
+    help: 'use H/A queues in RabbitMQ'
+
+  - name: qpid_hostname
+    type: string
+    default: 'localhost'
+    help: 'Qpid broker hostname'
+
+  - name: qpid_port
+    type: integer
+    default: '5672'
+    help: 'Qpid broker port'
+
+  - name: qpid_hosts
+    type: list
+    default: '$qpid_hostname:$qpid_port'
+    help: 'Qpid HA cluster host:port pairs'
+
+  - name: qpid_username
+    type: string
+    default: ''
+    help: 'Username for qpid connection'
+
+  - name: qpid_password
+    type: string
+    default: ''
+    help: 'Password for qpid connection'
+
+  - name: qpid_sasl_mechanisms
+    type: string
+    default: ''
+    help: 'Space separated list of SASL mechanisms to use for auth'
+
+  - name: qpid_heartbeat
+    type: integer
+    default: '60'
+    help: 'Seconds between connection keepalive heartbeats'
+
+  - name: qpid_protocol
+    type: string
+    default: 'tcp'
+    help: "Transport to use, either 'tcp' or 'ssl'"
+
+  - name: qpid_tcp_nodelay
+    type: boolean
+    default: 'true'
+    help: 'Disable Nagle algorithm'
+
+  - name: qpid_topology_version
+    type: integer
+    default: '1'
+    help: 'The qpid topology version to use.  Version 1 is what was originally used by impl_qpid.  Version 2 includes some backwards-incompatible changes that allow broker federation to work.  Users should update to version 2 when they are able to take everything down, as it requires a clean break.'
+
+  - name: rpc_zmq_bind_address
+    type: string
+    default: '*'
+    help: 'ZeroMQ bind address. Should be a wildcard'
+
+  - name: rpc_zmq_matchmaker
+    type: string
+    default: 'cinder_2013_1_3.openstack.common.rpc.matchmaker.MatchMakerLocalhost'
+    help: 'MatchMaker driver'
+
+  - name: rpc_zmq_port
+    type: integer
+    default: '9501'
+    help: 'ZeroMQ receiver listening port'
+
+  - name: rpc_zmq_contexts
+    type: integer
+    default: '1'
+    help: 'Number of ZeroMQ contexts, defaults to 1'
+
+  - name: rpc_zmq_topic_backlog
+    type: integer
+    default: '<None>'
+    help: 'Maximum number of ingress messages to locally buffer per topic. Default is unlimited.'
+
+  - name: rpc_zmq_ipc_dir
+    type: string
+    default: '/var/run/openstack'
+    help: 'Directory for holding IPC sockets'
+
+  - name: rpc_zmq_host
+    type: string
+    default: 'cinder'
+    help: "Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova."
+
+  - name: matchmaker_ringfile
+    type: string
+    default: '/etc/nova/matchmaker_ring.json'
+    help: 'Matchmaker ring file'
+
+  - name: matchmaker_heartbeat_freq
+    type: integer
+    default: '300'
+    help: 'Heartbeat frequency'
+
+  - name: matchmaker_heartbeat_ttl
+    type: integer
+    default: '600'
+    help: 'Heartbeat time-to-live.'
+
+  - name: port
+    type: integer
+    default: '6379'
+    help: 'Use this port to connect to redis host.'
+
+  - name: password
+    type: string
+    default: '<None>'
+    help: 'Password for Redis server.'
+
+  - name: scheduler_host_manager
+    type: string
+    default: 'cinder_2013_1_3.scheduler.host_manager.HostManager'
+    help: 'The scheduler host manager class to use'
+
+  - name: scheduler_max_attempts
+    type: integer
+    default: '3'
+    help: 'Maximum number of attempts to schedule an volume'
+
+  - name: scheduler_default_filters
+    type: list
+    default: 'AvailabilityZoneFilter,CapacityFilter,CapabilitiesFilter'
+    help: 'Which filter class names to use for filtering hosts when not specified in the request.'
+
+  - name: scheduler_default_weighers
+    type: list
+    default: 'CapacityWeigher'
+    help: 'Which weigher class names to use for weighing hosts.'
+
+  - name: scheduler_driver
+    type: string
+    default: 'cinder_2013_1_3.scheduler.filter_scheduler.FilterScheduler'
+    help: 'Default scheduler driver to use'
+
+  - name: scheduler_json_config_location
+    type: string
+    default: ''
+    help: 'Absolute path to scheduler configuration JSON file.'
+
+  - name: max_gigabytes
+    type: integer
+    default: '10000'
+    help: 'maximum number of volume gigabytes to allow per host'
+
+  - name: capacity_weight_multiplier
+    type: floating point
+    default: '1.0'
+    help: 'Multiplier used for weighing volume capacity. Negative numbers mean to stack vs spread.'
+
+  - name: volume_transfer_salt_length
+    type: integer
+    default: '8'
+    help: 'The number of characters in the salt.'
+
+  - name: volume_transfer_key_length
+    type: integer
+    default: '16'
+    help: 'The number of characters in the autogenerated auth key.'
+
+  - name: snapshot_same_host
+    type: boolean
+    default: 'true'
+    help: 'Create volume from snapshot at the host where snapshot resides'
+
+  - name: cloned_volume_same_az
+    type: boolean
+    default: 'true'
+    help: 'Ensure that the new volumes are the same AZ as snapshot or source volume'
+
+  - name: num_shell_tries
+    type: integer
+    default: '3'
+    help: 'number of times to attempt to run flakey shell commands'
+
+  - name: reserved_percentage
+    type: integer
+    default: '0'
+    help: 'The percentage of backend capacity is reserved'
+
+  - name: iscsi_num_targets
+    type: integer
+    default: '100'
+    help: 'The maximum number of iscsi target ids per host'
+
+  - name: iscsi_target_prefix
+    type: string
+    default: 'iqn.2010-10.org.openstack:'
+    help: 'prefix for iscsi volumes'
+
+  - name: iscsi_ip_address
+    type: string
+    default: '$my_ip'
+    help: 'The IP address that the iSCSI daemon is listening on'
+
+  - name: iscsi_port
+    type: integer
+    default: '3260'
+    help: 'The port that the iSCSI daemon is listening on'
+
+  - name: num_iser_scan_tries
+    type: integer
+    default: '3'
+    help: 'The maximum number of times to rescan iSER targetto find volume'
+
+  - name: iser_num_targets
+    type: integer
+    default: '100'
+    help: 'The maximum number of iser target ids per host'
+
+  - name: iser_target_prefix
+    type: string
+    default: 'iqn.2010-10.org.iser.openstack:'
+    help: 'prefix for iser volumes'
+
+  - name: iser_ip_address
+    type: string
+    default: '$my_ip'
+    help: 'The IP address that the iSER daemon is listening on'
+
+  - name: iser_port
+    type: integer
+    default: '3260'
+    help: 'The port that the iSER daemon is listening on'
+
+  - name: volume_backend_name
+    type: string
+    default: '<None>'
+    help: 'The backend name for a given driver implementation'
+
+  - name: use_multipath_for_image_xfer
+    type: boolean
+    default: 'false'
+    help: 'Do we attach/detach volumes in cinder using multipath for volume to image and image to volume transfers?'
+
+  - name: volume_clear
+    type: string
+    default: 'zero'
+    help: 'Method used to wipe old voumes'
+
+  - name: volume_clear_size
+    type: integer
+    default: '0'
+    help: 'Size in MiB to wipe at start of old volumes. 0 => all'
+
+  - name: available_devices
+    type: list
+    default: ''
+    help: 'List of all available devices'
+
+  - name: coraid_esm_address
+    type: string
+    default: ''
+    help: 'IP address of Coraid ESM'
+
+  - name: coraid_user
+    type: string
+    default: 'admin'
+    help: 'User name to connect to Coraid ESM'
+
+  - name: coraid_group
+    type: string
+    default: 'admin'
+    help: 'Name of group on Coraid ESM to which coraid_user belongs'
+
+  - name: coraid_password
+    type: string
+    default: 'password'
+    help: 'Password to connect to Coraid ESM'
+
+  - name: coraid_repository_key
+    type: string
+    default: 'coraid_repository'
+    help: 'Volume Type key name to store ESM Repository Name'
+
+  - name: eqlx_group_name
+    type: string
+    default: 'group-0'
+    help: 'Group name to use for creating volumes'
+
+  - name: eqlx_cli_timeout
+    type: integer
+    default: '30'
+    help: 'Timeout for the Group Manager cli command execution'
+
+  - name: eqlx_cli_max_retries
+    type: integer
+    default: '5'
+    help: 'Maximum retry count for reconnection'
+
+  - name: eqlx_use_chap
+    type: boolean
+    default: 'false'
+    help: 'Use CHAP authentificaion for targets?'
+
+  - name: eqlx_chap_login
+    type: string
+    default: 'admin'
+    help: 'Existing CHAP account name'
+
+  - name: eqlx_chap_password
+    type: string
+    default: 'password'
+    help: 'Password for specified CHAP account name'
+
+  - name: eqlx_pool
+    type: string
+    default: 'default'
+    help: 'Pool in which volumes will be created'
+
+  - name: glusterfs_shares_config
+    type: string
+    default: '/etc/cinder/glusterfs_shares'
+    help: 'File with the list of available gluster shares'
+
+  - name: glusterfs_disk_util
+    type: string
+    default: 'df'
+    help: 'Use du or df for free space calculation'
+
+  - name: glusterfs_sparsed_volumes
+    type: boolean
+    default: 'true'
+    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.'
+
+  - name: glusterfs_qcow2_volumes
+    type: boolean
+    default: 'false'
+    help: 'Create volumes as QCOW2 files rather than raw files.'
+
+  - name: gpfs_mount_point_base
+    type: string
+    default: '<None>'
+    help: 'Path to the directory on GPFS mount point where volumes are stored'
+
+  - name: gpfs_images_dir
+    type: string
+    default: '<None>'
+    help: 'Path to GPFS Glance repository as mounted on Nova nodes'
+
+  - name: gpfs_images_share_mode
+    type: string
+    default: '<None>'
+    help: 'Set this if Glance image repo is on GPFS as well so that the image bits can be transferred efficiently between Glance and cinder_2013_1_3.  Valid values are copy or copy_on_write. copy performs a full copy of the image, copy_on_write efficiently shares unmodified blocks of the image.'
+
+  - name: gpfs_max_clone_depth
+    type: integer
+    default: '0'
+    help: 'A lengthy chain of copy-on-write snapshots or clones could have impact on performance.  This option limits the number of indirections required to reach a specific block. 0 indicates unlimited.'
+
+  - name: gpfs_sparse_volumes
+    type: boolean
+    default: 'true'
+    help: 'Create volumes as sparse files which take no space. If set to False volume is created as regular file. In this case volume creation may take a significantly longer time.'
+
+  - name: hds_cinder_config_file
+    type: string
+    default: '/opt/hds/hus/cinder_hus_conf.xml'
+    help: 'configuration file for HDS cinder plugin for HUS'
+
+  - name: cinder_huawei_conf_file
+    type: string
+    default: '/etc/cinder/cinder_huawei_conf.xml'
+    help: 'config data for cinder huawei plugin'
+
+  - name: volume_group
+    type: string
+    default: 'cinder-volumes'
+    help: 'Name for the VG that will contain exported volumes'
+
+  - name: pool_size
+    type: string
+    default: '<None>'
+    help: 'Size of thin provisioning pool'
+
+  - name: lvm_mirrors
+    type: integer
+    default: '0'
+    help: 'If set, create lvms with multiple mirrors. Note that this requires lvm_mirrors + 2 pvs with available space'
+
+  - name: lvm_type
+    type: string
+    default: 'default'
+    help: 'Type of LVM volumes to deploy;'
+
+  - name: netapp_vfiler
+    type: string
+    default: '<None>'
+    help: 'Vfiler to use for provisioning'
+
+  - name: netapp_login
+    type: string
+    default: '<None>'
+    help: 'User name for the storage controller'
+
+  - name: netapp_password
+    type: string
+    default: '<None>'
+    help: 'Password for the storage controller'
+
+  - name: netapp_vserver
+    type: string
+    default: '<None>'
+    help: 'Cluster vserver to use for provisioning'
+
+  - name: netapp_server_hostname
+    type: string
+    default: '<None>'
+    help: 'Host name for the storage controller'
+
+  - name: netapp_server_port
+    type: integer
+    default: '80'
+    help: 'Port number for the storage controller'
+
+  - name: thres_avl_size_perc_start
+    type: integer
+    default: '20'
+    help: 'Threshold available percent to start cache cleaning.'
+
+  - name: thres_avl_size_perc_stop
+    type: integer
+    default: '60'
+    help: 'Threshold available percent to stop cache cleaning.'
+
+  - name: expiry_thres_minutes
+    type: integer
+    default: '720'
+    help: 'Threshold minutes after which cache file can be cleaned.'
+
+  - name: netapp_size_multiplier
+    type: floating point
+    default: '1.2'
+    help: 'Volume size multiplier to ensure while creation'
+
+  - name: netapp_volume_list
+    type: string
+    default: '<None>'
+    help: 'Comma separated volumes to be used for provisioning'
+
+  - name: netapp_storage_family
+    type: string
+    default: 'ontap_cluster'
+    help: 'Storage family type.'
+
+  - name: netapp_storage_protocol
+    type: string
+    default: '<None>'
+    help: 'Storage protocol type.'
+
+  - name: netapp_transport_type
+    type: string
+    default: 'http'
+    help: 'Transport type protocol'
+
+  - name: nexenta_host
+    type: string
+    default: ''
+    help: 'IP address of Nexenta SA'
+
+  - name: nexenta_rest_port
+    type: integer
+    default: '2000'
+    help: 'HTTP port to connect to Nexenta REST API server'
+
+  - name: nexenta_rest_protocol
+    type: string
+    default: 'auto'
+    help: 'Use http or https for REST connection'
+
+  - name: nexenta_user
+    type: string
+    default: 'admin'
+    help: 'User name to connect to Nexenta SA'
+
+  - name: nexenta_password
+    type: string
+    default: 'nexenta'
+    help: 'Password to connect to Nexenta SA'
+
+  - name: nexenta_iscsi_target_portal_port
+    type: integer
+    default: '3260'
+    help: 'Nexenta target portal port'
+
+  - name: nexenta_volume
+    type: string
+    default: 'cinder'
+    help: 'pool on SA that will hold all volumes'
+
+  - name: nexenta_target_prefix
+    type: string
+    default: 'iqn.1986-03.com.sun:02:cinder-'
+    help: 'IQN prefix for iSCSI targets'
+
+  - name: nexenta_target_group_prefix
+    type: string
+    default: 'cinder/'
+    help: 'prefix for iSCSI target groups on SA'
+
+  - name: nexenta_shares_config
+    type: string
+    default: '/etc/cinder/nfs_shares'
+    help: 'File with the list of available nfs shares'
+
+  - name: nexenta_mount_point_base
+    type: string
+    default: '$state_path/mnt'
+    help: 'Base dir containing mount points for nfs shares'
+
+  - name: nexenta_sparsed_volumes
+    type: boolean
+    default: 'true'
+    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.'
+
+  - name: nexenta_volume_compression
+    type: string
+    default: 'on'
+    help: 'Default compression value for new ZFS folders.'
+
+  - name: nexenta_mount_options
+    type: string
+    default: '<None>'
+    help: 'Mount options passed to the nfs client. See section of the nfs man page for details'
+
+  - name: nexenta_used_ratio
+    type: floating point
+    default: '0.95'
+    help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.'
+
+  - name: nexenta_oversub_ratio
+    type: floating point
+    default: '1.0'
+    help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.'
+
+  - name: nexenta_blocksize
+    type: string
+    default: ''
+    help: 'block size for volumes'
+
+  - name: nexenta_sparse
+    type: boolean
+    default: 'false'
+    help: 'flag to create sparse volumes'
+
+  - name: nfs_shares_config
+    type: string
+    default: '/etc/cinder/nfs_shares'
+    help: 'File with the list of available nfs shares'
+
+  - name: nfs_sparsed_volumes
+    type: boolean
+    default: 'true'
+    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.'
+
+  - name: nfs_used_ratio
+    type: floating point
+    default: '0.95'
+    help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.'
+
+  - name: nfs_oversub_ratio
+    type: floating point
+    default: '1.0'
+    help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.'
+
+  - name: rbd_pool
+    type: string
+    default: 'rbd'
+    help: 'the RADOS pool in which rbd volumes are stored'
+
+  - name: rbd_user
+    type: string
+    default: '<None>'
+    help: 'the RADOS client name for accessing rbd volumes - only set when using cephx authentication'
+
+  - name: rbd_ceph_conf
+    type: string
+    default: ''
+    help: 'path to the ceph configuration file to use'
+
+  - name: rbd_flatten_volume_from_snapshot
+    type: boolean
+    default: 'false'
+    help: 'flatten volumes created from snapshots to remove dependency'
+
+  - name: rbd_secret_uuid
+    type: string
+    default: '<None>'
+    help: 'the libvirt uuid of the secret for the rbd_uservolumes'
+
+  - name: volume_tmp_dir
+    type: string
+    default: '<None>'
+    help: 'where to store temporary image files if the volume driver does not write them directly to the volume'
+
+  - name: rbd_max_clone_depth
+    type: integer
+    default: '5'
+    help: 'maximum number of nested clones that can be taken of a volume before enforcing a flatten prior to next clone. A value of zero disables cloning'
+
+  - name: hp3par_api_url
+    type: string
+    default: ''
+    help: '3PAR WSAPI Server Url like https://<3par ip>:8080/api/v1'
+
+  - name: hp3par_username
+    type: string
+    default: ''
+    help: '3PAR Super user username'
+
+  - name: hp3par_password
+    type: string
+    default: ''
+    help: '3PAR Super user password'
+
+  - name: hp3par_domain
+    type: string
+    default: '<None>'
+    help: 'This option is DEPRECATED and no longer used. The 3par domain name to use.'
+
+  - name: hp3par_cpg
+    type: string
+    default: 'OpenStack'
+    help: 'The CPG to use for volume creation'
+
+  - name: hp3par_cpg_snap
+    type: string
+    default: ''
+    help: 'The CPG to use for Snapshots for volumes. If empty hp3par_cpg will be used'
+
+  - name: hp3par_snapshot_retention
+    type: string
+    default: ''
+    help: "The time in hours to retain a snapshot.  You can't delete it before this expires."
+
+  - name: hp3par_snapshot_expiration
+    type: string
+    default: ''
+    help: 'The time in hours when a snapshot expires  and is deleted. This must be larger than expiration'
+
+  - name: hp3par_debug
+    type: boolean
+    default: 'false'
+    help: 'Enable HTTP debugging to 3PAR'
+
+  - name: hp3par_iscsi_ips
+    type: list
+    default: ''
+    help: 'List of target iSCSI addresses to use.'
+
+  - name: san_thin_provision
+    type: boolean
+    default: 'true'
+    help: 'Use thin provisioning for SAN volumes?'
+
+  - name: san_ip
+    type: string
+    default: ''
+    help: 'IP address of SAN controller'
+
+  - name: san_login
+    type: string
+    default: 'admin'
+    help: 'Username for SAN controller'
+
+  - name: san_password
+    type: string
+    default: ''
+    help: 'Password for SAN controller'
+
+  - name: san_private_key
+    type: string
+    default: ''
+    help: 'Filename of private key to use for SSH authentication'
+
+  - name: san_clustername
+    type: string
+    default: ''
+    help: 'Cluster name to use for creating volumes'
+
+  - name: san_ssh_port
+    type: integer
+    default: '22'
+    help: 'SSH port to use with SAN'
+
+  - name: san_is_local
+    type: boolean
+    default: 'false'
+    help: 'Execute commands locally instead of over SSH; use if the volume service is running on the SAN device'
+
+  - name: ssh_conn_timeout
+    type: integer
+    default: '30'
+    help: 'SSH connection timeout in seconds'
+
+  - name: ssh_min_pool_conn
+    type: integer
+    default: '1'
+    help: 'Minimum ssh connections in the pool'
+
+  - name: ssh_max_pool_conn
+    type: integer
+    default: '5'
+    help: 'Maximum ssh connections in the pool'
+
+  - name: san_zfs_volume_base
+    type: string
+    default: 'rpool/'
+    help: 'The ZFS path under which to create zvols for volumes.'
+
+  - name: scality_sofs_config
+    type: string
+    default: '<None>'
+    help: 'Path or URL to Scality SOFS configuration file'
+
+  - name: scality_sofs_mount_point
+    type: string
+    default: '$state_path/scality'
+    help: 'Base dir where Scality SOFS shall be mounted'
+
+  - name: scality_sofs_volume_dir
+    type: string
+    default: 'cinder/volumes'
+    help: 'Path from Scality SOFS root to volume dir'
+
+  - name: sf_emulate_512
+    type: boolean
+    default: 'true'
+    help: 'Set 512 byte emulation on volume creation; '
+
+  - name: sf_allow_tenant_qos
+    type: boolean
+    default: 'false'
+    help: 'Allow tenants to specify QOS on create'
+
+  - name: sf_account_prefix
+    type: string
+    default: 'cinder'
+    help: 'Create SolidFire accounts with this prefix'
+
+  - name: sf_api_port
+    type: integer
+    default: '443'
+    help: 'SolidFire API port. Useful if the device api is behind a proxy on a different port.'
+
+  - name: storwize_svc_volpool_name
+    type: string
+    default: 'volpool'
+    help: 'Storage system storage pool for volumes'
+
+  - name: storwize_svc_vol_rsize
+    type: integer
+    default: '2'
+    help: 'Storage system space-efficiency parameter for volumes'
+
+  - name: storwize_svc_vol_warning
+    type: integer
+    default: '0'
+    help: 'Storage system threshold for volume capacity warnings'
+
+  - name: storwize_svc_vol_autoexpand
+    type: boolean
+    default: 'true'
+    help: 'Storage system autoexpand parameter for volumes'
+
+  - name: storwize_svc_vol_grainsize
+    type: integer
+    default: '256'
+    help: 'Storage system grain size parameter for volumes'
+
+  - name: storwize_svc_vol_compression
+    type: boolean
+    default: 'false'
+    help: 'Storage system compression option for volumes'
+
+  - name: storwize_svc_vol_easytier
+    type: boolean
+    default: 'true'
+    help: 'Enable Easy Tier for volumes'
+
+  - name: storwize_svc_vol_iogrp
+    type: integer
+    default: '0'
+    help: 'The I/O group in which to allocate volumes'
+
+  - name: storwize_svc_flashcopy_timeout
+    type: integer
+    default: '120'
+    help: 'Maximum number of seconds to wait for FlashCopy to be prepared. Maximum value is 600 seconds'
+
+  - name: storwize_svc_connection_protocol
+    type: string
+    default: 'iSCSI'
+    help: 'Connection protocol'
+
+  - name: storwize_svc_multipath_enabled
+    type: boolean
+    default: 'false'
+    help: 'Connect with multipath'
+
+  - name: storwize_svc_multihostmap_enabled
+    type: boolean
+    default: 'true'
+    help: 'Allows vdisk to multi host mapping'
+
+  - name: vmware_host_ip
+    type: string
+    default: '<None>'
+    help: 'IP address for connecting to VMware ESX/VC server.'
+
+  - name: vmware_host_username
+    type: string
+    default: '<None>'
+    help: 'Username for authenticating with VMware ESX/VC server.'
+
+  - name: vmware_host_password
+    type: string
+    default: '<None>'
+    help: 'Password for authenticating with VMware ESX/VC server.'
+
+  - name: vmware_wsdl_location
+    type: string
+    default: '<None>'
+    help: 'Optional VIM service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds.'
+
+  - name: vmware_api_retry_count
+    type: integer
+    default: '10'
+    help: 'Number of times VMware ESX/VC server API must be retried upon connection related issues.'
+
+  - name: vmware_task_poll_interval
+    type: integer
+    default: '5'
+    help: 'The interval used for polling remote tasks invoked on VMware ESX/VC server.'
+
+  - name: vmware_volume_folder
+    type: string
+    default: 'cinder-volumes'
+    help: 'Name for the folder in the VC datacenter that will contain cinder volumes.'
+
+  - name: vmware_image_transfer_timeout_secs
+    type: integer
+    default: '7200'
+    help: 'Timeout in seconds for VMDK volume transfer between Cinder and Glance.'
+
+  - name: windows_iscsi_lun_path
+    type: string
+    default: 'C:\\iSCSIVirtualDisks'
+    help: 'Path to store VHD backed volumes'
+
+  - name: xenapi_nfs_server
+    type: string
+    default: '<None>'
+    help: 'NFS server to be used by XenAPINFSDriver'
+
+  - name: xenapi_nfs_serverpath
+    type: string
+    default: '<None>'
+    help: 'Path of exported NFS, used by XenAPINFSDriver'
+
+  - name: xenapi_connection_url
+    type: string
+    default: '<None>'
+    help: 'URL for XenAPI connection'
+
+  - name: xenapi_connection_username
+    type: string
+    default: 'root'
+    help: 'Username for XenAPI connection'
+
+  - name: xenapi_connection_password
+    type: string
+    default: '<None>'
+    help: 'Password for XenAPI connection'
+
+  - name: xenapi_sr_base_path
+    type: string
+    default: '/var/run/sr-mount'
+    help: 'Base path to the storage repository'
+
+  - name: xiv_ds8k_proxy
+    type: string
+    default: 'xiv_ds8k_openstack.nova_proxy.XIVDS8KNovaProxy'
+    help: 'Proxy driver that connects to the IBM Storage Array'
+
+  - name: xiv_ds8k_connection_type
+    type: string
+    default: 'iscsi'
+    help: 'Connection type to the IBM Storage Array'
+
+  - name: zadara_vpsa_ip
+    type: string
+    default: '<None>'
+    help: 'Management IP of Zadara VPSA'
+
+  - name: zadara_vpsa_port
+    type: string
+    default: '<None>'
+    help: 'Zadara VPSA port number'
+
+  - name: zadara_vpsa_use_ssl
+    type: boolean
+    default: 'false'
+    help: 'Use SSL connection'
+
+  - name: zadara_user
+    type: string
+    default: '<None>'
+    help: 'User name for the VPSA'
+
+  - name: zadara_password
+    type: string
+    default: '<None>'
+    help: 'Password for the VPSA'
+
+  - name: zadara_vpsa_poolname
+    type: string
+    default: '<None>'
+    help: 'Name of VPSA storage pool for volumes'
+
+  - name: zadara_vol_thin
+    type: boolean
+    default: 'true'
+    help: 'Default thin provisioning policy for volumes'
+
+  - name: zadara_vol_encrypt
+    type: boolean
+    default: 'false'
+    help: 'Default encryption policy for volumes'
+
+  - name: zadara_default_striping_mode
+    type: string
+    default: 'simple'
+    help: 'Default striping mode for volumes'
+
+  - name: zadara_default_stripesize
+    type: string
+    default: '64'
+    help: 'Default stripe size for volumes'
+
+  - name: zadara_vol_name_template
+    type: string
+    default: 'OS_%s'
+    help: 'Default template for VPSA volume names'
+
+  - name: zadara_vpsa_auto_detach_on_delete
+    type: boolean
+    default: 'true'
+    help: 'Automatically detach from servers on volume delete'
+
+  - name: zadara_vpsa_allow_nonexistent_delete
+    type: boolean
+    default: 'true'
+    help: "Don't halt on deletion of non-existing volumes"
+
+  - name: volume_driver
+    type: string
+    default: 'cinder_2013_1_3.volume.drivers.lvm.LVMISCSIDriver'
+    help: 'Driver to use for volume creation'
+
+  - name: migration_create_volume_timeout_secs
+    type: integer
+    default: '300'
+    help: 'Timeout for creating the volume to migrate to when performing volume migration'
+
+  - name: volume_dd_blocksize
+    type: string
+    default: '1M'
+    help: 'The default block size used when copying/clearing volumes'
+
