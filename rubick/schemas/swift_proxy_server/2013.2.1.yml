@@ -521,7 +521,7 @@ parameters:
 
   - name: filter:name_check.forbidden_chars
     type: string
-    default: '\'"`<>'
+    default: "\\'\"`<>"
 
   - name: filter:name_check.maximum_length
     type: string
