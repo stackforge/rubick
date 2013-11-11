@@ -8,15 +8,16 @@ from copy import copy
 
 from oslo.config import cfg
 
+
 def identity(x):
     return x
 
 __builtins__._ = identity
 
 
-class SchemaWriter(object):
+class SchemaBuilderSchemaWriter(object):
     def __init__(self, file, project, version):
-        super(SchemaWriter, self).__init__()
+        super(SchemaBuilderSchemaWriter, self).__init__()
         self.file = file
         self.project = project
         self.version = version
@@ -53,6 +54,39 @@ with {0}.version('{1}') as {2}:""".format(self.project, self.version,
 
     def comment(self, text):
         self.file.write("\n\n    # %s" % text)
+
+
+class YamlSchemaWriter(object):
+    def __init__(self, file, project, version):
+        super(YamlSchemaWriter, self).__init__()
+        self.file = file
+        self.project = project
+        self.version = version
+        self._output_header()
+
+    def _output_header(self):
+        self.file.write("project: %s\n" % self.project)
+        self.file.write("version: %s\n" % self.version)
+        self.file.write("parameters:\n")
+
+    def section(self, name):
+        self._current_section = name
+
+    def param(self, name, type, default_value=None, description=None):
+        fullname = name
+        if self._current_section and self._current_section != 'DEFAULT':
+            fullname = '%s.%s' % (self._current_section, name)
+
+        self.file.write("  - name: %s\n" % fullname)
+        self.file.write("    type: %s\n" % type)
+        self.file.write("    default: %s\n" % repr(default_value))
+        if description:
+            self.file.write("    help: %s\n" % repr(description))
+
+        self.file.write("\n")
+
+    def comment(self, text):
+        self.file.write("\n# %s\n" % text)
 
 
 def parse_args(argv):
@@ -97,12 +131,9 @@ def sanitize_type_and_value(param_name, param_type, param_value):
     return (param_type, param_value)
 
 
-def generate_schema_from_sample_config(project, version, config_file,
-                                       schema_file=sys.stdout):
+def generate_schema_from_sample_config(project, version, config_file, writer):
     with open(config_file, 'r') as f:
         config_lines = f.readlines()
-
-    writer = SchemaWriter(schema_file, project, version)
 
     description_lines = []
     for line in config_lines:
@@ -153,8 +184,7 @@ OPT_TYPE_MAPPING = {
 OPTION_REGEX = re.compile(r"(%s)" % "|".join(OPT_TYPE_MAPPING.keys()))
 
 
-def generate_schema_from_code(project, version, module_path,
-                              schema_file=sys.stdout):
+def generate_schema_from_code(project, version, module_path, writer):
     old_sys_path = copy(sys.path)
 
     mods_by_pkg = dict()
@@ -223,7 +253,6 @@ def generate_schema_from_code(project, version, module_path,
             for group, opts in _list_opts(mod_obj):
                 opts_by_group.setdefault(group, []).append((mod_str, opts))
 
-    writer = SchemaWriter(schema_file, project, version)
     print_group_opts(writer, 'DEFAULT', opts_by_group.pop('DEFAULT', []))
     for group, opts in opts_by_group.items():
         print_group_opts(writer, group, opts)
@@ -239,7 +268,7 @@ def _import_module(mod_str):
         else:
             __import__(mod_str)
             return sys.modules[mod_str]
-    except ImportError as ie:
+    except ImportError:
         traceback.print_exc()
         # sys.stderr.write("%s\n" % str(ie))
         return None
@@ -331,10 +360,15 @@ def main(argv):
     project = params.pop('project')
     version = params.pop('version')
     path = params.pop('config_or_module')
+
+    writer = YamlSchemaWriter(sys.stdout, project, version)
+
     if os.path.isdir(path) or path.endswith('.py'):
-        generate_schema_from_code(project, version, path)
+        generate_schema_from_code(project, version, path,
+                                  writer=writer)
     else:
-        generate_schema_from_sample_config(project, version, path)
+        generate_schema_from_sample_config(project, version, path,
+                                           writer=writer)
 
 
 if __name__ == '__main__':
