@@ -108,11 +108,9 @@ def generate_project_schema(project):
                     if param['type'] == validator.base_type:
                         param['type'] = prev_param['type']
 
-                        if 'default' in param and param['default'] is not None:
+                        if param.get('default', None) is not None:
                             value = validator.validate(param['default'])
-                            if not isinstance(value, Issue):
-                                param['default'] = value
-                            else:
+                            if isinstance(value, Issue):
                                 logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
                                             (project, schema['version'], param['name'], param['type'], repr(param['default'])))
                     else:
@@ -185,25 +183,18 @@ def generate_project_schema(project):
 
                 validator = TypeRegistry.get_validator(old_param['type'])
                 if param['type'] not in [old_param['type'], validator.base_type]:
-                    param['comment'] = 'Type has changed'
                     # Type has changed, enforcing old type to prevent accidental data loss
                     param['type'] = old_param['type']
-                    if 'default' in old_param:
-                        param['default'] = old_param['default']
 
-                if 'default' in param:
-                    if param['default'] is not None:
-                        value = validator.validate(old_param['default'])
-                        if not isinstance(value, Issue):
-                            param['default'] = value
-                        else:
-                            logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
-                                         (project, schema['version'], param['name'], param['type'], repr(param['default'])))
+                if param.get('default', None) is not None:
+                    value = validator.validate(old_param['default'])
+                    if isinstance(value, Issue):
+                        logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
+                                        (project, schema['version'], param['name'], param['type'], repr(param['default'])))
 
-                if 'default' in param:
-                    if param['default'] != old_param.get('default', None):
-                        param['comment'] = 'Default value has changed'
-                        continue
+                if param.get('default', None) != old_param.get('default', None):
+                    param['comment'] = 'Default value has changed'
+                    continue
 
             logger.debug('Replacing schema record %s' % repr(new_schema_record))
             schema_records[old_schema_record_idx] = new_schema_record
