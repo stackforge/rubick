@@ -1,5 +1,7 @@
-from contextlib import contextmanager
 import re
+import os.path
+
+import yaml
 
 from rubick.common import Issue, MarkedIssue, Mark, Version, find, index
 from rubick.exceptions import RubickException
@@ -9,67 +11,8 @@ class SchemaError(RubickException):
     pass
 
 
-class SchemaVersionRecord(object):
-    # checkpoint's data is version number
-    def __init__(self, version, checkpoint):
-        super(SchemaVersionRecord, self).__init__()
-
-        self.version = Version(version)
-        self.checkpoint = checkpoint
-
-        self.adds = []
-        self.removals = []
-        self._current_section = 'DEFAULT'
-
-    def __repr__(self):
-        return (
-            '<SchemaVersionRecord %s%s>' % (
-                self.version, ' (checkpoint)' if self.checkpoint else '')
-        )
-
-    def __cmp__(self, other):
-        return self.version.__cmp__(other.version)
-
-    def section(self, name):
-        self._current_section = name
-
-    def param(self, *args, **kwargs):
-        if not 'section' in kwargs and self._current_section:
-            kwargs['section'] = self._current_section
-
-        self.adds.append(ConfigParameterSchema(*args, **kwargs))
-
-    def remove_param(self, name):
-        self.removals.append(name)
-
-
-class SchemaBuilder(object):
-
-    def __init__(self, data):
-        super(SchemaBuilder, self).__init__()
-        self.data = data
-
-    @contextmanager
-    def version(self, version, checkpoint=False):
-        version_record = SchemaVersionRecord(version, checkpoint)
-
-        yield version_record
-
-        self.data.append(version_record)
-        self.data.sort()
-
-
 class ConfigSchemaRegistry:
-    __schemas = {}
-
-    @classmethod
-    def register_schema(self, project, configname=None):
-        if not configname:
-            configname = '%s.conf' % project
-        fullname = '%s/%s' % (project, configname)
-        if fullname not in self.__schemas:
-            self.__schemas[fullname] = []
-        return SchemaBuilder(self.__schemas[fullname])
+    db_path = os.path.join(os.path.dirname(__file__), 'schemas')
 
     @classmethod
     def get_schema(self, project, version, configname=None):
@@ -78,26 +21,47 @@ class ConfigSchemaRegistry:
         fullname = '%s/%s' % (project, configname)
         version = Version(version)
 
-        if not fullname in self.__schemas:
+        path = os.path.join(self.db_path, project, configname + '.yml')
+        if not os.path.exists(path):
             return None
 
-        records = self.__schemas[fullname]
+        with open(path) as f:
+            records = yaml.load(f.read())
+
         i = len(records) - 1
         # Find latest checkpoint prior given version
-        while i >= 0 and not (records[i].checkpoint
-                              and records[i].version <= version):
+        while i >= 0 and not (records[i].get('checkpoint', False)
+                              and Version(records[i]['version']) <= version):
             i -= 1
 
         if i < 0:
-            return None
+            if Version(records[0]['version']) > version:
+                # Reached the earliest record yet haven't found version
+                return None
+
+            # Haven't found checkpoint but yearliest version is less than given
+            # Assuming first record is checkpoint
+            i = 0
 
         parameters = []
         seen_parameters = set()
         last_version = None
 
-        while i < len(records) and records[i].version <= version:
-            last_version = records[i].version
-            for param in records[i].adds:
+        while i < len(records) and Version(records[i]['version']) <= version:
+            last_version = records[i]['version']
+            for param_data in records[i].get('added', []):
+                name = param_data['name']
+                section = None
+                if '.' in name:
+                    section, name = name.split('.', 1)
+
+                param = ConfigParameterSchema(
+                    name, param_data['type'], section=section,
+                    default=param_data.get('default', None),
+                    description=param_data.get('help', None),
+                    required=param_data.get('required', False),
+                    deprecation_message=param_data.get('deprecated', None))
+
                 if param.name in seen_parameters:
                     old_param_index = index(
                         parameters,
@@ -107,13 +71,13 @@ class ConfigSchemaRegistry:
                 else:
                     parameters.append(param)
                     seen_parameters.add(param.name)
-            for param_name in records[i].removals:
+            for param_name in records[i].get('removed', []):
                 param_index = index(
                     parameters,
                     lambda p: p.name == param_name)
                 if index != -1:
                     parameters.pop(param_index)
-                    seen_parameters.remove(param_name)
+                    seen_parameters.discard(param_name)
             i += 1
 
         return ConfigSchema(fullname, last_version, 'ini', parameters)
@@ -170,14 +134,18 @@ class ConfigParameterSchema:
 
 class TypeValidatorRegistry:
     __validators = {}
+    __default_validator = None
 
     @classmethod
-    def register_validator(self, type_name, type_validator):
+    def register_validator(self, type_name, type_validator, default=False):
         self.__validators[type_name] = type_validator
+        if default:
+            self.__default_validator = type_name
 
     @classmethod
     def get_validator(self, name):
-        return self.__validators[name]
+        return self.__validators.get(
+            name, self.__validators[self.__default_validator])
 
 
 class SchemaIssue(Issue):
@@ -195,21 +163,28 @@ class InvalidValueError(MarkedIssue):
 
 class TypeValidator(object):
 
-    def __init__(self, f):
+    def __init__(self, base_type, f):
         super(TypeValidator, self).__init__()
+        self.base_type = base_type
         self.f = f
 
     def validate(self, value):
+        if value is None:
+            return value
         return getattr(self, 'f')(value)
 
 
-def type_validator(name, **kwargs):
+def type_validator(name, base_type=None, default=False, **kwargs):
+    if not base_type:
+        base_type = name
+
     def wrap(fn):
         def wrapped(s):
             return fn(s, **kwargs)
-        o = TypeValidator(wrapped)
-        TypeValidatorRegistry.register_validator(name, o)
+        o = TypeValidator(base_type, wrapped)
+        TypeValidatorRegistry.register_validator(name, o, default=default)
         return fn
+
     return wrap
 
 
@@ -219,6 +194,9 @@ def isissue(o):
 
 @type_validator('boolean')
 def validate_boolean(s):
+    if isinstance(s, bool):
+        return s
+
     s = s.lower()
     if s == 'true':
         return True
@@ -325,8 +303,8 @@ def validate_host_label(s):
     return s
 
 
-@type_validator('host')
-@type_validator('host_address')
+@type_validator('host', base_type='string')
+@type_validator('host_address', base_type='string')
 def validate_host_address(s):
     result = validate_ipv4_address(s)
     if not isissue(result):
@@ -348,13 +326,13 @@ def validate_host_address(s):
     return '.'.join(labels)
 
 
-@type_validator('network')
-@type_validator('network_address')
+@type_validator('network', base_type='string')
+@type_validator('network_address', base_type='string')
 def validate_network_address(s):
     return validate_ipv4_network(s)
 
 
-@type_validator('host_and_port')
+@type_validator('host_and_port', base_type='string')
 def validate_host_and_port(s, default_port=None):
     parts = s.strip().split(':', 2)
 
@@ -374,15 +352,18 @@ def validate_host_and_port(s, default_port=None):
     return (host_address, port)
 
 
-@type_validator('string')
-@type_validator('list')
-@type_validator('multi')
+@type_validator('string', base_type='string', default=True)
+@type_validator('list', base_type='list')
+@type_validator('multi', base_type='multi')
 def validate_string(s):
     return s
 
 
 @type_validator('integer')
 def validate_integer(s, min=None, max=None):
+    if isinstance(s, int):
+        return s
+
     leading_whitespace_len = 0
     while leading_whitespace_len < len(s) \
             and s[leading_whitespace_len].isspace():
@@ -419,16 +400,22 @@ def validate_integer(s, min=None, max=None):
 
 @type_validator('float')
 def validate_float(s):
+    if isinstance(s, float):
+        return s
+
     # TODO: Implement proper validation
     return float(s)
 
 
-@type_validator('port')
+@type_validator('port', base_type='integer')
 def validate_port(s, min=1, max=65535):
     return validate_integer(s, min=min, max=max)
 
 
 def validate_list(s, element_type):
+    if isinstance(s, list):
+        return s
+
     element_type_validator = TypeValidatorRegistry.get_validator(element_type)
     if not element_type_validator:
         return SchemaIssue('Invalid element type "%s"' % element_type)
@@ -458,13 +445,16 @@ def validate_list(s, element_type):
     return result
 
 
-@type_validator('string_list')
+@type_validator('string_list', base_type='list')
 def validate_string_list(s):
     return validate_list(s, element_type='string')
 
 
-@type_validator('string_dict')
+@type_validator('string_dict', base_type='multi')
 def validate_dict(s, element_type='string'):
+    if isinstance(s, dict):
+        return s
+
     element_type_validator = TypeValidatorRegistry.get_validator(element_type)
     if not element_type_validator:
         return SchemaIssue('Invalid element type "%s"' % element_type)
@@ -500,7 +490,7 @@ def validate_dict(s, element_type='string'):
     return result
 
 
-@type_validator('rabbitmq_bind')
+@type_validator('rabbitmq_bind', base_type='string')
 def validate_rabbitmq_bind(s):
     m = re.match('\d+', s)
     if m:
@@ -527,12 +517,15 @@ def validate_rabbitmq_bind(s):
 
 
 def validate_rabbitmq_list(s, element_type):
+    if isinstance(s, list):
+        return s
+
     if not (s.startswith('[') and s.endswith(']')):
         return SchemaIssue('List should be surrounded by [ and ]')
 
     return validate_list(s[1:-1], element_type=element_type)
 
 
-@type_validator('rabbitmq_bind_list')
+@type_validator('rabbitmq_bind_list', base_type='list')
 def validate_rabbitmq_bind_list(s):
     return validate_rabbitmq_list(s, element_type='rabbitmq_bind')

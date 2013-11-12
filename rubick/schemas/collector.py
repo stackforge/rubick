@@ -8,6 +8,8 @@ from copy import copy
 
 from oslo.config import cfg
 
+from rubick.schemas.yaml_utils import yaml_string, yaml_value
+
 
 def identity(x):
     return x
@@ -77,11 +79,11 @@ class YamlSchemaWriter(object):
         if self._current_section and self._current_section != 'DEFAULT':
             fullname = '%s.%s' % (self._current_section, name)
 
-        self.file.write("  - name: %s\n" % fullname)
-        self.file.write("    type: %s\n" % type)
-        self.file.write("    default: %s\n" % repr(default_value))
+        self.file.write("  - name: %s\n" % yaml_string(fullname, allowSimple=True))
+        self.file.write("    type: %s\n" % yaml_string(type, allowSimple=True))
+        self.file.write("    default: %s\n" % yaml_value(default_value))
         if description:
-            self.file.write("    help: %s\n" % repr(description))
+            self.file.write("    help: %s\n" % yaml_string(description))
 
         self.file.write("\n")
 

@@ -138,7 +138,7 @@ class OpenstackComponent(Service):
         # Apply defaults
         if schema:
             for parameter in filter(lambda p: p.default, schema.parameters):
-                if parameter.section == 'DEFAULT':
+                if not parameter.section or parameter.section == 'DEFAULT':
                     config.set_default(parameter.name, parameter.default)
                 else:
                     config.set_default(
