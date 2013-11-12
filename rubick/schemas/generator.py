@@ -1,3 +1,4 @@
+import argparse
 import glob
 import os.path
 import logging
@@ -224,14 +225,32 @@ def generate_project_schema(project):
         f.write(yaml_dump_schema_records(schema_records))
 
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-    for project_path in glob.glob(os.path.join(os.path.dirname(__file__), '*')):
-        if not os.path.isdir(project_path):
-            continue
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--loglevel', default='INFO', help='Loglevel to use')
+    parser.add_argument('projects', nargs='*', help='Name of the projects (e.g. "nova")')
+    args = parser.parse_args(argv[1:])
+    return args
 
-        generate_project_schema(os.path.basename(project_path))
+
+def main(argv):
+    args = parse_args(argv)
+    params = vars(args)
+
+    logging.basicConfig(level=params['loglevel'])
+    if 'project' in params:
+        projects = [params['project']]
+    else:
+        projects = []
+        for project_path in glob.glob(os.path.join(os.path.dirname(__file__), '*')):
+            if not os.path.isdir(project_path):
+                continue
+            projects.append(os.path.basename(project_path))
+
+    for project in projects:
+        generate_project_schema(project)
 
 
 if __name__ == '__main__':
-    main()
+    import sys
+    main(sys.argv)
