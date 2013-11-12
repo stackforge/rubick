@@ -31,8 +31,8 @@
 
   - name: disk_free_limit
     type: integer
-    default: 50000000
-    comment: 'Default value has changed'
+    default: '50000000'
+    comment: 'New param'
 
   - name: log_levels
     type: string_list

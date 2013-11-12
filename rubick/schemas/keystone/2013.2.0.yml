@@ -58,28 +58,28 @@ parameters:
     help: 'Role for migrating membership relationships During a SQL upgrade, the following values will be used to create a new role that will replace records in the user_tenant_membership table with explicit role grants.  After migration, the member_role_id will be used in the API add_user_to_project, and member_role_name will be ignored.'
 
   - name: max_request_body_size
-    type: string
-    default: '114688'
+    type: integer
+    default: 114688
     help: 'enforced by optional sizelimit middleware (keystone.middleware:RequestBodySizeLimiter)'
 
   - name: max_param_size
-    type: string
-    default: '64'
+    type: integer
+    default: 64
     help: 'limit the sizes of user & tenant ID/names'
 
   - name: max_token_size
-    type: string
-    default: '8192'
+    type: integer
+    default: 8192
     help: 'similar to max_param_size, but provides an exception for token values'
 
   - name: debug
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: '=== Logging Options === Print debugging output (includes plaintext request logging, potentially including passwords)'
 
   - name: verbose
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'Print more verbose output'
 
   - name: log_file
@@ -93,8 +93,8 @@ parameters:
     help: 'The directory to keep log files in (will be prepended to --logfile)'
 
   - name: use_syslog
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'Use syslog for logging.'
 
   - name: syslog_log_facility
@@ -138,28 +138,28 @@ parameters:
     help: 'The messaging module to use, defaults to kombu.'
 
   - name: rpc_thread_pool_size
-    type: string
-    default: '64'
+    type: integer
+    default: 64
     help: 'Size of RPC thread pool'
 
   - name: rpc_conn_pool_size
-    type: string
-    default: '30'
+    type: integer
+    default: 30
     help: 'Size of RPC connection pool'
 
   - name: rpc_response_timeout
-    type: string
-    default: '60'
+    type: integer
+    default: 60
     help: 'Seconds to wait for a response from call or multicall'
 
   - name: rpc_cast_timeout
-    type: string
-    default: '30'
+    type: integer
+    default: 30
     help: 'Seconds to wait before a cast expires (TTL). Only supported by impl_zmq.'
 
   - name: fake_rabbit
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'If True, use a fake RabbitMQ provider'
 
   - name: control_exchange
@@ -173,8 +173,8 @@ parameters:
     help: 'The SQLAlchemy connection string used to connect to the database'
 
   - name: sql.idle_timeout
-    type: string
-    default: '200'
+    type: integer
+    default: 200
     help: 'the timeout before idle sql connections are reaped'
 
   - name: oauth1.driver
@@ -187,8 +187,8 @@ parameters:
     help: 'This references the domain to use for all Identity API v2 requests (which are not aware of domains). A domain with this ID will be created for you by keystone-manage db_sync in migration 008.  The domain referenced by this ID cannot be deleted on the v3 API, to prevent accidentally breaking the v2 API. There is nothing special about this domain, other than the fact that it must exist to order to maintain support for your v2 clients.'
 
   - name: identity.domain_specific_drivers_enabled
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'A subset (or all) of domains can have their own identity driver, each with their own partial configuration file in a domain configuration directory. Only values specific to the domain need to be placed in the domain specific configuration file. This feature is disabled by default; set domain_specific_drivers_enabled to True to enable.'
 
   - name: identity.domain_config_dir
@@ -197,13 +197,13 @@ parameters:
     help: 'A subset (or all) of domains can have their own identity driver, each with their own partial configuration file in a domain configuration directory. Only values specific to the domain need to be placed in the domain specific configuration file. This feature is disabled by default; set domain_specific_drivers_enabled to True to enable.'
 
   - name: identity.max_password_length
-    type: string
-    default: '4096'
+    type: integer
+    default: 4096
     help: 'Maximum supported length for user passwords; decrease to improve performance.'
 
   - name: cache.enabled
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'Global cache functionality toggle.'
 
   - name: catalog.template_file
@@ -211,8 +211,8 @@ parameters:
     default: 'default_catalog.templates'
 
   - name: endpoint_filter.return_all_endpoints_if_no_filter
-    type: string
-    default: 'True'
+    type: boolean
+    default: true
     help: 'extension for creating associations between project and endpoints in order to provide a tailored catalog for project-scoped token requests.'
 
   - name: token.provider
@@ -221,8 +221,8 @@ parameters:
     help: 'Controls the token construction, validation, and revocation operations. Core providers are keystone.token.providers.[pki|uuid].Provider'
 
   - name: token.expiration
-    type: string
-    default: '86400'
+    type: integer
+    default: 86400
     help: 'Amount of time a token should remain valid (in seconds)'
 
   - name: token.bind
@@ -236,18 +236,18 @@ parameters:
     help: 'Enforcement policy on tokens presented to keystone with bind information. One of disabled, permissive, strict, required or a specifically required bind mode e.g. kerberos or x509 to require binding to that authentication.'
 
   - name: assignment.caching
-    type: string
-    default: 'True'
+    type: boolean
+    default: true
     help: 'Assignment specific caching toggle. This has no effect unless the global caching option is set to True'
 
   - name: assignment.cache_time
-    type: string
-    default: ''
+    type: integer
+    default: ~
     help: 'Assignment specific cache time-to-live (TTL) in seconds.'
 
   - name: token.revocation_cache_time
-    type: string
-    default: '3600'
+    type: integer
+    default: 3600
     help: 'Revocation-List specific cache time-to-live (TTL) in seconds.'
 
   - name: cache.config_prefix
@@ -271,28 +271,28 @@ parameters:
     help: 'Proxy Classes to import that will affect the way the dogpile.cache backend functions.  See the dogpile.cache documentation on changing-backend-behavior. Comma delimited list e.g. my.dogpile.proxy.Class, my.dogpile.proxyClass2'
 
   - name: cache.use_key_mangler
-    type: string
-    default: 'True'
+    type: boolean
+    default: true
     help: 'Use a key-mangling function (sha1) to ensure fixed length cache-keys. This is toggle-able for debugging purposes, it is highly recommended to always leave this set to True.'
 
   - name: cache.debug_cache_backend
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
     help: 'Extra debugging from the cache backend (cache keys, get/set/delete/etc calls) This is only really useful if you need to see the specific cache-backend get/set/delete calls with the keys/values.  Typically this should be left set to False.'
 
   - name: oauth1.request_token_duration
-    type: string
-    default: '28800'
+    type: integer
+    default: 28800
     help: 'The Identity service may include expire attributes. If no such attribute is included, then the token lasts indefinitely. Specify how quickly the request token will expire (in seconds)'
 
   - name: oauth1.access_token_duration
-    type: string
-    default: '86400'
+    type: integer
+    default: 86400
     help: 'The Identity service may include expire attributes. If no such attribute is included, then the token lasts indefinitely. Specify how quickly the request token will expire (in seconds) Specify how quickly the access token will expire (in seconds)'
 
   - name: ssl.enable
-    type: string
-    default: 'True'
+    type: boolean
+    default: true
 
   - name: signing.certfile
     type: string
@@ -311,16 +311,16 @@ parameters:
     default: '/etc/keystone/pki/private/cakey.pem'
 
   - name: signing.key_size
-    type: string
-    default: '2048'
+    type: integer
+    default: 2048
 
   - name: signing.valid_days
-    type: string
-    default: '3650'
+    type: integer
+    default: 3650
 
   - name: ssl.cert_required
-    type: string
-    default: 'False'
+    type: boolean
+    default: false
 
   - name: signing.cert_subject
     type: string
@@ -660,7 +660,7 @@ parameters:
     help: 'Modules of exceptions that are permitted to be recreated upon receiving exception data from an rpc call.'
 
   - name: cache.expiration_time
-    type: string
-    default: '600'
+    type: integer
+    default: 600
     help: "Default TTL, in seconds, for any cached item in the dogpile.cache region. This applies to any cached method that doesn't have an explicit cache expiration time defined for it."
 

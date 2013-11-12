@@ -56,8 +56,8 @@ parameters:
     default: '_member_'
 
   - name: max_request_body_size
-    type: string
-    default: '114688'
+    type: integer
+    default: 114688
     help: 'enforced by optional sizelimit middleware (keystone.middleware:RequestBodySizeLimiter)'
 
   - name: max_param_size
