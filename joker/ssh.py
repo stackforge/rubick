@@ -106,17 +106,4 @@ class JokerSecureShell():
 
 
 
-js = JokerSecureShell(None)
 
-js.host = "XFDSFSDFFFF"
-print js.host
-
-
-#js.user = "vagrant"
-#js.port = 2222
-#js.key = "/home/ryabin/.ssh/petya_env"
-
-#js.call("id")
-
-#js.call("ssh test echo ok")
-#js.call("ssh test id")
