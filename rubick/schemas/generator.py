@@ -84,7 +84,7 @@ def generate_project_schema(project):
         with open(version_file) as f:
             schema_versions.append(yaml.load(f.read()))
 
-    schema_versions = sorted(schema_versions, key=lambda s: s['version'])
+    schema_versions = sorted(schema_versions, key=lambda s: Version(s['version']))
 
     parameters = OrderedDict()
     for schema in schema_versions:
@@ -164,7 +164,7 @@ def generate_project_schema(project):
 
         # Place schema record either replacing existing one or appending as new
         old_schema_record_idx = index(
-            schema_records, lambda r: r['version'] == new_schema_record['version'])
+            schema_records, lambda r: str(r['version']) == str(new_schema_record['version']))
 
         if old_schema_record_idx != -1:
             old_schema_record = schema_records[old_schema_record_idx]
