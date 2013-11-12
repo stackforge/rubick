@@ -1,0 +1,75 @@
+- version: '1'
+  checkpoint: true
+  added:
+
+  - name: param1
+    type: string
+    default: 'foobar'
+    help: 'blah blah'
+    comment: 'New param'
+
+  - name: param2
+    type: integer
+    default: 123
+    comment: 'New param'
+
+# ====================================================
+
+- version: '1'
+  checkpoint: true
+  added:
+
+  - name: param1
+    type: string
+    default: 'foobar'
+    help: 'blah blah'
+    comment: 'New param'
+
+  - name: param2
+    type: integer
+    default: 123
+    comment: 'New param'
+
+# ====================================================
+
+- version: '2'
+  added:
+
+  - name: param1
+    type: string
+    default: 'foobarbaz'
+    help: 'blah blah'
+    comment: 'Default value has changed'
+
+# ====================================================
+
+- version: '2'
+  added:
+
+  - name: param1
+    type: string
+    default: 'foobarbaz'
+    help: 'blah blah'
+    comment: 'Default value has changed'
+
+# ====================================================
+
+- version: '3'
+  checkpoint: true
+  added:
+
+  - name: param1
+    type: integer
+    comment: 'Type has changed'
+
+# ====================================================
+
+- version: '3'
+  checkpoint: true
+  added:
+
+  - name: param1
+    type: integer
+    comment: 'Type has changed'
+
+# ====================================================

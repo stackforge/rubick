@@ -1,0 +1,71 @@
+- version: '2013.2.1'
+  checkpoint: true
+  added:
+
+  - name: debug
+    type: string
+    default: 'True'
+    help: 'Show debugging output in log (sets DEBUG log level output)'
+    comment: 'New param'
+
+  - name: auth_url
+    type: string
+    default: 'http://localhost:5000/v2.0'
+    help: 'The Neutron user information for accessing the Neutron API.'
+    comment: 'New param'
+
+  - name: auth_region
+    type: string
+    default: 'RegionOne'
+    help: 'The Neutron user information for accessing the Neutron API.'
+    comment: 'New param'
+
+  - name: admin_tenant_name
+    type: string
+    default: '%SERVICE_TENANT_NAME%'
+    help: 'The Neutron user information for accessing the Neutron API.'
+    comment: 'New param'
+
+  - name: admin_user
+    type: string
+    default: '%SERVICE_USER%'
+    help: 'The Neutron user information for accessing the Neutron API.'
+    comment: 'New param'
+
+  - name: admin_password
+    type: string
+    default: '%SERVICE_PASSWORD%'
+    help: 'The Neutron user information for accessing the Neutron API.'
+    comment: 'New param'
+
+  - name: endpoint_type
+    type: string
+    default: 'adminURL'
+    help: 'Network service endpoint type to pull from the keystone catalog'
+    comment: 'New param'
+
+  - name: nova_metadata_ip
+    type: string
+    default: '127.0.0.1'
+    help: 'IP address used by Nova metadata server'
+    comment: 'New param'
+
+  - name: nova_metadata_port
+    type: string
+    default: '8775'
+    help: 'TCP Port used by Nova metadata server'
+    comment: 'New param'
+
+  - name: metadata_proxy_shared_secret
+    type: string
+    default: ''
+    help: 'When proxying metadata requests, Neutron signs the Instance-ID header with a shared secret to prevent spoofing.  You may select any string for a secret, but it must match here and in the configuration used by the Nova Metadata Server. NOTE: Nova uses a different key: neutron_metadata_proxy_shared_secret'
+    comment: 'New param'
+
+  - name: metadata_proxy_socket
+    type: string
+    default: '$state_path/metadata_proxy'
+    help: 'Location of Metadata Proxy UNIX domain socket'
+    comment: 'New param'
+
+# ====================================================

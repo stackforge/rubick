@@ -1,0 +1,669 @@
+- version: '2013.2.1'
+  checkpoint: true
+  added:
+
+  - name: verbose
+    type: string
+    default: 'False'
+    help: 'Show more verbose log output (sets INFO log level output)'
+    comment: 'New param'
+
+  - name: debug
+    type: string
+    default: 'False'
+    help: 'Show debugging output in logs (sets DEBUG log level output)'
+    comment: 'New param'
+
+  - name: default_store
+    type: string
+    default: 'file'
+    help: "Which backend scheme should Glance use by default is not specified in a request to add a new image to Glance? Known schemes are determined by the known_stores option below. Default: 'file'"
+    comment: 'New param'
+
+  - name: known_stores
+    type: string
+    default: 'glance.store.filesystem.Store,'
+    help: 'List of which store classes and store class locations are currently known to glance at startup.'
+    comment: 'New param'
+
+  - name: image_size_cap
+    type: string
+    default: '1099511627776'
+    help: 'Maximum image size (in bytes) that may be uploaded through the Glance API server. Defaults to 1 TB. WARNING: this value should only be increased after careful consideration and must be set to a value under 8 EB (9223372036854775808).'
+    comment: 'New param'
+
+  - name: bind_host
+    type: host
+    default: '0.0.0.0'
+    help: 'Address to bind the API server'
+    comment: 'New param'
+
+  - name: bind_port
+    type: string
+    default: '9292'
+    help: 'Port the bind the API server to'
+    comment: 'New param'
+
+  - name: log_file
+    type: string
+    default: '/var/log/glance/api.log'
+    help: 'Log to this file. Make sure you do not set the same log file for both the API and registry servers!'
+    comment: 'New param'
+
+  - name: backlog
+    type: string
+    default: '4096'
+    help: 'Backlog requests when creating socket'
+    comment: 'New param'
+
+  - name: tcp_keepidle
+    type: string
+    default: '600'
+    help: 'TCP_KEEPIDLE value in seconds when creating socket. Not supported on OS X.'
+    comment: 'New param'
+
+  - name: sql_connection
+    type: string
+    default: 'sqlite:///glance.sqlite'
+    help: 'SQLAlchemy connection string for the reference implementation registry server. Any valid SQLAlchemy connection string is fine. See: http://www.sqlalchemy.org/docs/05/reference/sqlalchemy/connections.html#sqlalchemy.create_engine'
+    comment: 'New param'
+
+  - name: sql_idle_timeout
+    type: string
+    default: '3600'
+    help: "MySQL uses a default `wait_timeout` of 8 hours, after which it will drop idle connections. This can result in 'MySQL Gone Away' exceptions. If you notice this, you can lower this value to ensure that SQLAlchemy reconnects before MySQL can drop the connection."
+    comment: 'New param'
+
+  - name: workers
+    type: string
+    default: '1'
+    help: 'Number of Glance API worker processes to start. On machines with more than one CPU increasing this value may improve performance (especially if using SSL with compression turned on). It is typically recommended to set this value to the number of CPUs present on your machine.'
+    comment: 'New param'
+
+  - name: admin_role
+    type: string
+    default: 'admin'
+    help: 'Role used to identify an authenticated user as administrator'
+    comment: 'New param'
+
+  - name: allow_anonymous_access
+    type: string
+    default: 'False'
+    help: 'Allow unauthenticated users to access the API with read-only privileges. This only applies when using ContextMiddleware.'
+    comment: 'New param'
+
+  - name: enable_v1_api
+    type: string
+    default: 'True'
+    help: 'Allow access to version 1 of glance api'
+    comment: 'New param'
+
+  - name: enable_v2_api
+    type: string
+    default: 'True'
+    help: 'Allow access to version 2 of glance api'
+    comment: 'New param'
+
+  - name: show_image_direct_url
+    type: string
+    default: 'False'
+    help: "Return the URL that references where the data is stored on the backend storage system.  For example, if using the file system store a URL of 'file:///path/to/image' will be returned to the user in the 'direct_url' meta-data field. The default value is false."
+    comment: 'New param'
+
+  - name: send_identity_headers
+    type: string
+    default: 'False'
+    help: 'Send headers containing user and tenant information when making requests to the v1 glance registry. This allows the registry to function as if a user is authenticated without the need to authenticate a user itself using the auth_token middleware. The default value is false.'
+    comment: 'New param'
+
+  - name: container_formats
+    type: string
+    default: 'ami,ari,aki,bare,ovf'
+    help: "Supported values for the 'container_format' image attribute"
+    comment: 'New param'
+
+  - name: disk_formats
+    type: string
+    default: 'ami,ari,aki,vhd,vmdk,raw,qcow2,vdi,iso'
+    help: "Supported values for the 'disk_format' image attribute"
+    comment: 'New param'
+
+  - name: lock_path
+    type: string
+    default: 'None'
+    help: 'Directory to use for lock files. Default to a temp directory (string value). This setting needs to be the same for both glance-scrubber and glance-api.'
+    comment: 'New param'
+
+  - name: property_protection_file
+    type: string
+    default: ''
+    help: "Property Protections config file This file contains the rules for property protections and the roles associated with it. If this config value is not specified, by default, property protections won't be enforced. If a value is specified and the file is not found, then an HTTPInternalServerError will be thrown."
+    comment: 'New param'
+
+  - name: user_storage_quota
+    type: string
+    default: '0'
+    help: 'Set a system wide quota for every user.  This value is the total number of bytes that a user can use across all storage systems.  A value of 0 means unlimited.'
+    comment: 'New param'
+
+  - name: use_syslog
+    type: string
+    default: 'False'
+    help: 'Send logs to syslog (/dev/log) instead of to file specified by `log_file`'
+    comment: 'New param'
+
+  - name: syslog_log_facility
+    type: string
+    default: 'LOG_LOCAL0'
+    help: 'Facility to use. If unset defaults to LOG_USER.'
+    comment: 'New param'
+
+  - name: cert_file
+    type: string
+    default: '/path/to/certfile'
+    help: 'Certificate file to use when starting API server securely'
+    comment: 'New param'
+
+  - name: key_file
+    type: string
+    default: '/path/to/keyfile'
+    help: 'Private key file to use when starting API server securely'
+    comment: 'New param'
+
+  - name: ca_file
+    type: string
+    default: '/path/to/cafile'
+    help: 'CA certificate file to use to verify connecting clients'
+    comment: 'New param'
+
+  - name: metadata_encryption_key
+    type: string
+    default: '<16, 24 or 32 char registry metadata key>'
+    help: "AES key for encrypting store 'location' metadata, including -- if used -- Swift or S3 credentials Should be set to a random string of length 16, 24 or 32 bytes"
+    comment: 'New param'
+
+  - name: registry_host
+    type: host
+    default: '0.0.0.0'
+    help: 'Address to find the registry server'
+    comment: 'New param'
+
+  - name: registry_port
+    type: string
+    default: '9191'
+    help: 'Port the registry server is listening on'
+    comment: 'New param'
+
+  - name: registry_client_protocol
+    type: string
+    default: 'http'
+    help: 'What protocol to use when connecting to the registry server? Set to https for secure HTTP communication'
+    comment: 'New param'
+
+  - name: registry_client_key_file
+    type: string
+    default: '/path/to/key/file'
+    help: 'The path to the key file to use in SSL connections to the registry server, if any. Alternately, you may set the GLANCE_CLIENT_KEY_FILE environ variable to a filepath of the key file'
+    comment: 'New param'
+
+  - name: registry_client_cert_file
+    type: string
+    default: '/path/to/cert/file'
+    help: 'The path to the cert file to use in SSL connections to the registry server, if any. Alternately, you may set the GLANCE_CLIENT_CERT_FILE environ variable to a filepath of the cert file'
+    comment: 'New param'
+
+  - name: registry_client_ca_file
+    type: string
+    default: '/path/to/ca/file'
+    help: 'The path to the certifying authority cert file to use in SSL connections to the registry server, if any. Alternately, you may set the GLANCE_CLIENT_CA_FILE environ variable to a filepath of the CA cert file'
+    comment: 'New param'
+
+  - name: registry_client_insecure
+    type: string
+    default: 'False'
+    help: "When using SSL in connections to the registry server, do not require validation via a certifying authority. This is the registry's equivalent of specifying --insecure on the command line using glanceclient for the API Default: False"
+    comment: 'New param'
+
+  - name: registry_client_timeout
+    type: string
+    default: '600'
+    help: "The period of time, in seconds, that the API server will wait for a registry request to complete. A value of '0' implies no timeout. Default: 600"
+    comment: 'New param'
+
+  - name: db_auto_create
+    type: string
+    default: 'False'
+    help: 'Whether to automatically create the database tables. Default: False'
+    comment: 'New param'
+
+  - name: sqlalchemy_debug
+    type: string
+    default: 'True'
+    help: 'Enable DEBUG log messages from sqlalchemy which prints every database query and response. Default: False'
+    comment: 'New param'
+
+  - name: notifier_strategy
+    type: string
+    default: 'noop'
+    help: 'Notifications can be sent when images are create, updated or deleted. There are three methods of sending notifications, logging (via the log_file directive), rabbit (via a rabbitmq queue), qpid (via a Qpid message queue), or noop (no notifications sent, the default)'
+    comment: 'New param'
+
+  - name: rabbit_host
+    type: host
+    default: 'localhost'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_port
+    type: string
+    default: '5672'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_use_ssl
+    type: string
+    default: 'false'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_userid
+    type: string
+    default: 'guest'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_password
+    type: string
+    default: 'guest'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_virtual_host
+    type: string
+    default: '/'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_notification_exchange
+    type: string
+    default: 'glance'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_notification_topic
+    type: string
+    default: 'notifications'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: rabbit_durable_queues
+    type: string
+    default: 'False'
+    help: 'Configuration options if sending notifications via rabbitmq (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_notification_exchange
+    type: string
+    default: 'glance'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_notification_topic
+    type: string
+    default: 'notifications'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_host
+    type: host
+    default: 'localhost'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_port
+    type: string
+    default: '5672'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_username
+    type: string
+    default: ''
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_password
+    type: string
+    default: ''
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_sasl_mechanisms
+    type: string
+    default: ''
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_reconnect_timeout
+    type: string
+    default: '0'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_reconnect_limit
+    type: string
+    default: '0'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_reconnect_interval_min
+    type: string
+    default: '0'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_reconnect_interval_max
+    type: string
+    default: '0'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_reconnect_interval
+    type: string
+    default: '0'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_heartbeat
+    type: string
+    default: '5'
+    help: 'Configuration options if sending notifications via Qpid (these are the defaults)'
+    comment: 'New param'
+
+  - name: qpid_protocol
+    type: string
+    default: 'tcp'
+    help: "Configuration options if sending notifications via Qpid (these are the defaults) Set to 'ssl' to enable SSL"
+    comment: 'New param'
+
+  - name: qpid_tcp_nodelay
+    type: string
+    default: 'True'
+    help: "Configuration options if sending notifications via Qpid (these are the defaults) Set to 'ssl' to enable SSL"
+    comment: 'New param'
+
+  - name: filesystem_store_datadir
+    type: string
+    default: '/var/lib/glance/images/'
+    help: 'Directory that the Filesystem backend store writes image data to'
+    comment: 'New param'
+
+  - name: filesystem_store_metadata_file
+    type: string
+    default: 'None'
+    help: 'A path to a JSON file that contains metadata describing the storage system.  When show_multiple_locations is True the information in this file will be returned with any location that is contained in this store.'
+    comment: 'New param'
+
+  - name: swift_store_auth_version
+    type: string
+    default: '2'
+    help: "Version of the authentication service to use Valid versions are '2' for keystone and '1' for swauth and rackspace"
+    comment: 'New param'
+
+  - name: swift_store_auth_address
+    type: string
+    default: '127.0.0.1:5000/v2.0/'
+    help: "Address where the Swift authentication service lives Valid schemes are 'http://' and 'https://' If no scheme specified,  default to 'https://' For swauth, use something like '127.0.0.1:8080/v1.0/'"
+    comment: 'New param'
+
+  - name: swift_store_user
+    type: string
+    default: 'jdoe:jdoe'
+    help: "User to authenticate against the Swift authentication service If you use Swift authentication service, set it to 'account':'user' where 'account' is a Swift storage account and 'user' is a user in that account"
+    comment: 'New param'
+
+  - name: swift_store_key
+    type: string
+    default: 'a86850deb2742ec3cb41518e26aa2d89'
+    help: 'Auth key for the user authenticating against the Swift authentication service'
+    comment: 'New param'
+
+  - name: swift_store_container
+    type: string
+    default: 'glance'
+    help: 'Container within the account that the account should use for storing images in Swift'
+    comment: 'New param'
+
+  - name: swift_store_create_container_on_put
+    type: string
+    default: 'False'
+    help: 'Do we create the container if it does not exist?'
+    comment: 'New param'
+
+  - name: swift_store_large_object_size
+    type: string
+    default: '5120'
+    help: 'What size, in MB, should Glance start chunking image files and do a large object manifest in Swift? By default, this is the maximum object size in Swift, which is 5GB'
+    comment: 'New param'
+
+  - name: swift_store_large_object_chunk_size
+    type: string
+    default: '200'
+    help: 'When doing a large object manifest, what size, in MB, should Glance write chunks to Swift? This amount of data is written to a temporary disk buffer during the process of chunking the image file, and the default is 200MB'
+    comment: 'New param'
+
+  - name: swift_enable_snet
+    type: string
+    default: 'False'
+    help: "To use ServiceNET for authentication, prefix hostname of `swift_store_auth_address` with 'snet-'. Ex. https://example.com/v1.0/ -> https://snet-example.com/v1.0/"
+    comment: 'New param'
+
+  - name: swift_store_multi_tenant
+    type: string
+    default: 'False'
+    help: 'If set to True enables multi-tenant storage mode which causes Glance images to be stored in tenant specific Swift accounts.'
+    comment: 'New param'
+
+  - name: swift_store_admin_tenants
+    type: string
+    default: ''
+    help: 'A list of swift_proxy_server ACL strings that will be applied as both read and write ACLs to the containers created by Glance in multi-tenant mode. This grants the specified tenants/users read and write access to all newly created image objects. The standard swift_proxy_server ACL string formats are allowed, including: <tenant_id>:<username> <tenant_name>:<username> *:<username> Multiple ACLs can be combined using a comma separated list, for example: swift_store_admin_tenants = service:glance,*:admin'
+    comment: 'New param'
+
+  - name: swift_store_region
+    type: string
+    default: ''
+    help: 'The region of the swift_proxy_server endpoint to be used for single tenant. This setting is only necessary if the tenant has multiple swift_proxy_server endpoints.'
+    comment: 'New param'
+
+  - name: swift_store_ssl_compression
+    type: string
+    default: 'True'
+    help: "If set to False, disables SSL layer compression of https swift_proxy_server requests. Setting to 'False' may improve performance for images which are already in a compressed format, eg qcow2. If set to True, enables SSL layer compression (provided it is supported by the target swift_proxy_server proxy)."
+    comment: 'New param'
+
+  - name: s3_store_host
+    type: string
+    default: '127.0.0.1:8080/v1.0/'
+    help: "Address where the S3 authentication service lives Valid schemes are 'http://' and 'https://' If no scheme specified,  default to 'http://'"
+    comment: 'New param'
+
+  - name: s3_store_access_key
+    type: string
+    default: '<20-char AWS access key>'
+    help: 'User to authenticate against the S3 authentication service'
+    comment: 'New param'
+
+  - name: s3_store_secret_key
+    type: string
+    default: '<40-char AWS secret key>'
+    help: 'Auth key for the user authenticating against the S3 authentication service'
+    comment: 'New param'
+
+  - name: s3_store_bucket
+    type: string
+    default: '<lowercased 20-char aws access key>glance'
+    help: "Container within the account that the account should use for storing images in S3. Note that S3 has a flat namespace, so you need a unique bucket name for your glance images. An easy way to do this is append your AWS access key to 'glance'. S3 buckets in AWS *must* be lowercased, so remember to lowercase your AWS access key if you use it in your bucket name below!"
+    comment: 'New param'
+
+  - name: s3_store_create_bucket_on_put
+    type: string
+    default: 'False'
+    help: 'Do we create the bucket if it does not exist?'
+    comment: 'New param'
+
+  - name: s3_store_object_buffer_dir
+    type: string
+    default: '/path/to/dir'
+    help: "When sending images to S3, the data will first be written to a temporary buffer on disk. By default the platform's temporary directory will be used. If required, an alternative directory can be specified here."
+    comment: 'New param'
+
+  - name: s3_store_bucket_url_format
+    type: string
+    default: 'subdomain'
+    help: "When forming a bucket url, boto will either set the bucket name as the subdomain or as the first token of the path. Amazon's S3 service will accept it as the subdomain, but Swift's S3 middleware requires it be in the path. Set this to 'path' or 'subdomain' - defaults to 'subdomain'."
+    comment: 'New param'
+
+  - name: rbd_store_ceph_conf
+    type: string
+    default: '/etc/ceph/ceph.conf'
+    help: 'Ceph configuration file path If using cephx authentication, this file should include a reference to the right keyring in a client.<USER> section'
+    comment: 'New param'
+
+  - name: rbd_store_user
+    type: string
+    default: 'glance'
+    help: 'RADOS user to authenticate as (only applicable if using cephx)'
+    comment: 'New param'
+
+  - name: rbd_store_pool
+    type: string
+    default: 'images'
+    help: 'RADOS pool in which images are stored'
+    comment: 'New param'
+
+  - name: rbd_store_chunk_size
+    type: string
+    default: '8'
+    help: 'Images will be chunked into objects of this size (in megabytes). For best performance, this should be a power of two'
+    comment: 'New param'
+
+  - name: sheepdog_store_address
+    type: string
+    default: 'localhost'
+    comment: 'New param'
+
+  - name: sheepdog_store_port
+    type: string
+    default: '7000'
+    comment: 'New param'
+
+  - name: sheepdog_store_chunk_size
+    type: string
+    default: '64'
+    help: 'Images will be chunked into objects of this size (in megabytes). For best performance, this should be a power of two'
+    comment: 'New param'
+
+  - name: cinder_catalog_info
+    type: string
+    default: 'volume:cinder:publicURL'
+    help: 'Info to match when looking for cinder in the service catalog Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type> '
+    comment: 'New param'
+
+  - name: cinder_endpoint_template
+    type: string
+    default: 'None'
+    help: 'Override service catalog lookup with template for cinder endpoint e.g. http://localhost:8776/v1/%(project_id)s '
+    comment: 'New param'
+
+  - name: os_region_name
+    type: string
+    default: 'None'
+    help: 'Region name of this node '
+    comment: 'New param'
+
+  - name: cinder_ca_certificates_file
+    type: string
+    default: 'None'
+    help: 'Location of ca certicates file to use for cinder client requests '
+    comment: 'New param'
+
+  - name: cinder_http_retries
+    type: integer
+    default: 3
+    help: 'Number of cinderclient retries on failed http calls '
+    comment: 'New param'
+
+  - name: cinder_api_insecure
+    type: boolean
+    default: false
+    help: 'Allow to perform insecure SSL requests to cinder '
+    comment: 'New param'
+
+  - name: delayed_delete
+    type: string
+    default: 'False'
+    help: 'Turn on/off delayed delete'
+    comment: 'New param'
+
+  - name: scrub_time
+    type: string
+    default: '43200'
+    help: 'Delayed delete time in seconds'
+    comment: 'New param'
+
+  - name: scrubber_datadir
+    type: string
+    default: '/var/lib/glance/scrubber'
+    help: 'Directory that the scrubber will use to remind itself of what to delete Make sure this is also set in glance-scrubber.conf'
+    comment: 'New param'
+
+  - name: image_cache_dir
+    type: string
+    default: '/var/lib/glance/image-cache/'
+    help: 'Base directory that the Image Cache uses'
+    comment: 'New param'
+
+  - name: keystone_authtoken.auth_host
+    type: host
+    default: '127.0.0.1'
+    comment: 'New param'
+
+  - name: keystone_authtoken.auth_port
+    type: string
+    default: '35357'
+    comment: 'New param'
+
+  - name: keystone_authtoken.auth_protocol
+    type: string
+    default: 'http'
+    comment: 'New param'
+
+  - name: keystone_authtoken.admin_tenant_name
+    type: string
+    default: '%SERVICE_TENANT_NAME%'
+    comment: 'New param'
+
+  - name: keystone_authtoken.admin_user
+    type: string
+    default: '%SERVICE_USER%'
+    comment: 'New param'
+
+  - name: keystone_authtoken.admin_password
+    type: string
+    default: '%SERVICE_PASSWORD%'
+    comment: 'New param'
+
+  - name: paste_deploy.config_file
+    type: string
+    default: 'glance-api-paste.ini'
+    help: 'Name of the paste configuration file that defines the available pipelines'
+    comment: 'New param'
+
+  - name: paste_deploy.flavor
+    type: string
+    default: ''
+    help: "Partial name of a pipeline in your paste configuration file with the service name removed. For example, if your paste section name is [pipeline:glance-api-keystone], you would configure the flavor below as 'keystone'."
+    comment: 'New param'
+
+# ====================================================
