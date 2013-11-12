@@ -349,11 +349,11 @@ parameters:
 
   - name: ldap.use_dumb_member
     type: boolean
-    default: False
+    default: false
 
   - name: ldap.allow_subtree_delete
     type: boolean
-    default: False
+    default: false
 
   - name: ldap.dumb_member
     type: string
@@ -416,7 +416,7 @@ parameters:
 
   - name: ldap.user_enabled_default
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.user_attribute_ignore
     type: string
@@ -424,19 +424,19 @@ parameters:
 
   - name: ldap.user_allow_create
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.user_allow_update
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.user_allow_delete
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.user_enabled_emulation
     type: boolean
-    default: False
+    default: false
 
   - name: ldap.user_enabled_emulation_dn
     type: string
@@ -484,19 +484,19 @@ parameters:
 
   - name: ldap.tenant_allow_create
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.tenant_allow_update
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.tenant_allow_delete
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.tenant_enabled_emulation
     type: boolean
-    default: False
+    default: false
 
   - name: ldap.tenant_enabled_emulation_dn
     type: string
@@ -532,15 +532,15 @@ parameters:
 
   - name: ldap.role_allow_create
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.role_allow_update
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.role_allow_delete
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.group_tree_dn
     type: string
@@ -576,19 +576,19 @@ parameters:
 
   - name: ldap.group_allow_create
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.group_allow_update
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.group_allow_delete
     type: boolean
-    default: True
+    default: true
 
   - name: ldap.use_tls
     type: boolean
-    default: False
+    default: false
     help: 'ldap TLS options if both tls_cacertfile and tls_cacertdir are set then tls_cacertfile will be used and tls_cacertdir is ignored valid options for tls_req_cert are demand, never, and allow'
 
   - name: ldap.tls_cacertfile

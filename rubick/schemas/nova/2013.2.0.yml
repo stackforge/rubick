@@ -14,12 +14,12 @@ parameters:
 
   - name: ssl.ca_file
     type: string
-    default: None
+    default: ~
     help: 'CA certificate file to use to verify connecting clients '
 
   - name: ssl.key_file
     type: string
-    default: None
+    default: ~
     help: 'Private key file to use when starting the server securely '
 
   - name: crl_file
@@ -74,7 +74,7 @@ parameters:
 
   - name: notify_on_state_change
     type: string
-    default: None
+    default: ~
     help: "If set, send compute.instance.update notifications on instance state changes.  Valid values are None for no notifications, 'vm_state' for notifications on VM state changes, or 'vm_and_task_state' for notifications on VM and task state changes. "
 
   - name: notify_api_faults
@@ -224,7 +224,7 @@ parameters:
 
   - name: ec2_workers
     type: integer
-    default: None
+    default: ~
     help: 'Number of workers for EC2 API service '
 
   - name: osapi_compute_listen
@@ -239,7 +239,7 @@ parameters:
 
   - name: osapi_compute_workers
     type: integer
-    default: None
+    default: ~
     help: 'Number of workers for OpenStack API service '
 
   - name: metadata_manager
@@ -259,7 +259,7 @@ parameters:
 
   - name: metadata_workers
     type: integer
-    default: None
+    default: ~
     help: 'Number of workers for metadata service '
 
   - name: compute_manager
@@ -324,7 +324,7 @@ parameters:
 
   - name: tempdir
     type: string
-    default: None
+    default: ~
     help: 'Explicitly specify the temporary working directory '
 
   - name: api_paste_config
@@ -339,17 +339,17 @@ parameters:
 
   - name: ssl_ca_file
     type: string
-    default: None
+    default: ~
     help: 'CA certificate file to use to verify connecting clients '
 
   - name: ssl_cert_file
     type: string
-    default: None
+    default: ~
     help: 'SSL certificate of API server '
 
   - name: ssl_key_file
     type: string
-    default: None
+    default: ~
     help: 'SSL private key of API server '
 
   - name: tcp_keepidle
@@ -459,7 +459,7 @@ parameters:
 
   - name: vendordata_jsonfile_path
     type: string
-    default: None
+    default: ~
     help: 'File to load json formated vendor data from '
 
   - name: osapi_max_limit
@@ -469,12 +469,12 @@ parameters:
 
   - name: osapi_compute_link_prefix
     type: string
-    default: None
+    default: ~
     help: 'Base URL that will be presented to users in links to the OpenStack Compute API '
 
   - name: osapi_glance_link_prefix
     type: string
-    default: None
+    default: ~
     help: 'Base URL that will be presented to users in links to glance resources '
 
   - name: allow_instance_snapshots
@@ -589,12 +589,12 @@ parameters:
 
   - name: upgrade_levels.cert
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to cert services '
 
   - name: key
     type: string
-    default: None
+    default: ~
     help: 'SSL key file (if separate from cert) '
 
   - name: web
@@ -634,7 +634,7 @@ parameters:
 
   - name: default_schedule_zone
     type: string
-    default: None
+    default: ~
     help: "availability zone to use when user doesn't specify one "
 
   - name: non_inheritable_image_properties
@@ -669,7 +669,7 @@ parameters:
 
   - name: default_access_ip_network_name
     type: string
-    default: None
+    default: ~
     help: 'Name of network to use to set access ips for instances '
 
   - name: defer_iptables_apply
@@ -1089,7 +1089,7 @@ parameters:
 
   - name: network_device_mtu
     type: string
-    default: None
+    default: ~
     help: 'MTU setting for vlan '
 
   - name: dhcpbridge
@@ -1189,7 +1189,7 @@ parameters:
 
   - name: flat_network_bridge
     type: string
-    default: None
+    default: ~
     help: 'Bridge for simple network instances '
 
   - name: flat_network_dns
@@ -1204,7 +1204,7 @@ parameters:
 
   - name: flat_interface
     type: string
-    default: None
+    default: ~
     help: 'FlatDhcp will bridge into this interface if set '
 
   - name: vlan_start
@@ -1244,12 +1244,12 @@ parameters:
 
   - name: gateway
     type: string
-    default: None
+    default: ~
     help: 'Default IPv4 gateway '
 
   - name: gateway_v6
     type: string
-    default: None
+    default: ~
     help: 'Default IPv6 gateway '
 
   - name: cnt_vpn_clients
@@ -1324,22 +1324,22 @@ parameters:
 
   - name: neutron_admin_username
     type: string
-    default: None
+    default: ~
     help: 'username for connecting to neutron in admin context '
 
   - name: neutron_admin_password
     type: string
-    default: None
+    default: ~
     help: 'password for connecting to neutron in admin context '
 
   - name: neutron_admin_tenant_name
     type: string
-    default: None
+    default: ~
     help: 'tenant name for connecting to neutron in admin context '
 
   - name: neutron_region_name
     type: string
-    default: None
+    default: ~
     help: 'region name for connecting to neutron in admin context '
 
   - name: neutron_admin_auth_url
@@ -1369,7 +1369,7 @@ parameters:
 
   - name: neutron_ca_certificates_file
     type: string
-    default: None
+    default: ~
     help: 'Location of ca certificates file to use for neutron client requests. '
 
   - name: dhcp_options_enabled
@@ -1419,7 +1419,7 @@ parameters:
 
   - name: backdoor_port
     type: string
-    default: None
+    default: ~
     help: "Enable eventlet backdoor. Acceptable values are 0, <port> and <start>:<end>, where 0 results in listening on a random tcp port number, <port> results in listening on the specified port number and not enabling backdoorif it is in use and <start>:<end> results in listening on the smallest unused port number within the specified range of port numbers. The chosen port is displayed in the service's log file. "
 
   - name: disable_process_locking
@@ -1429,7 +1429,7 @@ parameters:
 
   - name: lock_path
     type: string
-    default: None
+    default: ~
     help: 'Directory to use for lock files. '
 
   - name: debug
@@ -1494,12 +1494,12 @@ parameters:
 
   - name: log_config
     type: string
-    default: None
+    default: ~
     help: 'If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files. '
 
   - name: log_format
     type: string
-    default: None
+    default: ~
     help: 'DEPRECATED. A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead. '
 
   - name: log_date_format
@@ -1509,12 +1509,12 @@ parameters:
 
   - name: log_file
     type: string
-    default: None
+    default: ~
     help: '(Optional) Name of log file to output to. If no default is set, logging will go to stdout. '
 
   - name: log_dir
     type: string
-    default: None
+    default: ~
     help: '(Optional) The base directory used for relative --log-file paths '
 
   - name: use_syslog
@@ -1529,7 +1529,7 @@ parameters:
 
   - name: memcached_servers
     type: list
-    default: None
+    default: ~
     help: 'Memcached servers or None for in process cache. '
 
   - name: notification_driver
@@ -1544,7 +1544,7 @@ parameters:
 
   - name: default_publisher_id
     type: string
-    default: None
+    default: ~
     help: 'Default publisher_id for outgoing notifications '
 
   - name: notification_topics
@@ -1754,7 +1754,7 @@ parameters:
 
   - name: rpc_zmq_topic_backlog
     type: integer
-    default: None
+    default: ~
     help: 'Maximum number of ingress messages to locally buffer per topic. Default is unlimited. '
 
   - name: rpc_zmq_ipc_dir
@@ -1889,12 +1889,12 @@ parameters:
 
   - name: config_drive_tempdir
     type: string
-    default: None
+    default: ~
     help: 'Where to put temporary files associated with config drive creation '
 
   - name: force_config_drive
     type: string
-    default: None
+    default: ~
     help: 'Set to force injection to take place on a config drive (if set, valid options are: always) '
 
   - name: mkisofs_cmd
@@ -1929,12 +1929,12 @@ parameters:
 
   - name: compute_driver
     type: string
-    default: None
+    default: ~
     help: 'Driver to use for controlling virtualization. Options include: libvirt.LibvirtDriver, xenapi.XenAPIDriver, fake.FakeDriver, baremetal.BareMetalDriver, vmwareapi.VMwareESXDriver, vmwareapi.VMwareVCDriver '
 
   - name: default_ephemeral_format
     type: string
-    default: None
+    default: ~
     help: 'The default format an ephemeral_volume will be formatted with on creation. '
 
   - name: preallocate_images
@@ -1949,7 +1949,7 @@ parameters:
 
   - name: firewall_driver
     type: string
-    default: None
+    default: ~
     help: 'Firewall driver (defaults to hypervisor specific iptables driver) '
 
   - name: allow_same_net_traffic
@@ -1964,17 +1964,17 @@ parameters:
 
   - name: rescue_image_id
     type: string
-    default: None
+    default: ~
     help: 'Rescue ami image '
 
   - name: rescue_kernel_id
     type: string
-    default: None
+    default: ~
     help: 'Rescue aki image '
 
   - name: rescue_ramdisk_id
     type: string
-    default: None
+    default: ~
     help: 'Rescue ari image '
 
   - name: libvirt_type
@@ -2029,7 +2029,7 @@ parameters:
 
   - name: snapshot_image_format
     type: string
-    default: None
+    default: ~
     help: 'Snapshot image format (valid options are : raw, qcow2, vmdk, vdi). Defaults to same as source image '
 
   - name: libvirt_vif_driver
@@ -2044,7 +2044,7 @@ parameters:
 
   - name: libvirt_disk_prefix
     type: string
-    default: None
+    default: ~
     help: 'Override the default disk prefix for the devices attached to a server, which is dependent on libvirt_type. (valid options are: sd, xvd, uvd, vd) '
 
   - name: libvirt_wait_soft_reboot_seconds
@@ -2059,12 +2059,12 @@ parameters:
 
   - name: libvirt_cpu_mode
     type: string
-    default: None
+    default: ~
     help: "Set to 'host-model' to clone the host CPU feature flags; to 'host-passthrough' to use the host CPU model exactly; to 'custom' to use a named CPU model; to 'none' to not set any CPU model. If libvirt_type='kvm|qemu', it will default to 'host-model', otherwise it will default to 'none' "
 
   - name: libvirt_cpu_model
     type: string
-    default: None
+    default: ~
     help: "Set to a named libvirt CPU model (see names listed in /usr/share/libvirt/cpu_map.xml). Only has effect if libvirt_cpu_mode='custom' and libvirt_type='kvm|qemu' "
 
   - name: libvirt_snapshots_directory
@@ -2084,7 +2084,7 @@ parameters:
 
   - name: vcpu_pin_set
     type: string
-    default: None
+    default: ~
     help: "Which pcpus can be used by vcpus of instance e.g: '4-12,^8,15' "
 
   - name: libvirt_images_type
@@ -2094,7 +2094,7 @@ parameters:
 
   - name: libvirt_images_volume_group
     type: string
-    default: None
+    default: ~
     help: 'LVM Volume Group that is used for VM images, when you specify libvirt_images_type=lvm. '
 
   - name: libvirt_sparse_logical_volumes
@@ -2184,12 +2184,12 @@ parameters:
 
   - name: rbd_user
     type: string
-    default: None
+    default: ~
     help: 'the RADOS client name for accessing rbd volumes '
 
   - name: rbd_secret_uuid
     type: string
-    default: None
+    default: ~
     help: 'the libvirt uuid of the secret for the rbd_uservolumes '
 
   - name: nfs_mount_point_base
@@ -2199,7 +2199,7 @@ parameters:
 
   - name: nfs_mount_options
     type: string
-    default: None
+    default: ~
     help: 'Mount options passed to the nfs client. See section of the nfs man page for details '
 
   - name: num_aoe_discover_tries
@@ -2224,7 +2224,7 @@ parameters:
 
   - name: scality_sofs_config
     type: string
-    default: None
+    default: ~
     help: 'Path or URL to Scality SOFS configuration file '
 
   - name: scality_sofs_mount_point
@@ -2244,17 +2244,17 @@ parameters:
 
   - name: powervm_mgr
     type: string
-    default: None
+    default: ~
     help: 'PowerVM manager host or ip '
 
   - name: powervm_mgr_user
     type: string
-    default: None
+    default: ~
     help: 'PowerVM manager user name '
 
   - name: powervm_mgr_passwd
     type: string
-    default: None
+    default: ~
     help: 'PowerVM manager user password '
 
   - name: powervm_img_remote_path
@@ -2299,7 +2299,7 @@ parameters:
 
   - name: xenapi_connection_url
     type: string
-    default: None
+    default: ~
     help: 'URL for connection to XenServer/Xen Cloud Platform. A special value of unix://local can be used to connect to the local unix socket.  Required if compute_driver=xenapi.XenAPIDriver '
 
   - name: xenapi_connection_username
@@ -2309,7 +2309,7 @@ parameters:
 
   - name: xenapi_connection_password
     type: string
-    default: None
+    default: ~
     help: 'Password for connection to XenServer/Xen Cloud Platform. Used only if compute_driver=xenapi.XenAPIDriver '
 
   - name: xenapi_connection_concurrent
@@ -2339,7 +2339,7 @@ parameters:
 
   - name: target_host
     type: string
-    default: None
+    default: ~
     help: 'iSCSI Target Host '
 
   - name: target_port
@@ -2369,7 +2369,7 @@ parameters:
 
   - name: xenapi_torrent_base_url
     type: string
-    default: None
+    default: ~
     help: 'Base URL for torrent files. '
 
   - name: xenapi_torrent_seed_chance
@@ -2424,7 +2424,7 @@ parameters:
 
   - name: xenapi_image_compression_level
     type: integer
-    default: None
+    default: ~
     help: 'Compression level for images, e.g., 9 for gzip -9. Range is 1-9, 9 being most compressed but most CPU intensive on dom0. '
 
   - name: default_os_type
@@ -2464,12 +2464,12 @@ parameters:
 
   - name: xenapi_ipxe_network_name
     type: string
-    default: None
+    default: ~
     help: 'Name of network to use for booting iPXE ISOs '
 
   - name: xenapi_ipxe_boot_menu_url
     type: string
-    default: None
+    default: ~
     help: 'URL to the iPXE boot menu '
 
   - name: xenapi_ipxe_mkisofs_cmd
@@ -2544,17 +2544,17 @@ parameters:
 
   - name: cinder_endpoint_template
     type: string
-    default: None
+    default: ~
     help: 'Override service catalog lookup with template for cinder endpoint e.g. http://localhost:8776/v1/%(project_id)s '
 
   - name: os_region_name
     type: string
-    default: None
+    default: ~
     help: 'region name of this node '
 
   - name: cinder_ca_certificates_file
     type: string
-    default: None
+    default: ~
     help: 'Location of ca certificates file to use for cinder client requests. '
 
   - name: cinder_http_retries
@@ -2589,7 +2589,7 @@ parameters:
 
   - name: hyperv.vswitch_name
     type: string
-    default: None
+    default: ~
     help: 'External virtual switch Name, if not provided, the first external virtual switch is used '
 
   - name: hyperv.limit_cpu_features
@@ -2634,7 +2634,7 @@ parameters:
 
   - name: zookeeper.address
     type: string
-    default: None
+    default: ~
     help: 'The ZooKeeper addresses for servicegroup service in the format of host1:port,host2:port,host3:port '
 
   - name: zookeeper.recv_timeout
@@ -2684,7 +2684,7 @@ parameters:
 
   - name: conductor.workers
     type: integer
-    default: None
+    default: ~
     help: 'Number of workers for OpenStack Conductor service '
 
   - name: keymgr.api_class
@@ -2694,7 +2694,7 @@ parameters:
 
   - name: keymgr.fixed_key
     type: string
-    default: None
+    default: ~
     help: 'Fixed key returned by key manager, specified in hex '
 
   - name: baremetal.driver
@@ -2719,7 +2719,7 @@ parameters:
 
   - name: upgrade_levels.scheduler
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to scheduler services '
 
   - name: cells.enable
@@ -2749,7 +2749,7 @@ parameters:
 
   - name: cells.cell_type
     type: string
-    default: None
+    default: ~
     help: 'Type of cell: api or compute '
 
   - name: cells.mute_child_interval
@@ -2789,7 +2789,7 @@ parameters:
 
   - name: cells.cells_config
     type: string
-    default: None
+    default: ~
     help: 'Configuration file from which to read cells configuration. If given, overrides reading cells from the database. '
 
   - name: cells.mute_weight_multiplier
@@ -2834,7 +2834,7 @@ parameters:
 
   - name: database.max_pool_size
     type: integer
-    default: None
+    default: ~
     help: 'Maximum number of SQL connections to keep open in a pool '
 
   - name: database.max_retries
@@ -2849,7 +2849,7 @@ parameters:
 
   - name: database.max_overflow
     type: integer
-    default: None
+    default: ~
     help: 'If set, use this value for max_overflow with sqlalchemy '
 
   - name: database.connection_debug
@@ -2864,7 +2864,7 @@ parameters:
 
   - name: database.pool_timeout
     type: integer
-    default: None
+    default: ~
     help: 'If set, use this value for pool_timeout with sqlalchemy '
 
   - name: image_file_url.filesystems
@@ -2914,7 +2914,7 @@ parameters:
 
   - name: baremetal.terminal_cert_dir
     type: string
-    default: None
+    default: ~
     help: 'path to baremetal terminal SSL cert(PEM) '
 
   - name: baremetal.terminal_pid_dir
@@ -2929,12 +2929,12 @@ parameters:
 
   - name: baremetal.deploy_kernel
     type: string
-    default: None
+    default: ~
     help: 'Default kernel image ID used in deployment phase '
 
   - name: baremetal.deploy_ramdisk
     type: string
-    default: None
+    default: ~
     help: 'Default ramdisk image ID used in deployment phase '
 
   - name: baremetal.net_config_template
@@ -3024,7 +3024,7 @@ parameters:
 
   - name: baremetal.virtual_power_host_key
     type: string
-    default: None
+    default: ~
     help: 'ssh key for virtual power host_user '
 
   - name: baremetal.use_unsafe_iscsi
@@ -3049,22 +3049,22 @@ parameters:
 
   - name: matchmaker_redis.password
     type: string
-    default: None
+    default: ~
     help: 'Password for Redis server. (optional) '
 
   - name: ssl.cert_file
     type: string
-    default: None
+    default: ~
     help: 'Certificate file to use when starting the server securely '
 
   - name: trusted_computing.attestation_server
     type: string
-    default: None
+    default: ~
     help: 'attestation server http '
 
   - name: trusted_computing.attestation_server_ca_file
     type: string
-    default: None
+    default: ~
     help: 'attestation server Cert file for Identity verification '
 
   - name: trusted_computing.attestation_port
@@ -3079,7 +3079,7 @@ parameters:
 
   - name: trusted_computing.attestation_auth_blob
     type: string
-    default: None
+    default: ~
     help: 'attestation authorization blob - must change '
 
   - name: trusted_computing.attestation_auth_timeout
@@ -3089,42 +3089,42 @@ parameters:
 
   - name: upgrade_levels.baseapi
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to the base api in any service '
 
   - name: upgrade_levels.intercell
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent between cells services '
 
   - name: upgrade_levels.cells
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to local cells services '
 
   - name: upgrade_levels.compute
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to compute services '
 
   - name: upgrade_levels.conductor
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to conductor services '
 
   - name: upgrade_levels.console
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to console services '
 
   - name: upgrade_levels.consoleauth
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to consoleauth services '
 
   - name: upgrade_levels.network
     type: string
-    default: None
+    default: ~
     help: 'Set a version cap for messages sent to network services '
 
   - name: matchmaker_ring.ringfile
@@ -3134,27 +3134,27 @@ parameters:
 
   - name: vmware.host_ip
     type: string
-    default: None
+    default: ~
     help: 'URL for connection to VMware ESX/VC host. Required if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver. '
 
   - name: vmware.host_username
     type: string
-    default: None
+    default: ~
     help: 'Username for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver. '
 
   - name: vmware.host_password
     type: string
-    default: None
+    default: ~
     help: 'Password for connection to VMware ESX/VC host. Used only if compute_driver is vmwareapi.VMwareESXDriver or vmwareapi.VMwareVCDriver. '
 
   - name: vmware.cluster_name
     type: string
-    default: None
+    default: ~
     help: 'Name of a VMware Cluster ComputeResource. Used only if compute_driver is vmwareapi.VMwareVCDriver. (multi valued)'
 
   - name: vmware.datastore_regex
     type: string
-    default: None
+    default: ~
     help: 'Regex to match the name of a datastore. Used only if compute_driver is vmwareapi.VMwareVCDriver. '
 
   - name: vmware.task_poll_interval
@@ -3179,7 +3179,7 @@ parameters:
 
   - name: vmware.vnc_password
     type: string
-    default: None
+    default: ~
     help: 'DEPRECATED. VNC password. The password-based access to VNC consoles will be removed in the next release. The default value will disable password protection on the VNC console. '
 
   - name: vmware.use_linked_clone
@@ -3189,7 +3189,7 @@ parameters:
 
   - name: vmware.wsdl_location
     type: string
-    default: None
+    default: ~
     help: 'Optional VIM Service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds '
 
   - name: vmware.maximum_objects
