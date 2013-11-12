@@ -99,7 +99,6 @@ def generate_project_schema(project):
 
             if not prev_param:
                 logger.debug('Parameter %s does not exist yet, adding it as new' % param['name'])
-                param['comment'] = 'New param'
                 added.append(param)
             else:
                 seen.add(param['name'])
@@ -176,6 +175,8 @@ def generate_project_schema(project):
             for param in added:
                 old_param = old_schema_parameters.get(param['name'], None)
                 if not old_param:
+                    if 'comment' not in param:
+                        param['comment'] = 'New param'
                     continue
 
                 extra_data = [(k, v) for k, v in old_param.items()
@@ -207,6 +208,10 @@ def generate_project_schema(project):
             logger.debug('Replacing schema record %s' % repr(new_schema_record))
             schema_records[old_schema_record_idx] = new_schema_record
         else:
+            for param in added:
+                if 'comment' not in param:
+                    param['comment'] = 'New param'
+
             logger.debug('Appending schema record %s' % repr(new_schema_record))
             schema_records.append(new_schema_record)
 
