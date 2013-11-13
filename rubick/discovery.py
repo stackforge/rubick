@@ -214,7 +214,7 @@ def get_listen_sockets(client):
             current_pid = int(line[1:])
             sockets.setdefault(current_pid, [])
         elif line.startswith('n'):
-            host, port = line[1:].split(':')
+            host, port = line[1:].split(':', 1)
             if host == '*':
                 for address in host_addresses:
                     sockets[current_pid].append((address, port))
@@ -450,7 +450,7 @@ class ServiceDiscovery(BaseDiscovery):
     def seen(self, driver, host, **data):
         if 'sockets' in data:
             item = find(self._seen_items,
-                        lambda s: sockets == s.listen_sockets)
+                        lambda s: data['sockets'] == s.listen_sockets)
         elif 'port' in data:
             item = find(self._seen_items,
                         lambda s: (host, data['port']) in s.listen_sockets)
