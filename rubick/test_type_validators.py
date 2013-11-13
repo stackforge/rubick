@@ -165,6 +165,25 @@ class NetworkAddressTypeValidatorTests(TypeValidatorTestHelper,
         self.assertInvalid('10.0.0.0/33')
 
 
+class NetworkMaskTypeValidatorTests(TypeValidatorTestHelper,
+                                    unittest.TestCase):
+    type_name = 'network_mask'
+
+    def test_mask(self):
+        self.assertValid('255.255.255.0')
+
+    def test_returns_mask(self):
+        s = '255.255.255.0'
+        v = self.validator.validate(s)
+        self.assertEqual(s, v)
+
+    def test_mask_with_nonsubsequent_bits_is_invalid(self):
+        self.assertInvalid('255.123.255.0')
+
+    def test_invalid_format(self):
+        self.assertInvalid('foo')
+
+
 class PortTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
     type_name = 'port'
 

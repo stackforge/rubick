@@ -266,45 +266,39 @@ def validate_ipv4_network(s):
 
 def validate_host_label(s):
     if len(s) == 0:
-        return (
-            InvalidValueError('Host label should have at least one character')
-        )
+        return InvalidValueError(
+            'Host label should have at least one character')
 
     if not s[0].isalpha():
-        return (
-            InvalidValueError(
-                'Host label should start with a letter, but it starts with '
-                '"%s"' % s[0])
-        )
+        return InvalidValueError(
+            'Host label should start with a letter, but it starts with '
+            '"%s"' % s[0])
 
     if len(s) == 1:
         return s
 
     if not (s[-1].isdigit() or s[-1].isalpha()):
-        return (
-            InvalidValueError(
-                'Host label should end with letter or digit, but it ends '
-                'with "%s"' %
-                s[-1], Mark('', 0, len(s) - 1))
-        )
+        return InvalidValueError(
+            'Host label should end with letter or digit, but it ends '
+            'with "%s"' %
+            s[-1], Mark('', 0, len(s) - 1))
 
     if len(s) == 2:
         return s
 
     for i, c in enumerate(s[1:-1]):
         if not (c.isalpha() or c.isdigit() or c == '-'):
-            return (
-                InvalidValueError(
-                    'Host label should contain only letters, digits or hypens,'
-                    ' but it contains "%s"' %
-                    c, Mark('', 0, i + 1))
-            )
+            return InvalidValueError(
+                'Host label should contain only letters, digits or hypens,'
+                ' but it contains "%s"' %
+                c, Mark('', 0, i + 1))
 
     return s
 
 
 @type_validator('host', base_type='string')
 @type_validator('host_address', base_type='string')
+@type_validator('old_network', base_type='string')
 def validate_host_address(s):
     result = validate_ipv4_address(s)
     if not isissue(result):
@@ -332,6 +326,30 @@ def validate_network_address(s):
     return validate_ipv4_network(s)
 
 
+@type_validator('network_mask', base_type='string')
+def validate_network_mask(s):
+    # TODO: implement proper checking
+    result = validate_ipv4_address(s)
+    if isissue(result):
+        return result
+
+    parts = [int(p) for p in result.split('.', 3)]
+
+    x = index(parts, lambda p: p != 255)
+    if x == -1:
+        return result
+
+    if parts[x] not in [0, 128, 192, 224, 240, 248, 252, 254]:
+        return InvalidValueError('Invalid netmask')
+
+    x += 1
+    while x < 4:
+        if parts[x] != 0:
+            return InvalidValueError('Invalid netmask')
+
+    return result
+
+
 @type_validator('host_and_port', base_type='string')
 def validate_host_and_port(s, default_port=None):
     parts = s.strip().split(':', 2)
@@ -355,6 +373,10 @@ def validate_host_and_port(s, default_port=None):
 @type_validator('string', base_type='string', default=True)
 @type_validator('list', base_type='list')
 @type_validator('multi', base_type='multi')
+@type_validator('file', base_type='string')
+@type_validator('directory', base_type='string')
+@type_validator('regex', base_type='string')
+@type_validator('host_v6', base_type='string')
 def validate_string(s):
     return s
 
@@ -396,6 +418,11 @@ def validate_integer(s, min=None, max=None):
         )
 
     return v
+
+
+@type_validator('file_mode')
+def validate_file_mode(s):
+    return validate_integer(s)
 
 
 @type_validator('float')
