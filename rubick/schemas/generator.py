@@ -108,7 +108,7 @@ def generate_project_schema(project):
                     if param['type'] == validator.base_type:
                         param['type'] = prev_param['type']
 
-                        if 'default' in param and param['default'] is not None:
+                        if param.get('default', None) is not None:
                             value = validator.validate(param['default'])
                             if not isinstance(value, Issue):
                                 param['default'] = value
@@ -175,8 +175,7 @@ def generate_project_schema(project):
             for param in added:
                 old_param = old_schema_parameters.get(param['name'], None)
                 if not old_param:
-                    if 'comment' not in param:
-                        param['comment'] = 'New param'
+                    param.setdefault('comment', 'New param')
                     continue
 
                 extra_data = [(k, v) for k, v in old_param.items()
@@ -191,26 +190,23 @@ def generate_project_schema(project):
                     if 'default' in old_param:
                         param['default'] = old_param['default']
 
-                if 'default' in param:
-                    if param['default'] is not None:
-                        value = validator.validate(old_param['default'])
-                        if not isinstance(value, Issue):
-                            param['default'] = value
-                        else:
-                            logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
-                                         (project, schema['version'], param['name'], param['type'], repr(param['default'])))
+                if param.get('default', None) is not None:
+                    value = validator.validate(old_param['default'])
+                    if not isinstance(value, Issue):
+                        param['default'] = value
+                    else:
+                        logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
+                                        (project, schema['version'], param['name'], param['type'], repr(param['default'])))
 
-                if 'default' in param:
-                    if param['default'] != old_param.get('default', None):
-                        param['comment'] = 'Default value has changed'
-                        continue
+                if param.get('default', None) != old_param.get('default', None):
+                    param['comment'] = 'Default value has changed'
+                    continue
 
             logger.debug('Replacing schema record %s' % repr(new_schema_record))
             schema_records[old_schema_record_idx] = new_schema_record
         else:
             for param in added:
-                if 'comment' not in param:
-                    param['comment'] = 'New param'
+                param.setdefault('comment', 'New param')
 
             logger.debug('Appending schema record %s' % repr(new_schema_record))
             schema_records.append(new_schema_record)
