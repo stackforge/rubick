@@ -83,6 +83,14 @@ class ConfigSchemaRegistry:
         return ConfigSchema(fullname, last_version, 'ini', parameters)
 
 
+def param_fullname(name, section=None):
+    fullname = name
+    if section and section != 'DEFAULT':
+        fullname = '%s.%s' % (section, name)
+
+    return fullname
+
+
 class ConfigSchema:
 
     def __init__(self, name, version, format, parameters):
@@ -90,6 +98,9 @@ class ConfigSchema:
         self.version = Version(version)
         self.format = format
         self.parameters = parameters
+        self._parameterByName = {}
+        for param in self.parameters:
+            self._parameterByName[param.fullname] = param
 
     def has_section(self, section):
         return (
@@ -97,18 +108,13 @@ class ConfigSchema:
         )
 
     def get_parameter(self, name, section=None):
-        # TODO: optimize this
-        return (
-            find(
-                self.parameters,
-                lambda p: p.name == name and p.section == section)
-        )
+        fullname = param_fullname(name, section)
+
+        return self._parameterByName.get(fullname, None)
 
     def __repr__(self):
-        return (
-            '<ConfigSchema name=%s version=%s format=%s parameters=%s>' % (
-                self.name, self.version, self.format, self.parameters)
-        )
+        return ('<ConfigSchema name=%s version=%s format=%s parameters=%s>' %
+                (self.name, self.version, self.format, self.parameters))
 
 
 class ConfigParameterSchema:
@@ -118,6 +124,7 @@ class ConfigParameterSchema:
         self.section = section
         self.name = name
         self.type = type
+        self.fullname = param_fullname(name, section)
         self.description = description
         self.default = default
         self.required = required
