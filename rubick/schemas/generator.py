@@ -118,7 +118,8 @@ def generate_project_schema(project):
                         param['type'] = prev_param['type']
 
                         if param.get('default', None) is not None:
-                            value = validator.validate(param['default'])
+                            type_args = param.get('type_args', {})
+                            value = validator.validate(param['default'], **type_args)
                             if not isinstance(value, Issue):
                                 param['default'] = value
                             else:
@@ -217,7 +218,8 @@ def generate_project_schema(project):
                         param['default'] = old_param['default']
 
                 if param.get('default', None) is not None:
-                    value = validator.validate(old_param['default'])
+                    type_args = old_param.get('type_args', {})
+                    value = validator.validate(old_param['default'], **type_args)
                     if not isinstance(value, Issue):
                         param['default'] = value
                     else:

@@ -319,25 +319,80 @@ def get_host_network_addresses(client):
     return addresses
 
 
-def permissions_string_to_number(s):
-    # TODO(someone): implement it
-    return 0
+def permissions_string_to_mode(s):
+    mode = 0
+
+    if s[0] == 'd':
+        mode |= stat.S_IFDIR
+    elif s[0] == 's':
+        mode |= stat.S_IFSOCK
+    elif s[0] == 'l':
+        mode |= stat.S_IFLNK
+    else:
+        mode |= stat.S_IFREG
+
+    if s[1] == 'r':
+        mode |= stat.S_IRUSR
+    if s[2] == 'w':
+        mode |= stat.S_IWUSR
+    if s[3] == 'x':
+        mode |= stat.S_IXUSR
+    if s[4] == 'r':
+        mode |= stat.S_IRGRP
+    if s[5] == 'w':
+        mode |= stat.S_IWGRP
+    if s[6] == 'x':
+        mode |= stat.S_IXGRP
+    if s[7] == 'r':
+        mode |= stat.S_IROTH
+    if s[8] == 'w':
+        mode |= stat.S_IWOTH
+    if s[9] == 'x':
+        mode |= stat.S_IXOTH
+
+    return mode
+
+
+def collect_process(client, process_info):
+    result = client.run(['readlink', '/proc/%d/cwd' % process_info.pid])
+    cwd = result.output.strip()
+
+    process = ProcessResource(
+        pid=process_info.pid,
+        cmdline=process_info.command,
+        cwd=cwd)
+    process.listen_sockets = get_process_listen_sockets(client, process.pid)
+
+    return process
 
 
 def collect_file(client, path):
-    ls = client.run(['ls', '-l', '--time-style=full-iso', path])
+    ls = client.run(['ls', '-ld', '--time-style=full-iso', path])
     if ls.return_code != 0:
         return None
 
     line = ls.output.split("\n")[0]
     perm, links, owner, group, size, date, time, timezone, name = \
         line.split()
-    permissions = permissions_string_to_number(perm)
+    permissions = permissions_string_to_mode(perm)
 
     with client.open(path) as f:
         contents = f.read()
 
     return FileResource(path, contents, owner, group, permissions)
+
+
+def collect_directory(client, path):
+    ls = client.run(['ls', '-ld', '--time-style=full-iso', path])
+    if ls.return_code != 0:
+        return None
+
+    line = ls.output.split("\n")[0]
+    perm, links, owner, group, size, date, time, timezone, name = \
+        line.split()
+    permissions = permissions_string_to_mode(perm)
+
+    return DirectoryResource(path, owner, group, permissions)
 
 
 def collect_component_configs(client, component,
@@ -399,7 +454,7 @@ class HostDiscovery(BaseDiscovery):
 
         hostname = client.run(['hostname']).output.strip()
 
-        item = Host(name=hostname)
+        item = HostResource(name=hostname)
         item.id = get_host_id(client)
         item.network_addresses = get_host_network_addresses(client)
 
@@ -447,15 +502,70 @@ class HostDiscovery(BaseDiscovery):
         return item is not None
 
 
+class FileSystemDiscovery(BaseDiscovery):
+
+    def seen(self, driver, host, path=None, **data):
+        if not path:
+            return True
+
+        client = driver.client(host)
+        host_id = get_host_id(client)
+
+        item = find(self._seen_items,
+                    lambda f: f.path == path and f.host_id == host_id)
+
+        return item is not None
+
+
+class FileDiscovery(FileSystemDiscovery):
+    item_type = 'file'
+
+    def discover(self, driver, host, path=None, **data):
+        client = driver.client(host)
+
+        if not path:
+            return None
+
+        item = collect_file(client, path)
+        if not item:
+            return None
+
+        item.host_id = get_host_id(client)
+
+        self._seen_items.append(item)
+
+        return item
+
+
+class DirectoryDiscovery(FileSystemDiscovery):
+    item_type = 'directory'
+
+    def discover(self, driver, host, path=None, **data):
+        client = driver.client(host)
+
+        if not path:
+            return None
+
+        item = collect_directory(client, path)
+        if not item:
+            return None
+
+        item.host_id = get_host_id(client)
+
+        self._seen_items.append(item)
+
+        return item
+
+
 class ServiceDiscovery(BaseDiscovery):
 
     def seen(self, driver, host, **data):
         if 'sockets' in data:
             item = find(self._seen_items,
-                        lambda s: data['sockets'] == s.listen_sockets)
+                        lambda s: data['sockets'] == s.process.listen_sockets)
         elif 'port' in data:
             item = find(self._seen_items,
-                        lambda s: (host, data['port']) in s.listen_sockets)
+                        lambda s: (host, data['port']) in s.process.listen_sockets)
         else:
             client = driver.client(host)
             host_id = client.get_host_id()
@@ -476,8 +586,9 @@ class KeystoneDiscovery(ServiceDiscovery):
 
         keystone = KeystoneComponent()
         keystone.host_id = get_host_id(client)
-        keystone.listen_sockets = get_process_listen_sockets(client,
-                                                             process.pid)
+
+        keystone.process = collect_process(client, process)
+
         keystone.version = find_python_package_version(client, 'keystone')
         keystone.config_files = []
 
@@ -556,8 +667,9 @@ class NovaApiDiscovery(ServiceDiscovery):
 
         nova_api = NovaApiComponent()
         nova_api.host_id = get_host_id(client)
-        nova_api.listen_sockets = get_process_listen_sockets(client,
-                                                             process.pid)
+
+        nova_api.process = collect_process(client, process)
+
         nova_api.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
@@ -567,6 +679,14 @@ class NovaApiDiscovery(ServiceDiscovery):
         config_dir = '/etc/nova'
         if len(nova_api.config_files) > 0:
             config_dir = os.path.dirname(nova_api.config_files[0].path)
+
+        for param in nova_api.config.schema:
+            if param.type == 'file':
+                path = nova_api.config[param.name]
+                driver.enqueue('file', host=host, path=path)
+            elif param.type == 'directory':
+                path = nova_api.config[param.name]
+                driver.enqueue('directory', host=host, path=path)
 
         paste_config_path = path_relative_to(
             nova_api.config['api_paste_config'], config_dir)
@@ -590,8 +710,9 @@ class NovaComputeDiscovery(ServiceDiscovery):
 
         nova_compute = NovaComputeComponent()
         nova_compute.host_id = get_host_id(client)
-        nova_compute.listen_sockets = get_process_listen_sockets(client,
-                                                                 process.pid)
+
+        nova_compute.process = collect_process(client, process)
+
         nova_compute.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
@@ -615,8 +736,9 @@ class NovaSchedulerDiscovery(ServiceDiscovery):
 
         nova_scheduler = NovaSchedulerComponent()
         nova_scheduler.host_id = get_host_id(client)
-        nova_scheduler.listen_sockets = get_process_listen_sockets(client,
-                                                                   process.pid)
+
+        nova_scheduler.process = collect_process(client, process)
+
         nova_scheduler.version = find_python_package_version(client, 'nova')
 
         collect_component_configs(
@@ -640,8 +762,9 @@ class GlanceApiDiscovery(ServiceDiscovery):
 
         glance_api = GlanceApiComponent()
         glance_api.host_id = get_host_id(client)
-        glance_api.listen_sockets = get_process_listen_sockets(client,
-                                                               process.pid)
+
+        glance_api.process = collect_process(client, process)
+
         glance_api.version = find_python_package_version(client, 'glance')
 
         collect_component_configs(
@@ -665,8 +788,9 @@ class GlanceRegistryDiscovery(ServiceDiscovery):
 
         glance_registry = GlanceRegistryComponent()
         glance_registry.host_id = get_host_id(client)
-        glance_registry.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        glance_registry.process = collect_process(client, process)
+
         glance_registry.version = find_python_package_version(client, 'glance')
 
         collect_component_configs(
@@ -690,8 +814,9 @@ class CinderApiDiscovery(ServiceDiscovery):
 
         cinder_api = CinderApiComponent()
         cinder_api.host_id = get_host_id(client)
-        cinder_api.listen_sockets = get_process_listen_sockets(client,
-                                                               process.pid)
+
+        cinder_api.process = collect_process(client, process)
+
         cinder_api.version = find_python_package_version(client, 'cinder')
 
         collect_component_configs(
@@ -724,8 +849,9 @@ class CinderVolumeDiscovery(ServiceDiscovery):
 
         cinder_volume = CinderVolumeComponent()
         cinder_volume.host_id = get_host_id(client)
-        cinder_volume.listen_sockets = get_process_listen_sockets(client,
-                                                                  process.pid)
+
+        cinder_volume.process = collect_process(client, process)
+
         cinder_volume.version = find_python_package_version(client, 'cinder')
 
         collect_component_configs(
@@ -758,8 +884,9 @@ class CinderSchedulerDiscovery(ServiceDiscovery):
 
         cinder_scheduler = CinderSchedulerComponent()
         cinder_scheduler.host_id = get_host_id(client)
-        cinder_scheduler.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        cinder_scheduler.process = collect_process(client, process)
+
         cinder_scheduler.version = find_python_package_version(client,
                                                                'cinder')
 
@@ -786,7 +913,8 @@ class MysqlDiscovery(ServiceDiscovery):
 
         mysql = MysqlComponent()
         mysql.host_id = get_host_id(client)
-        mysql.listen_sockets = get_process_listen_sockets(client, process.pid)
+
+        mysql.process = collect_process(client, process)
 
         version_result = client.run(['mysqld', '--version'])
         m = mysqld_version_re.match(version_result.output)
@@ -826,8 +954,9 @@ class RabbitmqDiscovery(ServiceDiscovery):
 
         rabbitmq = RabbitMqComponent()
         rabbitmq.host_id = get_host_id(client)
-        rabbitmq.listen_sockets = get_process_listen_sockets(client,
-                                                             process.pid)
+
+        rabbitmq.process = collect_process(client, process)
+
         rabbitmq.version = 'unknown'
 
         env_file = '/etc/rabbitmq/rabbitmq-env.conf'
@@ -866,8 +995,9 @@ class SwiftProxyServerDiscovery(ServiceDiscovery):
 
         swift_proxy_server = SwiftProxyServerComponent()
         swift_proxy_server.host_id = get_host_id(client)
-        swift_proxy_server.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        swift_proxy_server.process = collect_process(client, process)
+
         swift_proxy_server.version = find_python_package_version(client,
                                                                  'swift')
 
@@ -892,8 +1022,9 @@ class SwiftContainerServerDiscovery(ServiceDiscovery):
 
         swift_container_server = SwiftContainerServerComponent()
         swift_container_server.host_id = get_host_id(client)
-        swift_container_server.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        swift_container_server.process = collect_process(client, process)
+
         swift_container_server.version = find_python_package_version(client,
                                                                      'swift')
 
@@ -918,8 +1049,9 @@ class SwiftAccountServerDiscovery(ServiceDiscovery):
 
         swift_account_server = SwiftAccountServerComponent()
         swift_account_server.host_id = get_host_id(client)
-        swift_account_server.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        swift_account_server.process = collect_process(client, process)
+
         swift_account_server.version = find_python_package_version(client,
                                                                    'swift')
 
@@ -944,8 +1076,9 @@ class SwiftObjectServerDiscovery(ServiceDiscovery):
 
         swift_object_server = SwiftObjectServerComponent()
         swift_object_server.host_id = get_host_id(client)
-        swift_object_server.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        swift_object_server.process = collect_process(client, process)
+
         swift_object_server.version = find_python_package_version(client,
                                                                   'swift')
 
@@ -970,8 +1103,9 @@ class NeutronServerDiscovery(ServiceDiscovery):
 
         neutron_server = NeutronServerComponent()
         neutron_server.host_id = get_host_id(client)
-        neutron_server.listen_sockets = get_process_listen_sockets(client,
-                                                                   process.pid)
+
+        neutron_server.process = collect_process(client, process)
+
         neutron_server.version = find_python_package_version(client, 'neutron')
 
         collect_component_configs(
@@ -995,8 +1129,9 @@ class NeutronDhcpAgentDiscovery(ServiceDiscovery):
 
         neutron_dhcp_agent = NeutronDhcpAgentComponent()
         neutron_dhcp_agent.host_id = get_host_id(client)
-        neutron_dhcp_agent.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        neutron_dhcp_agent.process = collect_process(client, process)
+
         neutron_dhcp_agent.version = find_python_package_version(client,
                                                                  'neutron')
 
@@ -1021,8 +1156,9 @@ class NeutronL3AgentDiscovery(ServiceDiscovery):
 
         neutron_l3_agent = NeutronL3AgentComponent()
         neutron_l3_agent.host_id = get_host_id(client)
-        neutron_l3_agent.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        neutron_l3_agent.process = collect_process(client, process)
+
         neutron_l3_agent.version = find_python_package_version(client,
                                                                'neutron')
 
@@ -1047,8 +1183,9 @@ class NeutronMetadataAgentDiscovery(ServiceDiscovery):
 
         neutron_metadata_agent = NeutronMetadataAgentComponent()
         neutron_metadata_agent.host_id = get_host_id(client)
-        neutron_metadata_agent.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        neutron_metadata_agent.process = collect_process(client, process)
+
         neutron_metadata_agent.version = find_python_package_version(client,
                                                                      'neutron')
 
@@ -1073,8 +1210,9 @@ class NeutronOpenvswitchAgentDiscovery(ServiceDiscovery):
 
         neutron_openvswitch_agent = NeutronOpenvswitchAgentComponent()
         neutron_openvswitch_agent.host_id = get_host_id(client)
-        neutron_openvswitch_agent.listen_sockets = get_process_listen_sockets(
-            client, process.pid)
+
+        neutron_openvswitch_agent.process = collect_process(client, process)
+
         neutron_openvswitch_agent.version = find_python_package_version(
             client, 'neutron')
 
@@ -1164,14 +1302,25 @@ class OpenstackDiscovery(object):
         # Rebuild model tree
         openstack = Openstack()
 
-        for host in filter(lambda i: isinstance(i, Host), items):
+        for host in filter(lambda i: isinstance(i, HostResource), items):
             openstack.add_host(host)
 
         for service in filter(lambda i: isinstance(i, Service), items):
             host = find(openstack.hosts, lambda h: h.id == service.host_id)
             if not host:
+                logger.error('Got resource "%s" '
+                             'that belong to non-existing host' % service)
                 continue
 
             host.add_component(service)
+
+        for fs_resource in filter(lambda f: isinstance(f, FileSystemResource), items):
+            host = find(openstack.hosts, lambda h: h.id == fs_resource.host_id)
+            if not host:
+                logger.error('Got resource "%s" '
+                             'that belong to non-existing host' % fs_resource)
+                continue
+
+            host.add_fs_resource(fs_resource)
 
         return openstack

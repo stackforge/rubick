@@ -9,12 +9,13 @@ class TypeValidatorTestHelper(object):
         super(TypeValidatorTestHelper, self).setUp()
         self.validator = TypeValidatorRegistry.get_validator(self.type_name)
 
-    def assertValid(self, value):
-        self.assertNotIsInstance(self.validator.validate(value), Issue)
+    def assertValid(self, value, type_args={}):
+        self.assertNotIsInstance(
+            self.validator.validate(value, **type_args), Issue)
 
-    def assertInvalid(self, value):
+    def assertInvalid(self, value, type_args={}):
         self.assertIsInstance(
-            self.validator.validate(value), Issue)
+            self.validator.validate(value, **type_args), Issue)
 
 
 class StringTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
@@ -29,6 +30,19 @@ class StringTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
     def test_should_return_same_string_if_valid(self):
         s = 'foo bar'
         self.assertEqual(s, self.validator.validate(s))
+
+
+class EnumTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+    type_name = 'enum'
+
+    def test_listed_value(self):
+        self.assertValid('foo', type_args={'values': ['foo', 'bar']})
+
+    def test_unlisted_value(self):
+        self.assertInvalid('baz', type_args={'values': ['foo', 'bar']})
+
+    def test_with_no_values_returns_error(self):
+        self.assertInvalid('foo')
 
 
 class BooleanTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
@@ -248,6 +262,16 @@ class HostAndPortTypeValidatorTests(TypeValidatorTestHelper,
 
     def test_port_is_greater_than_65535(self):
         self.assertInvalid('10.0.0.1:65536')
+
+
+class RegexTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):
+    type_name = 'regex'
+
+    def test_valid_regex(self):
+        self.assertValid('\d+\.\d+\.\d+\.\d+')
+
+    def test_invalid_regex(self):
+        self.assertInvalid('(\d+')
 
 
 class StringListTypeValidatorTests(TypeValidatorTestHelper, unittest.TestCase):

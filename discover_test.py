@@ -11,6 +11,7 @@ assert rubick.inspections
 import rubick.schemas
 assert rubick.schemas
 from rubick.json import openstack_for_json
+from rubick.model import DirectoryResource
 
 
 def indent_prefix(indent=0):
@@ -50,8 +51,16 @@ def print_issues(issues, indent=0):
 
 
 def print_service(service):
-    print('  ' + str(service))
-    print_issues(service.all_issues, indent=2)
+    print('    ' + service.name)
+    print_issues(service.all_issues, indent=3)
+
+
+def print_path(path):
+    if isinstance(path, DirectoryResource):
+        print('    ' + path.path + '/')
+    else:
+        print('    ' + path.path)
+    print_issues(path.all_issues, indent=3)
 
 
 def print_host(host):
@@ -59,8 +68,15 @@ def print_host(host):
 
     print_issues(host.issues, indent=1)
 
+    print('  Services:')
+
     for service in host.components:
         print_service(service)
+
+    print('  Filesystem:')
+
+    for path in sorted(host.filesystem.values(), key=lambda f: f.path):
+        print_path(path)
 
 
 def print_openstack(openstack):
@@ -90,8 +106,8 @@ def main():
         x = inspection()
         x.inspect(openstack)
 
-    # print_openstack(openstack)
-    print(json.dumps(openstack_for_json(openstack)))
+    print_openstack(openstack)
+    # print(json.dumps(openstack_for_json(openstack)))
 
 if __name__ == '__main__':
     main()

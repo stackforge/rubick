@@ -23,7 +23,11 @@ class IssueReporter(object):
         return list(self.issues)
 
 
-class Openstack(IssueReporter):
+class Resource(IssueReporter):
+    pass
+
+
+class Openstack(Resource):
 
     def __init__(self):
         super(Openstack, self).__init__()
@@ -54,12 +58,13 @@ class Openstack(IssueReporter):
         return components
 
 
-class Host(IssueReporter):
+class HostResource(Resource):
 
     def __init__(self, name):
-        super(Host, self).__init__()
+        super(HostResource, self).__init__()
         self.name = name
         self.components = []
+        self.filesystem = {}
 
     def __str__(self):
         return 'Host "%s"' % self.name
@@ -71,13 +76,20 @@ class Host(IssueReporter):
         self.components.append(component)
         component.parent = self
 
+    def add_fs_resource(self, resource):
+        if not resource:
+            return
+
+        self.filesystem[resource.path] = resource
+        resource.parent = self
+
     @property
     def openstack(self):
         return self.parent
 
     @property
     def all_issues(self):
-        result = super(Host, self).all_issues
+        result = super(HostResource, self).all_issues
 
         for component in self.components:
             result.extend(component.all_issues)
@@ -85,7 +97,16 @@ class Host(IssueReporter):
         return result
 
 
-class Service(IssueReporter):
+class ProcessResource(Resource):
+
+    def __init__(self, pid, cmdline, cwd):
+        super(ProcessResource, self).__init__()
+        self.pid = pid
+        self.cmdline = cmdline
+        self.cwd = cwd
+
+
+class Service(Resource):
 
     def __init__(self):
         super(Service, self).__init__()
@@ -383,15 +404,34 @@ class SwiftObjectServerComponent(OpenstackComponent):
     name = 'swift-object-server'
 
 
-class FileResource(IssueReporter):
-
-    def __init__(self, path, contents, owner, group, permissions):
-        super(FileResource, self).__init__()
+class FileSystemResource(Resource):
+    def __init__(self, path, owner, group, permissions):
+        super(FileSystemResource, self).__init__()
         self.path = path
-        self.contents = contents
         self.owner = owner
         self.group = group
         self.permissions = permissions
 
     def __str__(self):
-        return 'File "%s"' % self.path
+        return '%s "%s"' % (
+            self.__class__.__name__.split('.')[-1].replace('Resource', ''),
+            self.path)
+
+    def __repr__(self):
+        return (
+            '%s(path=%s, owner=%s, group=%s, permissions=%s)' %
+            (self.__class__.__name__.split('.')[-1], repr(self.path),
+             repr(self.owner), repr(self.group), repr(self.permissions))
+        )
+
+
+class FileResource(FileSystemResource):
+
+    def __init__(self, path, contents, owner, group, permissions):
+        super(FileResource, self).__init__(
+            path, owner, group, permissions)
+        self.contents = contents
+
+
+class DirectoryResource(FileSystemResource):
+    pass

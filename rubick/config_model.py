@@ -132,7 +132,7 @@ class Configuration(object):
             if param_schema:
                 type_validator = TypeValidatorRegistry.get_validator(
                     param_schema.type)
-                type_validation_result = type_validator.validate(value)
+                type_validation_result = type_validator.validate(value, **param_schema.type_args)
                 if not isinstance(type_validation_result, InvalidValueError):
                     value = type_validation_result
 
@@ -159,7 +159,7 @@ class Configuration(object):
 
         type_validator = TypeValidatorRegistry.get_validator(
             param_schema.type)
-        type_validation_result = type_validator.validate(value)
+        type_validation_result = type_validator.validate(value, **param_schema.type_args)
         if not isinstance(type_validation_result, InvalidValueError):
             return None
 

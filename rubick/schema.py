@@ -65,6 +65,7 @@ class ConfigSchemaRegistry:
 
                 param = ConfigParameterSchema(
                     name, param_data['type'], section=section,
+                    type_args=param_data.get('type_args', {}),
                     default=param_data.get('default', None),
                     description=param_data.get('help', None),
                     required=param_data.get('required', False),
@@ -120,6 +121,19 @@ class ConfigSchema:
 
         return self._parameterByName.get(fullname, None)
 
+    def __len__(self):
+        return len(self.parameters)
+
+    def __iter__(self):
+        for param in self.parameters:
+            yield param
+
+    def __getitem__(self, key):
+        return self.get_parameter(key)
+
+    def __contains__(self, item):
+        return item in self._parameterByName
+
     def __repr__(self):
         return ('<ConfigSchema name=%s version=%s format=%s parameters=%s>' %
                 (self.name, self.version, self.format, self.parameters))
@@ -127,11 +141,12 @@ class ConfigSchema:
 
 class ConfigParameterSchema:
 
-    def __init__(self, name, type, section=None, description=None,
+    def __init__(self, name, type, type_args={}, section=None, description=None,
                  default=None, required=False, deprecation_message=None):
-        self.section = section
+        self.section = section or 'DEFAULT'
         self.name = name
         self.type = type
+        self.type_args = type_args
         self.fullname = param_fullname(name, section)
         self.description = description
         self.default = default
@@ -183,10 +198,10 @@ class TypeValidator(object):
         self.base_type = base_type
         self.f = f
 
-    def validate(self, value):
+    def validate(self, value, **kwargs):
         if value is None:
             return value
-        return getattr(self, 'f')(value)
+        return getattr(self, 'f')(value, **kwargs)
 
 
 def type_validator(name, base_type=None, default=False, **kwargs):
@@ -194,8 +209,8 @@ def type_validator(name, base_type=None, default=False, **kwargs):
         base_type = name
 
     def wrap(fn):
-        def wrapped(s):
-            return fn(s, **kwargs)
+        def wrapped(s, **immediate_kwargs):
+            return fn(s, **dict(kwargs, **immediate_kwargs))
         o = TypeValidator(base_type, wrapped)
         TypeValidatorRegistry.register_validator(name, o, default=default)
         return fn
@@ -221,16 +236,19 @@ def validate_boolean(s):
         return InvalidValueError('Value should be "true" or "false"')
 
 
+@type_validator('enum')
 def validate_enum(s, values=[]):
     if s in values:
         return None
     if len(values) == 0:
-        message = 'There should be no value'
+        message = 'There should be no value, but found %s' % repr(s)
     elif len(values) == 1:
-        message = 'The only valid value is %s' % values[0]
+        message = 'The only valid value is "%s", but found "%s"' % (
+            repr(values[0]), repr(s))
     else:
-        message = 'Valid values are %s and %s' % (
-            ', '.join(values[:-1]), values[-1])
+        message = 'Valid values are %s and %s, but found %s' % (
+            ', '.join([repr(v) for v in values[:-1]]),
+            repr(values[-1]), repr(s))
     return InvalidValueError('%s' % message)
 
 
@@ -390,9 +408,19 @@ def validate_host_and_port(s, default_port=None):
 @type_validator('multi', base_type='multi')
 @type_validator('file', base_type='string')
 @type_validator('directory', base_type='string')
-@type_validator('regex', base_type='string')
 @type_validator('host_v6', base_type='string')
 def validate_string(s):
+    return s
+
+
+@type_validator('regex', base_type='string')
+@type_validator('regexp', base_type='string')
+def validate_regex(s):
+    try:
+        re.compile(s)
+    except re.error as e:
+        return InvalidValueError(str(e))
+
     return s
 
 
