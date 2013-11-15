@@ -40,7 +40,7 @@ class KeystoneEndpointsInspection(Inspection):
                 for url_attr in ['adminurl', 'publicurl', 'internalurl']:
                     url = urlparse(endpoint[url_attr])
 
-                    # TODO: resolve endpoint url host address
+                    # TODO(someone): resolve endpoint url host address
                     host = find(
                         openstack.hosts,
                         lambda h: url.hostname in h.network_addresses)

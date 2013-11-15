@@ -1,21 +1,19 @@
-import os.path
-import re
-import logging
-from StringIO import StringIO
-import tempfile
-import shlex
 from collections import deque
-
+import logging
+import os.path
 import paramiko
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-import spur
+import re
 from recordtype import recordtype
-
 from rubick.common import index, find, path_relative_to, all_subclasses
 from rubick.exceptions import ValidatorException
 from rubick.model import *
+import shlex
+import spur
+from StringIO import StringIO
+import tempfile
 
 
 def parse_nodes_info(nodes, password=None, private_key=None):
@@ -53,6 +51,7 @@ def parse_private_key(private_key):
 
 # SshShell wrapper to add support for sock parameter (for proxy command)
 class SshShell(spur.SshShell):
+
     def __init__(self,
                  hostname,
                  username=None,
@@ -143,6 +142,7 @@ ProcessInfo = recordtype('ProcessInfo', ['pid', 'command'])
 
 
 class ExtendedNodeClient(object):
+
     def __init__(self, client):
         super(ExtendedNodeClient, self).__init__()
         self._client = client
@@ -320,7 +320,7 @@ def get_host_network_addresses(client):
 
 
 def permissions_string_to_number(s):
-    # TODO: implement it
+    # TODO(someone): implement it
     return 0
 
 
@@ -383,6 +383,7 @@ def collect_component_configs(client, component,
 
 # Marker class
 class BaseDiscovery(object):
+
     def __init__(self):
         self._seen_items = []
 
@@ -447,6 +448,7 @@ class HostDiscovery(BaseDiscovery):
 
 
 class ServiceDiscovery(BaseDiscovery):
+
     def seen(self, driver, host, **data):
         if 'sockets' in data:
             item = find(self._seen_items,
@@ -1089,6 +1091,7 @@ DiscoveryTask = recordtype('DiscoveryTask', ['type', 'host', 'data'])
 
 
 class DiscoveryDriver(object):
+
     def __init__(self, defaultPrivateKey):
         self.queue = deque()
         self.defaultPrivateKey = defaultPrivateKey

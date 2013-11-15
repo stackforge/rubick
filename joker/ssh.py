@@ -1,13 +1,14 @@
-import subprocess
-import shlex
 from os import environ
+import shlex
+import subprocess
+
 
 class JokerSecureShell():
 
     def __init__(self, hostName):
         self.tempDir = "/tmp"
 
-        # TODO implement password authentication scheme
+        # TODO(metacoma): implement password authentication scheme
         self.credentials = {
             "user": None,
             "host": None,
@@ -20,10 +21,8 @@ class JokerSecureShell():
             "StrictHostKeyChecking": "no"
         }
 
-
         self.haveMasterSocket = False
         self.masterSocketPid = None
-
 
     # FIXME use inspect.stack()[0][3] ?
     @property
@@ -38,7 +37,10 @@ class JokerSecureShell():
 
     @property
     def user(self):
-        return self.credentials['user'] if (self.credentials['user']) else environ['USER']
+        if self.credentials['user']:
+            return self.credentials['user']
+        else:
+            return environ['USER']
 
     @user.setter
     def user(self, value):
@@ -46,7 +48,9 @@ class JokerSecureShell():
 
     @property
     def key(self):
-        assert self.credentials['key'] is not None, "Keyfile for %s@%s:%d not present" % (self.user, self.host, self.port)
+        assert self.credentials['key'] is not None, \
+            "Keyfile for %s@%s:%d not present" \
+            % (self.user, self.host, self.port)
         return self.credentials['key']
 
     @key.setter
@@ -81,18 +85,19 @@ class JokerSecureShell():
 
         for i in self.options:
             if self.options[i] is not None:
-                r = r + ( '-o %s=%s' % (i, self.options[i]) )
+                r = r + ('-o %s=%s' % (i, self.options[i]))
 
-        return r;
+        return r
 
     def createMasterSocket(self):
         self.haveMasterSocket = True
 
         # XXX we support only keys without password encryption
-        cmd = "ssh -i %s -p %d %s -M -S %s %s@%s" % (self.key, self.port, self.sshOptions, self.masterSocketPath, self.user, self.host)
+        #cmd = "ssh -i %s -p %d %s -M -S %s %s@%s" \
+        #    % (self.key, self.port, self.sshOptions,
+        #       self.masterSocketPath, self.user, self.host)
 
-        #subprocess.Popen(shlex.split(cmd))
-
+        # subprocess.Popen(shlex.split(cmd))
 
     def call(self, destinationCmd):
         if (not self.haveMasterSocket):
@@ -102,8 +107,5 @@ class JokerSecureShell():
 
        #stdout = stderr = None
 
-        #exitCode = subprocess.call(shlex.split(destinationCmd), stdout = stdout, stderr = stderr)
-
-
-
-
+        # exitCode = subprocess.call(shlex.split(destinationCmd), \
+        # stdout = stdout, stderr = stderr)

@@ -1,10 +1,10 @@
 import argparse
+from copy import copy
+import imp
+import os
 import re
 import sys
-import os
-import imp
 import traceback
-from copy import copy
 
 from oslo.config import cfg
 
@@ -79,7 +79,8 @@ class YamlSchemaWriter(object):
         if self._current_section and self._current_section != 'DEFAULT':
             fullname = '%s.%s' % (self._current_section, name)
 
-        self.file.write("  - name: %s\n" % yaml_string(fullname, allowSimple=True))
+        self.file.write("  - name: %s\n"
+                        % yaml_string(fullname, allowSimple=True))
         self.file.write("    type: %s\n" % yaml_string(type, allowSimple=True))
         self.file.write("    default: %s\n" % yaml_value(default_value))
         if description:
@@ -196,14 +197,14 @@ def generate_schema_from_code(project, version, module_path, writer):
     if os.path.isdir(module_path):
         module_directory = module_path
         while module_directory != '':
-            # TODO: handle .pyc and .pyo
+            # TODO(mkulkin): handle .pyc and .pyo
             if not os.path.isfile(
                     os.path.join(module_directory, '__init__.py')):
                 break
 
             module_directory = os.path.dirname(module_directory)
 
-        if not module_directory in sys.path:
+        if module_directory not in sys.path:
             sys.path.insert(0, module_directory)
 
         for (dirpath, _, filenames) in os.walk(module_path):

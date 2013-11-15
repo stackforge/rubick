@@ -21,7 +21,7 @@ class Joker():
             try:
                 with open(default_key) as f:
                     self.default_key = f.read()
-            except:
+            except Exception:
                 self.default_key = default_key
 
             self.useKey = True
@@ -33,7 +33,7 @@ class Joker():
             if os.path.exists(filePath):
                 os.remove(filePath)
 
-    def addNode(self, name, host, port=22, user='root', password = None):
+    def addNode(self, name, host, port=22, user='root', password=None):
 
         node = Node(name, host, port)
         node.assignCredential(user, self.default_key, password)
@@ -60,7 +60,6 @@ class Joker():
         }
 
     def discover(self):
-        result = {}
 
         while self.discoverQueue:
             point = self.discoverQueue.pop()

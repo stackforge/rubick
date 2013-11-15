@@ -4,7 +4,7 @@ import logging
 from rubick.common import Mark, Issue, MarkedIssue, Version
 from rubick.config_formats import IniConfigParser
 from rubick.config_model import Configuration
-from rubick.schema import ConfigSchemaRegistry, TypeValidatorRegistry
+from rubick.schema import ConfigSchemaRegistry
 from rubick.utils import memoized
 
 

@@ -100,7 +100,7 @@ def rubick_cluster_add(name, description, host, key):
         return 1
 
     request_payload = {
-        "description":  description,
+        "description": description,
         "name": name,
         "nodes": host,
         "private_key": keyData

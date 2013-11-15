@@ -1,6 +1,5 @@
-import re
 import os.path
-
+import re
 import yaml
 
 from rubick.common import Issue, MarkedIssue, Mark, Version, find, index
@@ -11,22 +10,31 @@ class SchemaError(RubickException):
     pass
 
 
-class ConfigSchemaRegistry:
+class ConfigSchemaLoader(object):
     db_path = os.path.join(os.path.dirname(__file__), 'schemas')
 
-    @classmethod
-    def get_schema(self, project, version, configname=None):
-        if not configname:
-            configname = '%s.conf' % project
-        fullname = '%s/%s' % (project, configname)
-        version = Version(version)
-
+    def load(self, project, configname):
         path = os.path.join(self.db_path, project, configname + '.yml')
         if not os.path.exists(path):
             return None
 
         with open(path) as f:
             records = yaml.load(f.read())
+
+        return records
+
+
+class ConfigSchemaRegistry:
+    @classmethod
+    def get_schema(self, project, version, configname=None, schema_loader=ConfigSchemaLoader()):
+        if not configname:
+            configname = '%s.conf' % project
+        fullname = '%s/%s' % (project, configname)
+        version = Version(version)
+
+        records = schema_loader.load(project, configname)
+        if not records:
+            return None
 
         i = len(records) - 1
         # Find latest checkpoint prior given version
@@ -335,7 +343,7 @@ def validate_network_address(s):
 
 @type_validator('network_mask', base_type='string')
 def validate_network_mask(s):
-    # TODO: implement proper checking
+    # TODO(someone): implement proper checking
     result = validate_ipv4_address(s)
     if isissue(result):
         return result
@@ -437,7 +445,7 @@ def validate_float(s):
     if isinstance(s, float):
         return s
 
-    # TODO: Implement proper validation
+    # TODO(someone): Implement proper validation
     return float(s)
 
 
@@ -469,7 +477,7 @@ def validate_list(s, element_type):
                 break
 
             if len(values) == 0:
-                # TODO: provide better position reporting
+                # TODO(someone): provide better position reporting
                 return validated_value
 
             value += ',' + values.pop()
@@ -513,12 +521,12 @@ def validate_dict(s, element_type='string'):
         value = value.strip()
 
         if key == '':
-            # TODO: provide better position reporting
+            # TODO(someone): provide better position reporting
             return InvalidValueError('Key name should not be empty')
 
         validated_value = element_type_validator.validate(value)
         if isinstance(validated_value, Issue):
-            # TODO: provide better position reporting
+            # TODO(someone): provide better position reporting
             return validated_value
         result[key] = validated_value
     return result

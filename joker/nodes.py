@@ -10,6 +10,7 @@ TMP_KEY_PATH = "/tmp/joker_%s_%d"
 
 
 class Node():
+
     def __init__(self, name, ip, port):
 
         self.ssh = paramiko.SSHClient()
@@ -163,20 +164,19 @@ class Node():
         return (stdout.readlines(), stderr.readlines())
 
     def __discover__(self):
-        
+
         (data, _) = self.runCommand(
-            "(test -x arp-scan && ip link | awk -F: '/^[0-9]+?: eth/ {print $2}' |\
+            "(test -x arp-scan && ip link |\
+            awk -F: '/^[0-9]+?: eth/ {print $2}' |\
             sudo xargs -I% arp-scan -l -I % 2>&1 | grep -E '^[0-9]+?\.';\
-            arp -an | awk -F\" \" '{ gsub(\"[^0-9\\.]\", \"\", $2); printf(\"%s\\t%s\\t%s\\n\", $2, $4, $7)}'\
+            arp -an | awk -F\" \" '{ gsub(\"[^0-9\\.]\", \"\", $2);\
+            printf(\"%s\\t%s\\t%s\\n\", $2, $4, $7)}'\
             )")
-        
+
         for line in data:
             (ip, hwAddr, _) = line.strip().split("\t")
             self.neighbours.append({"hwAddr": hwAddr, "ip": ip})
-            self.debugLog("%s -> %s" % (self.hostName, ip))  
-
-
-        
+            self.debugLog("%s -> %s" % (self.hostName, ip))
 
         return self.neighbours
 

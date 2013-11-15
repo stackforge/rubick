@@ -15,7 +15,7 @@ class IniConfigParserTests(unittest.TestCase):
         first_line = lines[0]
         margin_size = 0
         while margin_size < len(first_line) \
-            and first_line[margin_size].isspace():
+                and first_line[margin_size].isspace():
             margin_size += 1
 
         stripped_lines = [line[margin_size:] for line in lines]

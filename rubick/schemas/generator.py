@@ -1,8 +1,8 @@
 import argparse
-import glob
-import os.path
-import logging
 from collections import OrderedDict
+import glob
+import logging
+import os.path
 
 import yaml
 
@@ -11,7 +11,7 @@ from rubick.schema import TypeValidatorRegistry as TypeRegistry
 from rubick.schemas.yaml_utils import yaml_string, yaml_value
 
 
-DIFF_THRESHOLD=0.5
+DIFF_THRESHOLD = 0.5
 
 
 logger = logging.getLogger('rubick.schemas.generator')
@@ -32,17 +32,22 @@ def yaml_dump_schema_records(records):
             for param in record['added']:
                 lines.append('')
 
-                lines.append('  - name: %s' % yaml_string(param['name'], allowSimple=True))
-                lines.append('    type: %s' % yaml_string(param['type'], allowSimple=True))
+                lines.append('  - name: %s' % yaml_string(param['name'],
+                             allowSimple=True))
+                lines.append('    type: %s' % yaml_string(param['type'],
+                             allowSimple=True))
                 if 'default' in param:
-                    lines.append('    default: %s' % yaml_value(param['default']))
+                    lines.append('    default: %s'
+                                 % yaml_value(param['default']))
                 if 'help' in param:
-                    lines.append('    help: %s' % yaml_string(param['help']))
+                    lines.append('    help: %s'
+                                 % yaml_string(param['help']))
 
                 extra_data = [k for k in param.keys()
                               if k not in ['name', 'type', 'default', 'help']]
                 for attr in extra_data:
-                    lines.append('    %s: %s' % (attr, yaml_value(param[attr])))
+                    lines.append('    %s: %s'
+                                 % (attr, yaml_value(param[attr])))
 
         if 'removed' in record and len(record['removed']) > 0:
             lines.append('  removed:')
@@ -70,7 +75,7 @@ def generate_project_schema(project):
         database_file = files[x]
         del files[x]
     else:
-        database_file = os.path.join(project_path, project+'.conf.yml')
+        database_file = os.path.join(project_path, project + '.conf.yml')
 
     schema_records = []
     if os.path.exists(database_file):
@@ -84,7 +89,8 @@ def generate_project_schema(project):
         with open(version_file) as f:
             schema_versions.append(yaml.load(f.read()))
 
-    schema_versions = sorted(schema_versions, key=lambda s: Version(s['version']))
+    schema_versions = sorted(schema_versions,
+                             key=lambda s: Version(s['version']))
 
     parameters = OrderedDict()
     for schema in schema_versions:
@@ -95,10 +101,13 @@ def generate_project_schema(project):
         logger.debug('Processing schema version %s' % schema['version'])
 
         for param in schema['parameters']:
+            # TODO(mkulkin): reduce the level of nesting
             prev_param = parameters.get(param['name'], None)
 
             if not prev_param:
-                logger.debug('Parameter %s does not exist yet, adding it as new' % param['name'])
+                logger.debug('Parameter %s does not exist yet,'
+                             ' adding it as new'
+                             % param['name'])
                 added.append(param)
             else:
                 seen.add(param['name'])
@@ -113,18 +122,28 @@ def generate_project_schema(project):
                             if not isinstance(value, Issue):
                                 param['default'] = value
                             else:
-                                logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
-                                            (project, schema['version'], param['name'], param['type'], repr(param['default'])))
+                                logger.error("In project '%s' version %s"
+                                             " default value for parameter"
+                                             " '%s' is not valid value of"
+                                             " type %s: %s"
+                                             % (project, schema['version'],
+                                                param['name'], param['type'],
+                                                repr(param['default'])))
                     else:
-                        logger.debug('Parameter %s type has changed from %s to %s' %
-                                    (param['name'], prev_param['type'], param['type']))
+                        logger.debug('Parameter %s type has'
+                                     ' changed from %s to %s' %
+                                     (param['name'], prev_param['type'],
+                                      param['type']))
                         param['comment'] = 'Type has changed'
                         added.append(param)
                         continue
 
-                if param.get('default', None) != prev_param.get('default', None):
-                    logger.debug('Parameter %s default value has changed from %s to %s' %
-                                (param['name'], prev_param['default'], param['default']))
+                if param.get('default', None) != \
+                   prev_param.get('default', None):
+                    logger.debug('Parameter %s default value'
+                                 ' has changed from %s to %s' %
+                                (param['name'], prev_param['default'],
+                                 param['default']))
                     param['comment'] = 'Default value has changed'
                     added.append(param)
                     continue
@@ -135,14 +154,18 @@ def generate_project_schema(project):
 
         removed = [name for name in parameters.keys() if name not in seen]
         if len(removed) > 0:
-            logger.debug('Following parameters from previous schema version are not present in current version, marking as removed: %s' % ','.join(removed))
+            logger.debug('Following parameters from previous'
+                         ' schema version are not present in'
+                         ' current version, marking as removed: %s'
+                         % ','.join(removed))
 
         # Decide either to use full schema update or incremental
         changes_count = sum(map(len, [added, removed]))
 
-        logger.debug('Found %d change(s) from previous version schema' % changes_count)
+        logger.debug('Found %d change(s) from previous version schema'
+                     % changes_count)
 
-        if changes_count > int(len(parameters)*DIFF_THRESHOLD):
+        if changes_count > int(len(parameters) * DIFF_THRESHOLD):
             logger.debug('Using full schema update')
 
             new_parameters = parameters.copy()
@@ -162,8 +185,9 @@ def generate_project_schema(project):
                                      added=added, removed=removed)
 
         # Place schema record either replacing existing one or appending as new
-        old_schema_record_idx = index(
-            schema_records, lambda r: str(r['version']) == str(new_schema_record['version']))
+        old_schema_record_idx = index(schema_records, lambda r:
+                                      str(r['version']) ==
+                                      str(new_schema_record['version']))
 
         if old_schema_record_idx != -1:
             old_schema_record = schema_records[old_schema_record_idx]
@@ -179,13 +203,15 @@ def generate_project_schema(project):
                     continue
 
                 extra_data = [(k, v) for k, v in old_param.items()
-                                if k not in ['name', 'type', 'default', 'help']]
+                              if k not in ['name', 'type', 'default', 'help']]
                 param.update(extra_data)
 
                 validator = TypeRegistry.get_validator(old_param['type'])
-                if param['type'] not in [old_param['type'], validator.base_type]:
+                if param['type'] not in [old_param['type'],
+                                         validator.base_type]:
                     param['comment'] = 'Type has changed'
-                    # Type has changed, enforcing old type to prevent accidental data loss
+                    # Type has changed, enforcing old type to prevent
+                    # accidental data loss
                     param['type'] = old_param['type']
                     if 'default' in old_param:
                         param['default'] = old_param['default']
@@ -195,20 +221,27 @@ def generate_project_schema(project):
                     if not isinstance(value, Issue):
                         param['default'] = value
                     else:
-                        logger.error("In project '%s' version %s default value for parameter '%s' is not valid value of type %s: %s" %
-                                        (project, schema['version'], param['name'], param['type'], repr(param['default'])))
+                        logger.error("In project '%s' version %s default value"
+                                     " for parameter '%s' is not valid value"
+                                     " of type %s: %s" %
+                                     (project, schema['version'],
+                                      param['name'], param['type'],
+                                      repr(param['default'])))
 
-                if param.get('default', None) != old_param.get('default', None):
+                if param.get('default', None) != old_param.get('default',
+                                                               None):
                     param['comment'] = 'Default value has changed'
                     continue
 
-            logger.debug('Replacing schema record %s' % repr(new_schema_record))
+            logger.debug('Replacing schema record %s'
+                         % repr(new_schema_record))
             schema_records[old_schema_record_idx] = new_schema_record
         else:
             for param in added:
                 param.setdefault('comment', 'New param')
 
-            logger.debug('Appending schema record %s' % repr(new_schema_record))
+            logger.debug('Appending schema record %s'
+                         % repr(new_schema_record))
             schema_records.append(new_schema_record)
 
         # Update parameter info
@@ -217,7 +250,6 @@ def generate_project_schema(project):
 
         for name in new_schema_record.get('removed', []):
             del parameters[name]
-
 
     schema_records = sorted(schema_records,
                             key=lambda r: Version(r['version']))
@@ -228,8 +260,10 @@ def generate_project_schema(project):
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--loglevel', default='INFO', help='Loglevel to use')
-    parser.add_argument('projects', nargs='*', help='Name of the projects (e.g. "nova")')
+    parser.add_argument('-l', '--loglevel', default='INFO',
+                        help='Loglevel to use')
+    parser.add_argument('projects', nargs='*',
+                        help='Name of the projects (e.g. "nova")')
     args = parser.parse_args(argv[1:])
     return args
 
@@ -243,7 +277,8 @@ def main(argv):
         projects = [params['project']]
     else:
         projects = []
-        for project_path in glob.glob(os.path.join(os.path.dirname(__file__), '*')):
+        for project_path in glob.glob(os.path.join(os.path.dirname(__file__),
+                                      '*')):
             if not os.path.isdir(project_path):
                 continue
             projects.append(os.path.basename(project_path))

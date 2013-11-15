@@ -1,8 +1,7 @@
-import os
-from copy import copy
-
-from pymongo import MongoClient
 from bson.objectid import ObjectId
+from copy import copy
+import os
+from pymongo import MongoClient
 assert ObjectId
 from recordtype import recordtype
 

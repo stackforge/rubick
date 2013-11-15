@@ -64,7 +64,7 @@ def ostack_discover_task(cluster_id):
     try:
         openstack = discovery.discover(cluster.nodes,
                                        cluster.private_key)
-    except:
+    except Exception:
         message = traceback.format_exc()
         logger.error(message)
 
@@ -85,7 +85,7 @@ def ostack_inspect_task(request):
     try:
         openstack = discovery.discover(request.nodes,
                                        private_key=request.private_key)
-    except:
+    except Exception:
         message = traceback.format_exc()
         logger.error(message)
         return InspectionResult(request, message)
@@ -95,7 +95,7 @@ def ostack_inspect_task(request):
         try:
             x = inspection()
             x.inspect(openstack)
-        except:
+        except Exception:
             message = traceback.format_exc()
             logger.error(message)
             openstack.report_issue(

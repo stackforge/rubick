@@ -11,9 +11,9 @@ def yaml_string(s, allowSimple=False):
 def yaml_value(x):
     if x is None:
         return '~'
-    elif x == True:
+    elif x is True:
         return 'true'
-    elif x == False:
+    elif x is False:
         return 'false'
     elif isinstance(x, str):
         return yaml_string(x)

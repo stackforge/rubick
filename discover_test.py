@@ -78,8 +78,8 @@ def main():
     try:
         with open('test_rsa') as f:
             private_key = f.read()
-    except:
-        private_key = sys.stdin.read() 
+    except Exception:
+        private_key = sys.stdin.read()
 
     openstack = discovery.discover(
         ['172.18.65.179'],
