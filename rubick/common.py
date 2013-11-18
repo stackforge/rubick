@@ -78,12 +78,39 @@ class Version:
         return '<Version %s>' % str(self)
 
     def __cmp__(self, other):
-        for i in xrange(0, 3):
+        for i in range(0, 3):
             x = self.parts[i] - other.parts[i]
             if x != 0:
                 return -1 if x < 0 else 1
-
         return 0
+
+    def __lt__(self, other):
+        for i in range(0, 3):
+            x = self.parts[i] - other.parts[i]
+            if x != 0:
+                return True if x < 0 else False
+        return False
+
+    def __le__(self, other):
+        for i in range(0, 3):
+            x = self.parts[i] - other.parts[i]
+            if x != 0:
+                return True if x < 0 else False
+        return True
+
+    def __ne__(self, other):
+        for i in range(0, 3):
+            x = self.parts[i] - other.parts[i]
+            if x != 0:
+                return True
+        return False
+
+    def __eq__(self, other):
+        for i in range(0, 3):
+            x = self.parts[i] - other.parts[i]
+            if x != 0:
+                return False
+        return True
 
 
 class Mark(object):

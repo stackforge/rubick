@@ -1,5 +1,10 @@
 import re
-from StringIO import StringIO
+import sys
+if sys.version < '3':
+    from StringIO import StringIO
+else:
+    from io import StringIO
+
 
 from rubick.config_model import *
 from rubick.config_formats.common import *

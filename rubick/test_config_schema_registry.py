@@ -1,8 +1,8 @@
 import unittest
 from contextlib import contextmanager
 
-from rubick.schema import ConfigSchemaRegistry, Version
-from rubick.common import find
+from rubick.schema import ConfigSchemaRegistry
+from rubick.common import find, Version
 
 
 class TestConfigSchemaLoader(object):

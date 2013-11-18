@@ -1,3 +1,2 @@
-
-from common import *
-from ini import IniConfigParser
+from rubick.common import *
+from rubick.config_formats.ini import IniConfigParser

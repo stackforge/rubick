@@ -1,4 +1,8 @@
-from StringIO import StringIO
+import sys
+if sys.version < '3':
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 from bson.objectid import ObjectId
 import os.path

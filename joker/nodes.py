@@ -4,7 +4,11 @@ import os
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 import stat
-from StringIO import StringIO
+import sys
+if sys.version < '3':
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 TMP_KEY_PATH = "/tmp/joker_%s_%d"
 

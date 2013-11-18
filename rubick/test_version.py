@@ -1,4 +1,4 @@
-from rubick.schema import Version
+from rubick.common import Version
 
 import unittest
 

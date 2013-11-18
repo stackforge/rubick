@@ -17,7 +17,7 @@ from rubick.model import DirectoryResource
 def indent_prefix(indent=0):
     s = ''
     if indent > 0:
-        for i in xrange(0, indent):
+        for i in range(0, indent):
             s += '  '
     return s
 
