@@ -1,9 +1,3 @@
-import sys
-if sys.version < '3':
-    from StringIO import StringIO
-else:
-    from io import StringIO
-
 from bson.objectid import ObjectId
 import os.path
 from flask import Flask, request, json, send_file
@@ -11,6 +5,7 @@ from flask_wtf import Form
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
+from six import StringIO
 from wtforms import StringField, SelectMultipleField
 from wtforms.validators import DataRequired
 import wtforms_json

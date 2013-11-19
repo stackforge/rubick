@@ -1,4 +1,4 @@
-from urlparse import urlparse
+from six.moves.urllib.parse import urlparse
 
 from rubick.common import Inspection, Issue, find
 

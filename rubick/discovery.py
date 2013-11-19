@@ -10,10 +10,10 @@ from recordtype import recordtype
 from rubick.common import index, find, path_relative_to, all_subclasses
 from rubick.exceptions import ValidatorException
 from rubick.model import *
+from six import StringIO
 import shlex
 import stat
 import spur
-from StringIO import StringIO
 import tempfile
 
 
