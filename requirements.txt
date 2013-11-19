@@ -16,4 +16,4 @@ paramiko==1.11.0
 oslo.config==1.2.1
 requests==1.2.0
 PyYAML==3.10
-six==1.4.1
+six>=1.4.1

@@ -170,6 +170,15 @@ class Issue(object):
         self.type = type
         self.message = message
 
+    def __eq__(self, other):
+        if not isinstance(other, Issue):
+            return False
+
+        return self.type == other.type and self.message == other.message
+
+    def __ne__(self, other):
+        return not self == other
+
     def __repr__(self):
         return (
             '<%s type=%s message=%s>' % (
@@ -192,6 +201,15 @@ class MarkedIssue(Issue):
         other = copy.copy(self)
         other.mark = base_mark.merge(self.mark)
         return other
+
+    def __eq__(self, other):
+        if not isinstance(other, MarkedIssue):
+            return False
+
+        return super(MarkedIssue, self).__eq__(other) and self.mark == other.mark
+
+    def __ne__(self, other):
+        return not self == other
 
     def __repr__(self):
         return (

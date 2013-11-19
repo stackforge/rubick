@@ -6,1159 +6,969 @@
     type: boolean
     default: false
     help: 'make exception message format errors fatal'
-    comment: 'New param'
 
   - name: policy_file
-    type: string
+    type: file
     default: 'policy.json'
     help: 'JSON file representing policy'
-    comment: 'New param'
 
   - name: policy_default_rule
     type: string
     default: 'default'
     help: 'Rule checked when requested rule is not found'
-    comment: 'New param'
 
   - name: quota_volumes
     type: integer
     default: 10
     help: 'number of volumes allowed per project'
-    comment: 'New param'
 
   - name: quota_snapshots
     type: integer
     default: 10
     help: 'number of volume snapshots allowed per project'
-    comment: 'New param'
 
   - name: quota_gigabytes
     type: integer
     default: 1000
     help: 'number of volume gigabytes'
-    comment: 'New param'
 
   - name: reservation_expire
     type: integer
     default: 86400
     help: 'number of seconds until a reservation expires'
-    comment: 'New param'
 
   - name: until_refresh
     type: integer
-    default: false
+    default: 0
     help: 'count of reservations until usage is refreshed'
-    comment: 'New param'
 
   - name: max_age
     type: integer
-    default: false
+    default: 0
     help: 'number of seconds between subsequent usage refreshes'
-    comment: 'New param'
 
   - name: quota_driver
     type: string
-    default: 'cinder_2013_1_3.quota.DbQuotaDriver'
+    default: 'cinder.quota.DbQuotaDriver'
     help: 'default driver to use for quota checks'
-    comment: 'New param'
 
   - name: use_default_quota_class
     type: boolean
     default: true
     help: 'whether to use default quota class for default quota'
-    comment: 'New param'
 
   - name: report_interval
     type: integer
     default: 10
     help: 'seconds between nodes reporting state to datastore'
-    comment: 'New param'
 
   - name: periodic_interval
     type: integer
     default: 60
     help: 'seconds between running periodic tasks'
-    comment: 'New param'
 
   - name: periodic_fuzzy_delay
     type: integer
     default: 60
     help: 'range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding.'
-    comment: 'New param'
 
   - name: osapi_volume_listen
-    type: string
+    type: host
     default: '0.0.0.0'
     help: 'IP address for OpenStack Volume API to listen'
-    comment: 'New param'
 
   - name: osapi_volume_listen_port
-    type: integer
+    type: port
     default: 8776
     help: 'port for os volume api to listen'
-    comment: 'New param'
 
   - name: sqlite_clean_db
-    type: string
+    type: file
     default: 'clean.sqlite'
     help: 'File name of clean sqlite db'
-    comment: 'New param'
 
   - name: fake_tests
     type: boolean
     default: true
     help: 'should we use everything for testing'
-    comment: 'New param'
 
   - name: backlog
     type: integer
     default: 4096
     help: 'Number of backlog requests to configure the socket with'
-    comment: 'New param'
 
   - name: tcp_keepidle
     type: integer
     default: 600
     help: 'Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X.'
-    comment: 'New param'
 
   - name: ssl_ca_file
-    type: string
+    type: file
     default: ~
     help: 'CA certificate file to use to verify connecting clients'
-    comment: 'New param'
 
   - name: ssl_cert_file
-    type: string
+    type: file
     default: ~
     help: 'Certificate file to use when starting the server securely'
-    comment: 'New param'
 
   - name: ssl_key_file
-    type: string
+    type: file
     default: ~
     help: 'Private key file to use when starting the server securely'
-    comment: 'New param'
 
   - name: osapi_max_limit
     type: integer
     default: 1000
     help: 'the maximum number of items returned in a single response from a collection resource'
-    comment: 'New param'
 
   - name: osapi_volume_base_URL
     type: string
     default: ~
     help: 'Base URL that will be presented to users in links to the OpenStack Volume API'
-    comment: 'New param'
 
   - name: use_forwarded_for
     type: boolean
     default: false
     help: 'Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy.'
-    comment: 'New param'
 
   - name: osapi_max_request_body_size
     type: integer
     default: 114688
     help: 'Max size for body of a request'
-    comment: 'New param'
 
   - name: backup_ceph_conf
-    type: string
+    type: file
     default: '/etc/ceph/ceph.conf'
     help: 'Ceph config file to use.'
-    comment: 'New param'
 
   - name: backup_ceph_user
     type: string
     default: 'cinder'
     help: 'the Ceph user to connect with'
-    comment: 'New param'
 
   - name: backup_ceph_chunk_size
     type: integer
     default: 134217728
     help: 'the chunk size in bytes that a backup will be broken into before transfer to backup store'
-    comment: 'New param'
 
   - name: backup_ceph_pool
     type: string
     default: 'backups'
     help: 'the Ceph pool to backup to'
-    comment: 'New param'
 
   - name: backup_ceph_stripe_unit
     type: integer
-    default: false
+    default: 0
     help: 'RBD stripe unit to use when creating a backup image'
-    comment: 'New param'
 
   - name: backup_ceph_stripe_count
     type: integer
-    default: false
+    default: 0
     help: 'RBD stripe count to use when creating a backup image'
-    comment: 'New param'
 
   - name: restore_discard_excess_bytes
     type: boolean
     default: true
     help: 'If True, always discard excess bytes when restoring volumes.'
-    comment: 'New param'
 
   - name: backup_swift_url
     type: string
     default: 'http://localhost:8080/v1/AUTH_'
     help: 'The URL of the Swift endpoint'
-    comment: 'New param'
 
   - name: backup_swift_auth
     type: string
     default: 'per_user'
     help: 'Swift authentication mechanism'
-    comment: 'New param'
 
   - name: backup_swift_user
     type: string
     default: ~
     help: 'Swift user name'
-    comment: 'New param'
 
   - name: backup_swift_key
     type: string
     default: ~
     help: 'Swift key for authentication'
-    comment: 'New param'
 
   - name: backup_swift_container
     type: string
     default: 'volumebackups'
     help: 'The default Swift container to use'
-    comment: 'New param'
 
   - name: backup_swift_object_size
     type: integer
     default: 52428800
     help: 'The size in bytes of Swift backup objects'
-    comment: 'New param'
 
   - name: backup_swift_retry_attempts
     type: integer
     default: 3
     help: 'The number of retries to make for Swift operations'
-    comment: 'New param'
 
   - name: backup_swift_retry_backoff
     type: integer
     default: 2
     help: 'The backoff time in seconds between Swift retries'
-    comment: 'New param'
 
   - name: backup_compression_algorithm
     type: string
     default: 'zlib'
     help: 'Compression algorithm'
-    comment: 'New param'
 
   - name: backup_tsm_volume_prefix
     type: string
     default: 'backup'
     help: 'Volume prefix for the backup id when backing up to TSM'
-    comment: 'New param'
 
   - name: backup_tsm_password
     type: string
     default: 'password'
     help: 'TSM password for the running username'
-    comment: 'New param'
 
   - name: backup_tsm_compression
     type: boolean
     default: true
     help: 'Enable or Disable compression for backups'
-    comment: 'New param'
 
   - name: backup_driver
     type: string
-    default: 'cinder_2013_1_3.backup.drivers.swift_proxy_server'
+    default: 'cinder.backup.drivers.swift_proxy_server'
     help: 'Driver to use for backups.'
-    comment: 'New param'
 
   - name: num_volume_device_scan_tries
     type: integer
     default: 3
     help: 'The maximum number of times to rescan targetsto find volume'
-    comment: 'New param'
 
   - name: iscsi_helper
-    type: string
+    type: executable
     default: 'tgtadm'
     help: 'iscsi target user-land tool to use'
-    comment: 'New param'
 
   - name: volumes_dir
-    type: string
+    type: directory
     default: '$state_path/volumes'
     help: 'Volume configuration file storage directory'
-    comment: 'New param'
 
   - name: iet_conf
-    type: string
+    type: file
     default: '/etc/iet/ietd.conf'
     help: 'IET configuration file'
-    comment: 'New param'
 
   - name: lio_initiator_iqns
     type: string
     default: ''
     help: 'Comma-separatd list of initiator IQNs allowed to connect to the iSCSI target.'
-    comment: 'New param'
 
   - name: iscsi_iotype
     type: string
     default: 'fileio'
     help: 'Sets the behavior of the iSCSI target to either perform blockio or fileio optionally, auto can be set and Cinder will autodetect type of backing device'
-    comment: 'New param'
 
   - name: iser_helper
-    type: string
+    type: executable
     default: 'tgtadm'
     help: 'iser target user-land tool to use'
-    comment: 'New param'
 
   - name: nfs_mount_point_base
-    type: string
+    type: directory
     default: '$state_path/mnt'
     help: 'Base dir containing mount points for nfs shares'
-    comment: 'New param'
 
   - name: nfs_mount_options
     type: string
     default: ~
     help: 'Mount options passed to the nfs client. See section of the nfs man page for details'
-    comment: 'New param'
 
   - name: glusterfs_mount_point_base
-    type: string
+    type: directory
     default: '$state_path/mnt'
     help: 'Base dir containing mount points for gluster shares'
-    comment: 'New param'
 
   - name: connection_type
     type: string
     default: ~
     help: 'Virtualization api connection type : libvirt, xenapi, or fake'
-    comment: 'New param'
 
   - name: api_paste_config
-    type: string
+    type: file
     default: 'api-paste.ini'
     help: 'File name for the paste.deploy config for cinder-api'
-    comment: 'New param'
 
   - name: pybasedir
-    type: string
+    type: directory
     default: '/usr/lib/python/site-packages'
     help: 'Directory where the cinder python module is installed'
-    comment: 'New param'
 
   - name: bindir
-    type: string
+    type: directory
     default: '$pybasedir/bin'
     help: 'Directory where cinder binaries are installed'
-    comment: 'New param'
 
   - name: state_path
-    type: string
+    type: directory
     default: '$pybasedir'
     help: "Top-level directory for maintaining cinder's state"
-    comment: 'New param'
 
   - name: my_ip
-    type: string
+    type: host
     default: '10.0.0.1'
     help: 'ip address of this host'
-    comment: 'New param'
 
   - name: glance_host
-    type: string
+    type: host
     default: '$my_ip'
     help: 'default glance hostname or ip'
-    comment: 'New param'
 
   - name: glance_port
-    type: integer
+    type: port
     default: 9292
     help: 'default glance port'
-    comment: 'New param'
 
   - name: glance_api_servers
     type: list
-    default: '$glance_host:$glance_port'
+    default: ['$glance_host:$glance_port']
     help: 'A list of the glance api servers available to cinder'
-    comment: 'New param'
 
   - name: glance_api_version
     type: integer
-    default: true
+    default: 1
     help: 'Version of the glance api to use'
-    comment: 'New param'
 
   - name: glance_num_retries
     type: integer
-    default: false
+    default: 0
     help: 'Number retries when downloading an image from glance'
-    comment: 'New param'
 
   - name: glance_api_insecure
     type: boolean
     default: false
     help: 'Allow to perform insecure SSL'
-    comment: 'New param'
 
   - name: glance_api_ssl_compression
     type: boolean
     default: false
     help: 'Whether to attempt to negotiate SSL layer compression when using SSL'
-    comment: 'New param'
 
   - name: glance_request_timeout
     type: integer
     default: ~
     help: 'http/https timeout value for glance operations. If no value'
-    comment: 'New param'
 
   - name: scheduler_topic
     type: string
     default: 'cinder-scheduler'
     help: 'the topic scheduler nodes listen on'
-    comment: 'New param'
 
   - name: volume_topic
     type: string
     default: 'cinder-volume'
     help: 'the topic volume nodes listen on'
-    comment: 'New param'
 
   - name: backup_topic
     type: string
     default: 'cinder-backup'
     help: 'the topic volume backup nodes listen on'
-    comment: 'New param'
 
   - name: enable_v1_api
     type: boolean
     default: true
     help: 'Deploy v1 of the Cinder API. '
-    comment: 'New param'
 
   - name: enable_v2_api
     type: boolean
     default: true
     help: 'Deploy v2 of the Cinder API. '
-    comment: 'New param'
 
   - name: api_rate_limit
     type: boolean
     default: true
     help: 'whether to rate limit the api'
-    comment: 'New param'
 
   - name: osapi_volume_ext_list
     type: list
-    default: ''
+    default: []
     help: 'Specify list of extensions to load when using osapi_volume_extension option with cinder_2013_1_3.api.contrib.select_extensions'
-    comment: 'New param'
 
   - name: osapi_volume_extension
     type: multi
-    default: 'cinder_2013_1_3.api.contrib.standard_extensions'
+    default: 'cinder.api.contrib.standard_extensions'
     help: 'osapi volume extension to load'
-    comment: 'New param'
 
   - name: volume_manager
     type: string
-    default: 'cinder_2013_1_3.volume.manager.VolumeManager'
+    default: 'cinder.volume.manager.VolumeManager'
     help: 'full class name for the Manager for volume'
-    comment: 'New param'
 
   - name: backup_manager
     type: string
-    default: 'cinder_2013_1_3.backup.manager.BackupManager'
+    default: 'cinder.backup.manager.BackupManager'
     help: 'full class name for the Manager for volume backup'
-    comment: 'New param'
 
   - name: scheduler_manager
     type: string
-    default: 'cinder_2013_1_3.scheduler.manager.SchedulerManager'
+    default: 'cinder.scheduler.manager.SchedulerManager'
     help: 'full class name for the Manager for scheduler'
-    comment: 'New param'
 
   - name: host
-    type: string
+    type: host
     default: '127.0.0.1'
     help: 'Host to locate redis'
-    comment: 'New param'
 
   - name: storage_availability_zone
     type: string
     default: 'nova'
     help: 'availability zone of this node'
-    comment: 'New param'
 
   - name: default_availability_zone
     type: string
     default: ~
     help: 'default availability zone to use when creating a new volume. If this is not set then we use the value from the storage_availability_zone option as the default availability_zone for new volumes.'
-    comment: 'New param'
 
   - name: memcached_servers
     type: list
     default: ~
     help: 'Memcached servers or None for in process cache.'
-    comment: 'New param'
 
   - name: default_volume_type
     type: string
     default: ~
     help: 'default volume type to use'
-    comment: 'New param'
 
   - name: volume_usage_audit_period
     type: string
     default: 'month'
     help: 'time period to generate volume usages for.  Time period must be hour, day, month or year'
-    comment: 'New param'
 
   - name: root_helper
-    type: string
+    type: executable
     default: 'sudo'
     help: 'Deprecated: command to use for running commands as root'
-    comment: 'New param'
 
   - name: rootwrap_config
-    type: string
+    type: file
     default: '/etc/cinder/rootwrap.conf'
     help: 'Path to the rootwrap configuration file to use for running commands as root'
-    comment: 'New param'
 
   - name: monkey_patch
     type: boolean
     default: false
     help: 'Enable monkey patching'
-    comment: 'New param'
 
   - name: monkey_patch_modules
     type: list
-    default: ''
+    default: []
     help: 'List of modules/decorators to monkey patch'
-    comment: 'New param'
 
   - name: service_down_time
     type: integer
     default: 60
     help: 'maximum time since last check-in for up service'
-    comment: 'New param'
 
   - name: volume_api_class
     type: string
-    default: 'cinder_2013_1_3.volume.api.API'
+    default: 'cinder.volume.api.API'
     help: 'The full class name of the volume API class to use'
-    comment: 'New param'
 
   - name: backup_api_class
     type: string
-    default: 'cinder_2013_1_3.backup.api.API'
+    default: 'cinder.backup.api.API'
     help: 'The full class name of the volume backup API class'
-    comment: 'New param'
 
   - name: auth_strategy
-    type: string
+    type: enum
+    type_args: {'values': ['noauth', 'keystone']}
     default: 'noauth'
     help: 'The strategy to use for auth. Supports noauth, keystone, and deprecated.'
-    comment: 'New param'
 
   - name: enabled_backends
     type: list
     default: ~
     help: 'A list of backend names to use. These backend names should be backed by a unique [CONFIG] group with its options'
-    comment: 'New param'
 
   - name: no_snapshot_gb_quota
     type: boolean
     default: false
     help: 'Whether snapshots count against GigaByte quota'
-    comment: 'New param'
 
   - name: transfer_api_class
     type: string
-    default: 'cinder_2013_1_3.transfer.api.API'
+    default: 'cinder.transfer.api.API'
     help: 'The full class name of the volume transfer API class'
-    comment: 'New param'
 
   - name: compute_api_class
     type: string
-    default: 'cinder_2013_1_3.compute.nova.API'
+    default: 'cinder.compute.nova.API'
     help: 'The full class name of the compute API class to use'
-    comment: 'New param'
 
   - name: nova_catalog_info
     type: string
     default: 'compute:nova:publicURL'
     help: 'Info to match when looking for nova in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type>'
-    comment: 'New param'
 
   - name: nova_catalog_admin_info
     type: string
     default: 'compute:nova:adminURL'
     help: 'Same as nova_catalog_info, but for admin endpoint.'
-    comment: 'New param'
 
   - name: nova_endpoint_template
     type: string
     default: ~
     help: 'Override service catalog lookup with template for nova endpoint e.g. http://localhost:8774/v2/%(tenant_id)s'
-    comment: 'New param'
 
   - name: nova_endpoint_admin_template
     type: string
     default: ~
     help: 'Same as nova_endpoint_template, but for admin endpoint.'
-    comment: 'New param'
 
   - name: os_region_name
     type: string
     default: ~
     help: 'region name of this node'
-    comment: 'New param'
 
   - name: nova_ca_certificates_file
-    type: string
+    type: file
     default: ~
     help: 'Location of ca certicates file to use for nova client requests.'
-    comment: 'New param'
 
   - name: nova_api_insecure
     type: boolean
     default: false
     help: 'Allow to perform insecure SSL requests to nova'
-    comment: 'New param'
 
   - name: db_backend
     type: string
     default: 'sqlalchemy'
     help: 'The backend to use for db'
-    comment: 'New param'
 
   - name: enable_new_services
     type: boolean
     default: true
     help: 'Services to be added to the available pool on create'
-    comment: 'New param'
 
   - name: volume_name_template
     type: string
     default: 'volume-%s'
     help: 'Template string to be used to generate volume names'
-    comment: 'New param'
 
   - name: snapshot_name_template
     type: string
     default: 'snapshot-%s'
     help: 'Template string to be used to generate snapshot names'
-    comment: 'New param'
 
   - name: backup_name_template
     type: string
     default: 'backup-%s'
     help: 'Template string to be used to generate backup names'
-    comment: 'New param'
 
   - name: db_driver
     type: string
-    default: 'cinder_2013_1_3.db'
+    default: 'cinder.db'
     help: 'driver to use for database access'
-    comment: 'New param'
 
   - name: allowed_direct_url_schemes
     type: list
-    default: ''
+    default: []
     help: 'A list of url schemes that can be downloaded directly via the direct_url.  Currently supported schemes: [file].'
-    comment: 'New param'
 
   - name: image_conversion_dir
-    type: string
+    type: directory
     default: '$state_path/conversion'
     help: 'Directory used for temporary storage during image conversion'
-    comment: 'New param'
 
   - name: keymgr_api_class
     type: string
-    default: 'cinder_2013_1_3.keymgr.not_implemented_key_mgr.NotImplementedKeyManager'
+    default: 'cinder.keymgr.not_implemented_key_mgr.NotImplementedKeyManager'
     help: 'The full class name of the key manager API class'
-    comment: 'New param'
 
   - name: backend
     type: string
     default: 'sqlalchemy'
     help: 'The backend to use for db'
-    comment: 'New param'
 
   - name: use_tpool
     type: boolean
     default: false
     help: 'Enable the experimental use of thread pooling for all DB API calls'
-    comment: 'New param'
 
   - name: connection
     type: string
     default: 'sqlite:////cinder/openstack/common/db/$sqlite_db'
     help: 'The SQLAlchemy connection string used to connect to the database'
-    comment: 'New param'
 
   - name: sql_connection
     type: string
     default: 'sqlite:////nova/openstack/common/db/$sqlite_db'
     help: 'The SQLAlchemy connection string used to connect to the database'
-    comment: 'New param'
 
   - name: idle_timeout
     type: integer
     default: 3600
     help: 'timeout before idle sql connections are reaped'
-    comment: 'New param'
 
   - name: min_pool_size
     type: integer
-    default: true
+    default: 1
     help: 'Minimum number of SQL connections to keep open in a pool'
-    comment: 'New param'
 
   - name: max_pool_size
     type: integer
     default: 5
     help: 'Maximum number of SQL connections to keep open in a pool'
-    comment: 'New param'
 
   - name: max_retries
     type: integer
     default: 10
     help: 'maximum db connection retries during startup.'
-    comment: 'New param'
 
   - name: retry_interval
     type: integer
     default: 10
     help: 'interval between retries of opening a sql connection'
-    comment: 'New param'
 
   - name: max_overflow
     type: integer
     default: ~
     help: 'If set, use this value for max_overflow with sqlalchemy'
-    comment: 'New param'
 
   - name: connection_debug
     type: integer
-    default: false
+    default: 0
     help: 'Verbosity of SQL debugging information. 0=None, 100=Everything'
-    comment: 'New param'
 
   - name: connection_trace
     type: boolean
     default: false
     help: 'Add python stack traces to SQL as comment strings'
-    comment: 'New param'
 
   - name: sqlite_db
     type: string
-    default: 'cinder_2013_1_3.sqlite'
+    default: 'cinder.sqlite'
     help: 'the filename to use with sqlite'
-    comment: 'New param'
 
   - name: sqlite_synchronous
     type: boolean
     default: true
     help: 'If true, use synchronous mode for sqlite'
-    comment: 'New param'
 
   - name: backdoor_port
-    type: integer
+    type: port
     default: ~
     help: 'port for eventlet backdoor to listen'
-    comment: 'New param'
 
   - name: disable_process_locking
     type: boolean
     default: false
     help: 'Whether to disable inter-process locks'
-    comment: 'New param'
 
   - name: lock_path
-    type: string
+    type: directory
     default: ~
     help: 'Directory to use for lock files. Default to a temp directory'
-    comment: 'New param'
 
   - name: debug
     type: boolean
     default: false
     help: 'Print debugging output'
-    comment: 'New param'
 
   - name: verbose
     type: boolean
     default: false
     help: 'Print more verbose output'
-    comment: 'New param'
 
   - name: use_stderr
     type: boolean
     default: true
     help: 'Log output to standard error'
-    comment: 'New param'
 
   - name: logging_context_format_string
     type: string
     default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s'
     help: 'format string to use for log messages with context'
-    comment: 'New param'
 
   - name: logging_default_format_string
     type: string
     default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s'
     help: 'format string to use for log messages without context'
-    comment: 'New param'
 
   - name: logging_debug_format_suffix
     type: string
     default: '%(funcName)s %(pathname)s:%(lineno)d'
     help: 'data to append to log format when level is DEBUG'
-    comment: 'New param'
 
   - name: logging_exception_prefix
     type: string
     default: '%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s'
     help: 'prefix each line of exception output with this format'
-    comment: 'New param'
 
   - name: default_log_levels
     type: list
-    default: 'amqplibWARN,sqlalchemyWARN,botoWARN,sudsINFO,keystoneINFO,eventlet.wsgi.serverWARN'
+    default: ['amqplib=WARN', 'sqlalchemy=WARN', 'boto=WARN', 'suds=INFO', 'keystone=INFO', 'eventlet.wsgi.server=WARN']
     help: 'list of logger=LEVEL pairs'
-    comment: 'New param'
 
   - name: publish_errors
     type: boolean
     default: false
     help: 'publish error events'
-    comment: 'New param'
 
   - name: fatal_deprecations
     type: boolean
     default: false
     help: 'make deprecations fatal'
-    comment: 'New param'
 
   - name: instance_format
     type: string
     default: '"[instance: %(uuid)s] "'
     help: 'If an instance is passed with the log message, format it like this'
-    comment: 'New param'
 
   - name: instance_uuid_format
     type: string
     default: '"[instance: %(uuid)s] "'
     help: 'If an instance UUID is passed with the log message, format it like this'
-    comment: 'New param'
 
   - name: log_config
-    type: string
+    type: file
     default: ~
     help: 'If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files.'
-    comment: 'New param'
 
   - name: log_format
     type: string
     default: ~
     help: 'A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead.'
-    comment: 'New param'
 
   - name: log_date_format
     type: string
     default: '%Y-%m-%d %H:%M:%S'
     help: 'Format string for %%(asctime)s in log records. Default: %(default)s'
-    comment: 'New param'
 
   - name: log_file
-    type: string
+    type: file
     default: ~
     help: '(Optional) Name of log file to output to. If no default is set, logging will go to stdout.'
-    comment: 'New param'
 
   - name: log_dir
-    type: string
+    type: directory
     default: ~
     help: '(Optional) The base directory used for relative --log-file paths'
-    comment: 'New param'
 
   - name: use_syslog
     type: boolean
     default: false
     help: 'Use syslog for logging.'
-    comment: 'New param'
 
   - name: syslog_log_facility
     type: string
     default: 'LOG_USER'
     help: 'syslog facility to receive log lines'
-    comment: 'New param'
 
   - name: default_notification_level
-    type: string
+    type: enum
+    type_args: {'values': ['DEBUG', 'INFO', 'WARN', 'CRITICAL']}
     default: 'INFO'
     help: 'Default notification level for outgoing notifications'
-    comment: 'New param'
 
   - name: default_publisher_id
     type: string
     default: ~
     help: 'Default publisher_id for outgoing notifications'
-    comment: 'New param'
 
   - name: notification_topics
     type: list
-    default: 'notifications'
+    default: ['notifications']
     help: 'AMQP topic used for OpenStack notifications'
-    comment: 'New param'
 
   - name: topics
     type: list
-    default: 'notifications'
+    default: ['notifications']
     help: 'AMQP topic(s) used for OpenStack notifications'
-    comment: 'New param'
 
   - name: run_external_periodic_tasks
     type: boolean
     default: true
     help: 'Some periodic tasks can be run in a separate process. Should we run them here?'
-    comment: 'New param'
 
   - name: rpc_backend
     type: string
-    default: 'cinder_2013_1_3.openstack.common.rpc.impl_kombu'
+    default: 'cinder.openstack.common.rpc.impl_kombu'
     help: 'The messaging module to use, defaults to kombu.'
-    comment: 'New param'
 
   - name: rpc_thread_pool_size
     type: integer
     default: 64
     help: 'Size of RPC thread pool'
-    comment: 'New param'
 
   - name: rpc_conn_pool_size
     type: integer
     default: 30
     help: 'Size of RPC connection pool'
-    comment: 'New param'
 
   - name: rpc_response_timeout
     type: integer
     default: 60
     help: 'Seconds to wait for a response from call or multicall'
-    comment: 'New param'
 
   - name: rpc_cast_timeout
     type: integer
     default: 30
     help: 'Seconds to wait before a cast expires'
-    comment: 'New param'
 
   - name: allowed_rpc_exception_modules
     type: list
-    default: 'cinder_2013_1_3.openstack.common.exception,nova.exception,cinder_2013_1_3.exception,exceptions'
-    help: 'Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call.'
-    comment: 'New param'
+    default: ['cinder.openstack.common.exception', 'nova.exception', 'cinder.exception', 'exceptions']
+    help: 'Modules of exceptions that are permitted to be recreated upon receiving exception data from an rpc call.'
 
   - name: fake_rabbit
     type: boolean
     default: false
     help: 'If passed, use a fake RabbitMQ provider'
-    comment: 'New param'
 
   - name: control_exchange
     type: string
     default: 'openstack'
     help: 'AMQP exchange to connect to if using RabbitMQ or Qpid'
-    comment: 'New param'
 
   - name: amqp_rpc_single_reply_queue
     type: boolean
     default: false
     help: 'Enable a fast single reply queue if using AMQP based RPC like RabbitMQ or Qpid.'
-    comment: 'New param'
 
   - name: amqp_durable_queues
     type: boolean
     default: false
     help: 'Use durable queues in amqp.'
-    comment: 'New param'
 
   - name: amqp_auto_delete
     type: boolean
     default: false
     help: 'Auto-delete queues in amqp.'
-    comment: 'New param'
 
   - name: kombu_ssl_version
     type: string
     default: ''
     help: 'SSL version to use'
-    comment: 'New param'
 
   - name: kombu_ssl_keyfile
-    type: string
+    type: file
     default: ''
     help: 'SSL key file'
-    comment: 'New param'
 
   - name: kombu_ssl_certfile
-    type: string
+    type: file
     default: ''
     help: 'SSL cert file'
-    comment: 'New param'
 
   - name: kombu_ssl_ca_certs
-    type: string
+    type: file
     default: ''
     help: 'SSL certification authority file'
-    comment: 'New param'
 
   - name: rabbit_host
-    type: string
+    type: host
     default: 'localhost'
     help: 'The RabbitMQ broker address where a single node is used'
-    comment: 'New param'
 
   - name: rabbit_port
-    type: integer
+    type: port
     default: 5672
     help: 'The RabbitMQ broker port where a single node is used'
-    comment: 'New param'
 
   - name: rabbit_hosts
     type: list
-    default: '$rabbit_host:$rabbit_port'
+    default: ['$rabbit_host:$rabbit_port']
     help: 'RabbitMQ HA cluster host:port pairs'
-    comment: 'New param'
 
   - name: rabbit_use_ssl
     type: boolean
     default: false
     help: 'connect over SSL for RabbitMQ'
-    comment: 'New param'
 
   - name: rabbit_userid
     type: string
     default: 'guest'
     help: 'the RabbitMQ userid'
-    comment: 'New param'
 
   - name: rabbit_password
     type: string
     default: 'guest'
     help: 'the RabbitMQ password'
-    comment: 'New param'
 
   - name: rabbit_virtual_host
     type: string
     default: '/'
     help: 'the RabbitMQ virtual host'
-    comment: 'New param'
 
   - name: rabbit_retry_interval
     type: integer
-    default: true
+    default: 1
     help: 'how frequently to retry connecting with RabbitMQ'
-    comment: 'New param'
 
   - name: rabbit_retry_backoff
     type: integer
     default: 2
     help: 'how long to backoff for between retries when connecting to RabbitMQ'
-    comment: 'New param'
 
   - name: rabbit_max_retries
     type: integer
-    default: false
+    default: 0
     help: 'maximum retries with trying to connect to RabbitMQ'
-    comment: 'New param'
 
   - name: rabbit_ha_queues
     type: boolean
     default: false
     help: 'use H/A queues in RabbitMQ'
-    comment: 'New param'
 
   - name: qpid_hostname
-    type: string
+    type: host
     default: 'localhost'
     help: 'Qpid broker hostname'
-    comment: 'New param'
 
   - name: qpid_port
-    type: integer
+    type: port
     default: 5672
     help: 'Qpid broker port'
-    comment: 'New param'
 
   - name: qpid_hosts
     type: list
-    default: '$qpid_hostname:$qpid_port'
+    default: ['$qpid_hostname:$qpid_port']
     help: 'Qpid HA cluster host:port pairs'
-    comment: 'New param'
 
   - name: qpid_username
     type: string
     default: ''
     help: 'Username for qpid connection'
-    comment: 'New param'
 
   - name: qpid_password
     type: string
     default: ''
     help: 'Password for qpid connection'
-    comment: 'New param'
 
   - name: qpid_sasl_mechanisms
     type: string
     default: ''
     help: 'Space separated list of SASL mechanisms to use for auth'
-    comment: 'New param'
 
   - name: qpid_heartbeat
     type: integer
     default: 60
     help: 'Seconds between connection keepalive heartbeats'
-    comment: 'New param'
 
   - name: qpid_protocol
-    type: string
+    type: enum
+    type_args: {'values': ['tcp', 'ssl']}
     default: 'tcp'
     help: "Transport to use, either 'tcp' or 'ssl'"
-    comment: 'New param'
 
   - name: qpid_tcp_nodelay
     type: boolean
     default: true
     help: 'Disable Nagle algorithm'
-    comment: 'New param'
 
   - name: qpid_topology_version
     type: integer
-    default: true
+    default: 1
     help: 'The qpid topology version to use.  Version 1 is what was originally used by impl_qpid.  Version 2 includes some backwards-incompatible changes that allow broker federation to work.  Users should update to version 2 when they are able to take everything down, as it requires a clean break.'
-    comment: 'New param'
 
   - name: rpc_zmq_bind_address
     type: string
@@ -1168,45 +978,38 @@
 
   - name: rpc_zmq_matchmaker
     type: string
-    default: 'cinder_2013_1_3.openstack.common.rpc.matchmaker.MatchMakerLocalhost'
+    default: 'cinder.openstack.common.rpc.matchmaker.MatchMakerLocalhost'
     help: 'MatchMaker driver'
-    comment: 'New param'
 
   - name: rpc_zmq_port
-    type: integer
+    type: port
     default: 9501
     help: 'ZeroMQ receiver listening port'
-    comment: 'New param'
 
   - name: rpc_zmq_contexts
     type: integer
-    default: true
+    default: 1
     help: 'Number of ZeroMQ contexts, defaults to 1'
-    comment: 'New param'
 
   - name: rpc_zmq_topic_backlog
     type: integer
     default: ~
     help: 'Maximum number of ingress messages to locally buffer per topic. Default is unlimited.'
-    comment: 'New param'
 
   - name: rpc_zmq_ipc_dir
-    type: string
+    type: directory
     default: '/var/run/openstack'
     help: 'Directory for holding IPC sockets'
-    comment: 'New param'
 
   - name: rpc_zmq_host
     type: string
     default: 'cinder'
     help: "Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova."
-    comment: 'New param'
 
   - name: matchmaker_ringfile
-    type: string
+    type: file
     default: '/etc/nova/matchmaker_ring.json'
     help: 'Matchmaker ring file'
-    comment: 'New param'
 
   - name: matchmaker_heartbeat_freq
     type: integer
@@ -1218,10 +1021,9 @@
     type: integer
     default: 600
     help: 'Heartbeat time-to-live.'
-    comment: 'New param'
 
   - name: port
-    type: integer
+    type: port
     default: 6379
     help: 'Use this port to connect to redis host.'
     comment: 'New param'
@@ -1230,295 +1032,246 @@
     type: string
     default: ~
     help: 'Password for Redis server.'
-    comment: 'New param'
 
   - name: scheduler_host_manager
     type: string
-    default: 'cinder_2013_1_3.scheduler.host_manager.HostManager'
+    default: 'cinder.scheduler.host_manager.HostManager'
     help: 'The scheduler host manager class to use'
-    comment: 'New param'
 
   - name: scheduler_max_attempts
     type: integer
     default: 3
     help: 'Maximum number of attempts to schedule an volume'
-    comment: 'New param'
 
   - name: scheduler_default_filters
     type: list
-    default: 'AvailabilityZoneFilter,CapacityFilter,CapabilitiesFilter'
+    default: ['AvailabilityZoneFilter', 'CapacityFilter', 'CapabilitiesFilter']
     help: 'Which filter class names to use for filtering hosts when not specified in the request.'
-    comment: 'New param'
 
   - name: scheduler_default_weighers
     type: list
-    default: 'CapacityWeigher'
+    default: ['CapacityWeigher']
     help: 'Which weigher class names to use for weighing hosts.'
-    comment: 'New param'
 
   - name: scheduler_driver
     type: string
-    default: 'cinder_2013_1_3.scheduler.filter_scheduler.FilterScheduler'
+    default: 'cinder.scheduler.filter_scheduler.FilterScheduler'
     help: 'Default scheduler driver to use'
-    comment: 'New param'
 
   - name: scheduler_json_config_location
-    type: string
+    type: file
     default: ''
     help: 'Absolute path to scheduler configuration JSON file.'
-    comment: 'New param'
 
   - name: max_gigabytes
     type: integer
     default: 10000
     help: 'maximum number of volume gigabytes to allow per host'
-    comment: 'New param'
 
   - name: capacity_weight_multiplier
     type: float
-    default: true
+    default: 1.0
     help: 'Multiplier used for weighing volume capacity. Negative numbers mean to stack vs spread.'
-    comment: 'New param'
 
   - name: volume_transfer_salt_length
     type: integer
     default: 8
     help: 'The number of characters in the salt.'
-    comment: 'New param'
 
   - name: volume_transfer_key_length
     type: integer
     default: 16
     help: 'The number of characters in the autogenerated auth key.'
-    comment: 'New param'
 
   - name: snapshot_same_host
     type: boolean
     default: true
     help: 'Create volume from snapshot at the host where snapshot resides'
-    comment: 'New param'
 
   - name: cloned_volume_same_az
     type: boolean
     default: true
     help: 'Ensure that the new volumes are the same AZ as snapshot or source volume'
-    comment: 'New param'
 
   - name: num_shell_tries
     type: integer
     default: 3
     help: 'number of times to attempt to run flakey shell commands'
-    comment: 'New param'
 
   - name: reserved_percentage
     type: integer
-    default: false
+    default: 0
     help: 'The percentage of backend capacity is reserved'
-    comment: 'New param'
 
   - name: iscsi_num_targets
     type: integer
     default: 100
     help: 'The maximum number of iscsi target ids per host'
-    comment: 'New param'
 
   - name: iscsi_target_prefix
     type: string
     default: 'iqn.2010-10.org.openstack:'
     help: 'prefix for iscsi volumes'
-    comment: 'New param'
 
   - name: iscsi_ip_address
-    type: string
+    type: host
     default: '$my_ip'
     help: 'The IP address that the iSCSI daemon is listening on'
-    comment: 'New param'
 
   - name: iscsi_port
-    type: integer
+    type: port
     default: 3260
     help: 'The port that the iSCSI daemon is listening on'
-    comment: 'New param'
 
   - name: num_iser_scan_tries
     type: integer
     default: 3
     help: 'The maximum number of times to rescan iSER targetto find volume'
-    comment: 'New param'
 
   - name: iser_num_targets
     type: integer
     default: 100
     help: 'The maximum number of iser target ids per host'
-    comment: 'New param'
 
   - name: iser_target_prefix
     type: string
     default: 'iqn.2010-10.org.iser.openstack:'
     help: 'prefix for iser volumes'
-    comment: 'New param'
 
   - name: iser_ip_address
-    type: string
+    type: host
     default: '$my_ip'
     help: 'The IP address that the iSER daemon is listening on'
-    comment: 'New param'
 
   - name: iser_port
-    type: integer
+    type: port
     default: 3260
     help: 'The port that the iSER daemon is listening on'
-    comment: 'New param'
 
   - name: volume_backend_name
     type: string
     default: ~
     help: 'The backend name for a given driver implementation'
-    comment: 'New param'
 
   - name: use_multipath_for_image_xfer
     type: boolean
     default: false
     help: 'Do we attach/detach volumes in cinder using multipath for volume to image and image to volume transfers?'
-    comment: 'New param'
 
   - name: volume_clear
     type: string
     default: 'zero'
     help: 'Method used to wipe old voumes'
-    comment: 'New param'
 
   - name: volume_clear_size
     type: integer
-    default: false
+    default: 0
     help: 'Size in MiB to wipe at start of old volumes. 0 => all'
-    comment: 'New param'
 
   - name: available_devices
     type: list
-    default: ''
+    default: []
     help: 'List of all available devices'
-    comment: 'New param'
 
   - name: coraid_esm_address
-    type: string
+    type: host
     default: ''
     help: 'IP address of Coraid ESM'
-    comment: 'New param'
 
   - name: coraid_user
     type: string
     default: 'admin'
     help: 'User name to connect to Coraid ESM'
-    comment: 'New param'
 
   - name: coraid_group
     type: string
     default: 'admin'
     help: 'Name of group on Coraid ESM to which coraid_user belongs'
-    comment: 'New param'
 
   - name: coraid_password
     type: string
     default: 'password'
     help: 'Password to connect to Coraid ESM'
-    comment: 'New param'
 
   - name: coraid_repository_key
     type: string
     default: 'coraid_repository'
     help: 'Volume Type key name to store ESM Repository Name'
-    comment: 'New param'
 
   - name: eqlx_group_name
     type: string
     default: 'group-0'
     help: 'Group name to use for creating volumes'
-    comment: 'New param'
 
   - name: eqlx_cli_timeout
     type: integer
     default: 30
     help: 'Timeout for the Group Manager cli command execution'
-    comment: 'New param'
 
   - name: eqlx_cli_max_retries
     type: integer
     default: 5
     help: 'Maximum retry count for reconnection'
-    comment: 'New param'
 
   - name: eqlx_use_chap
     type: boolean
     default: false
     help: 'Use CHAP authentificaion for targets?'
-    comment: 'New param'
 
   - name: eqlx_chap_login
     type: string
     default: 'admin'
     help: 'Existing CHAP account name'
-    comment: 'New param'
 
   - name: eqlx_chap_password
     type: string
     default: 'password'
     help: 'Password for specified CHAP account name'
-    comment: 'New param'
 
   - name: eqlx_pool
     type: string
     default: 'default'
     help: 'Pool in which volumes will be created'
-    comment: 'New param'
 
   - name: glusterfs_shares_config
-    type: string
+    type: file
     default: '/etc/cinder/glusterfs_shares'
     help: 'File with the list of available gluster shares'
-    comment: 'New param'
 
   - name: glusterfs_disk_util
     type: string
     default: 'df'
     help: 'Use du or df for free space calculation'
-    comment: 'New param'
 
   - name: glusterfs_sparsed_volumes
     type: boolean
     default: true
     help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.'
-    comment: 'New param'
 
   - name: glusterfs_qcow2_volumes
     type: boolean
     default: false
     help: 'Create volumes as QCOW2 files rather than raw files.'
-    comment: 'New param'
 
   - name: gpfs_mount_point_base
-    type: string
+    type: directory
     default: ~
     help: 'Path to the directory on GPFS mount point where volumes are stored'
-    comment: 'New param'
 
   - name: gpfs_images_dir
-    type: string
+    type: directory
     default: ~
     help: 'Path to GPFS Glance repository as mounted on Nova nodes'
-    comment: 'New param'
 
   - name: gpfs_images_share_mode
     type: string
     default: ~
-    help: 'Set this if Glance image repo is on GPFS as well so that the image bits can be transferred efficiently between Glance and cinder_2013_1_3.  Valid values are copy or copy_on_write. copy performs a full copy of the image, copy_on_write efficiently shares unmodified blocks of the image.'
-    comment: 'New param'
+    help: 'Set this if Glance image repo is on GPFS as well so that the image bits can be transferred efficiently between Glance and cinder.  Valid values are copy or copy_on_write. copy performs a full copy of the image, copy_on_write efficiently shares unmodified blocks of the image.'
 
   - name: gpfs_max_clone_depth
     type: integer
-    default: false
+    default: 0
     help: 'A lengthy chain of copy-on-write snapshots or clones could have impact on performance.  This option limits the number of indirections required to reach a specific block. 0 indicates unlimited.'
-    comment: 'New param'
 
   - name: gpfs_sparse_volumes
     type: boolean
@@ -1527,238 +1280,200 @@
     comment: 'New param'
 
   - name: hds_cinder_config_file
-    type: string
+    type: file
     default: '/opt/hds/hus/cinder_hus_conf.xml'
     help: 'configuration file for HDS cinder plugin for HUS'
-    comment: 'New param'
 
   - name: cinder_huawei_conf_file
-    type: string
+    type: file
     default: '/etc/cinder/cinder_huawei_conf.xml'
     help: 'config data for cinder huawei plugin'
-    comment: 'New param'
 
   - name: volume_group
     type: string
     default: 'cinder-volumes'
     help: 'Name for the VG that will contain exported volumes'
-    comment: 'New param'
 
   - name: pool_size
     type: string
     default: ~
     help: 'Size of thin provisioning pool'
-    comment: 'New param'
 
   - name: lvm_mirrors
     type: integer
-    default: false
+    default: 0
     help: 'If set, create lvms with multiple mirrors. Note that this requires lvm_mirrors + 2 pvs with available space'
-    comment: 'New param'
 
   - name: lvm_type
     type: string
     default: 'default'
     help: 'Type of LVM volumes to deploy;'
-    comment: 'New param'
 
   - name: netapp_vfiler
     type: string
     default: ~
     help: 'Vfiler to use for provisioning'
-    comment: 'New param'
 
   - name: netapp_login
     type: string
     default: ~
     help: 'User name for the storage controller'
-    comment: 'New param'
 
   - name: netapp_password
     type: string
     default: ~
     help: 'Password for the storage controller'
-    comment: 'New param'
 
   - name: netapp_vserver
     type: string
     default: ~
     help: 'Cluster vserver to use for provisioning'
-    comment: 'New param'
 
   - name: netapp_server_hostname
     type: string
     default: ~
     help: 'Host name for the storage controller'
-    comment: 'New param'
 
   - name: netapp_server_port
-    type: integer
+    type: port
     default: 80
     help: 'Port number for the storage controller'
-    comment: 'New param'
 
   - name: thres_avl_size_perc_start
     type: integer
     default: 20
     help: 'Threshold available percent to start cache cleaning.'
-    comment: 'New param'
 
   - name: thres_avl_size_perc_stop
     type: integer
     default: 60
     help: 'Threshold available percent to stop cache cleaning.'
-    comment: 'New param'
 
   - name: expiry_thres_minutes
     type: integer
     default: 720
     help: 'Threshold minutes after which cache file can be cleaned.'
-    comment: 'New param'
 
   - name: netapp_size_multiplier
     type: float
     default: 1.2
     help: 'Volume size multiplier to ensure while creation'
-    comment: 'New param'
 
   - name: netapp_volume_list
     type: string
     default: ~
     help: 'Comma separated volumes to be used for provisioning'
-    comment: 'New param'
 
   - name: netapp_storage_family
     type: string
     default: 'ontap_cluster'
     help: 'Storage family type.'
-    comment: 'New param'
 
   - name: netapp_storage_protocol
     type: string
     default: ~
     help: 'Storage protocol type.'
-    comment: 'New param'
 
   - name: netapp_transport_type
     type: string
     default: 'http'
     help: 'Transport type protocol'
-    comment: 'New param'
 
   - name: nexenta_host
-    type: string
+    type: host
     default: ''
     help: 'IP address of Nexenta SA'
-    comment: 'New param'
 
   - name: nexenta_rest_port
-    type: integer
+    type: port
     default: 2000
     help: 'HTTP port to connect to Nexenta REST API server'
-    comment: 'New param'
 
   - name: nexenta_rest_protocol
-    type: string
+    type: enum
+    type_args: {'values': ['auto', 'http', 'https']}
     default: 'auto'
     help: 'Use http or https for REST connection'
-    comment: 'New param'
 
   - name: nexenta_user
     type: string
     default: 'admin'
     help: 'User name to connect to Nexenta SA'
-    comment: 'New param'
 
   - name: nexenta_password
     type: string
     default: 'nexenta'
     help: 'Password to connect to Nexenta SA'
-    comment: 'New param'
 
   - name: nexenta_iscsi_target_portal_port
     type: integer
     default: 3260
     help: 'Nexenta target portal port'
-    comment: 'New param'
 
   - name: nexenta_volume
     type: string
     default: 'cinder'
     help: 'pool on SA that will hold all volumes'
-    comment: 'New param'
 
   - name: nexenta_target_prefix
     type: string
     default: 'iqn.1986-03.com.sun:02:cinder-'
     help: 'IQN prefix for iSCSI targets'
-    comment: 'New param'
 
   - name: nexenta_target_group_prefix
     type: string
     default: 'cinder/'
     help: 'prefix for iSCSI target groups on SA'
-    comment: 'New param'
 
   - name: nexenta_shares_config
-    type: string
+    type: file
     default: '/etc/cinder/nfs_shares'
     help: 'File with the list of available nfs shares'
-    comment: 'New param'
 
   - name: nexenta_mount_point_base
-    type: string
+    type: directory
     default: '$state_path/mnt'
     help: 'Base dir containing mount points for nfs shares'
-    comment: 'New param'
 
   - name: nexenta_sparsed_volumes
     type: boolean
     default: true
     help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time.'
-    comment: 'New param'
 
   - name: nexenta_volume_compression
     type: string
     default: 'on'
     help: 'Default compression value for new ZFS folders.'
-    comment: 'New param'
 
   - name: nexenta_mount_options
     type: string
     default: ~
     help: 'Mount options passed to the nfs client. See section of the nfs man page for details'
-    comment: 'New param'
 
   - name: nexenta_used_ratio
     type: float
     default: 0.95
     help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.'
-    comment: 'New param'
 
   - name: nexenta_oversub_ratio
     type: float
-    default: true
+    default: 1.0
     help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.'
-    comment: 'New param'
 
   - name: nexenta_blocksize
     type: string
     default: ''
     help: 'block size for volumes'
-    comment: 'New param'
 
   - name: nexenta_sparse
     type: boolean
     default: false
     help: 'flag to create sparse volumes'
-    comment: 'New param'
 
   - name: nfs_shares_config
-    type: string
+    type: file
     default: '/etc/cinder/nfs_shares'
     help: 'File with the list of available nfs shares'
-    comment: 'New param'
 
   - name: nfs_sparsed_volumes
     type: boolean
@@ -1770,157 +1485,131 @@
     type: float
     default: 0.95
     help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination.'
-    comment: 'New param'
 
   - name: nfs_oversub_ratio
     type: float
-    default: true
+    default: 1.0
     help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid.'
-    comment: 'New param'
 
   - name: rbd_pool
     type: string
     default: 'rbd'
     help: 'the RADOS pool in which rbd volumes are stored'
-    comment: 'New param'
 
   - name: rbd_user
     type: string
     default: ~
     help: 'the RADOS client name for accessing rbd volumes - only set when using cephx authentication'
-    comment: 'New param'
 
   - name: rbd_ceph_conf
-    type: string
+    type: file
     default: ''
     help: 'path to the ceph configuration file to use'
-    comment: 'New param'
 
   - name: rbd_flatten_volume_from_snapshot
     type: boolean
     default: false
     help: 'flatten volumes created from snapshots to remove dependency'
-    comment: 'New param'
 
   - name: rbd_secret_uuid
     type: string
     default: ~
     help: 'the libvirt uuid of the secret for the rbd_uservolumes'
-    comment: 'New param'
 
   - name: volume_tmp_dir
-    type: string
+    type: directory
     default: ~
     help: 'where to store temporary image files if the volume driver does not write them directly to the volume'
-    comment: 'New param'
 
   - name: rbd_max_clone_depth
     type: integer
     default: 5
     help: 'maximum number of nested clones that can be taken of a volume before enforcing a flatten prior to next clone. A value of zero disables cloning'
-    comment: 'New param'
 
   - name: hp3par_api_url
     type: string
     default: ''
     help: '3PAR WSAPI Server Url like https://<3par ip>:8080/api/v1'
-    comment: 'New param'
 
   - name: hp3par_username
     type: string
     default: ''
     help: '3PAR Super user username'
-    comment: 'New param'
 
   - name: hp3par_password
     type: string
     default: ''
     help: '3PAR Super user password'
-    comment: 'New param'
 
   - name: hp3par_domain
     type: string
     default: ~
     help: 'This option is DEPRECATED and no longer used. The 3par domain name to use.'
-    comment: 'New param'
 
   - name: hp3par_cpg
     type: string
     default: 'OpenStack'
     help: 'The CPG to use for volume creation'
-    comment: 'New param'
 
   - name: hp3par_cpg_snap
     type: string
     default: ''
     help: 'The CPG to use for Snapshots for volumes. If empty hp3par_cpg will be used'
-    comment: 'New param'
 
   - name: hp3par_snapshot_retention
     type: string
     default: ''
     help: "The time in hours to retain a snapshot.  You can't delete it before this expires."
-    comment: 'New param'
 
   - name: hp3par_snapshot_expiration
     type: string
     default: ''
     help: 'The time in hours when a snapshot expires  and is deleted. This must be larger than expiration'
-    comment: 'New param'
 
   - name: hp3par_debug
     type: boolean
     default: false
     help: 'Enable HTTP debugging to 3PAR'
-    comment: 'New param'
 
   - name: hp3par_iscsi_ips
     type: list
-    default: ''
+    default: []
     help: 'List of target iSCSI addresses to use.'
-    comment: 'New param'
 
   - name: san_thin_provision
     type: boolean
     default: true
     help: 'Use thin provisioning for SAN volumes?'
-    comment: 'New param'
 
   - name: san_ip
-    type: string
+    type: host
     default: ''
     help: 'IP address of SAN controller'
-    comment: 'New param'
 
   - name: san_login
     type: string
     default: 'admin'
     help: 'Username for SAN controller'
-    comment: 'New param'
 
   - name: san_password
     type: string
     default: ''
     help: 'Password for SAN controller'
-    comment: 'New param'
 
   - name: san_private_key
-    type: string
+    type: file
     default: ''
     help: 'Filename of private key to use for SSH authentication'
-    comment: 'New param'
 
   - name: san_clustername
     type: string
     default: ''
     help: 'Cluster name to use for creating volumes'
-    comment: 'New param'
 
   - name: san_ssh_port
-    type: integer
+    type: port
     default: 22
     help: 'SSH port to use with SAN'
-    comment: 'New param'
 
   - name: san_is_local
     type: boolean
@@ -1932,25 +1621,21 @@
     type: integer
     default: 30
     help: 'SSH connection timeout in seconds'
-    comment: 'New param'
 
   - name: ssh_min_pool_conn
     type: integer
-    default: true
+    default: 1
     help: 'Minimum ssh connections in the pool'
-    comment: 'New param'
 
   - name: ssh_max_pool_conn
     type: integer
     default: 5
     help: 'Maximum ssh connections in the pool'
-    comment: 'New param'
 
   - name: san_zfs_volume_base
     type: string
     default: 'rpool/'
     help: 'The ZFS path under which to create zvols for volumes.'
-    comment: 'New param'
 
   - name: scality_sofs_config
     type: string
@@ -1959,100 +1644,84 @@
     comment: 'New param'
 
   - name: scality_sofs_mount_point
-    type: string
+    type: directory
     default: '$state_path/scality'
     help: 'Base dir where Scality SOFS shall be mounted'
-    comment: 'New param'
 
   - name: scality_sofs_volume_dir
-    type: string
+    type: directory
     default: 'cinder/volumes'
     help: 'Path from Scality SOFS root to volume dir'
-    comment: 'New param'
 
   - name: sf_emulate_512
     type: boolean
     default: true
     help: 'Set 512 byte emulation on volume creation; '
-    comment: 'New param'
 
   - name: sf_allow_tenant_qos
     type: boolean
     default: false
     help: 'Allow tenants to specify QOS on create'
-    comment: 'New param'
 
   - name: sf_account_prefix
     type: string
     default: 'cinder'
     help: 'Create SolidFire accounts with this prefix'
-    comment: 'New param'
 
   - name: sf_api_port
-    type: integer
+    type: port
     default: 443
     help: 'SolidFire API port. Useful if the device api is behind a proxy on a different port.'
-    comment: 'New param'
 
   - name: storwize_svc_volpool_name
     type: string
     default: 'volpool'
     help: 'Storage system storage pool for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_rsize
     type: integer
     default: 2
     help: 'Storage system space-efficiency parameter for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_warning
     type: integer
-    default: false
+    default: 0
     help: 'Storage system threshold for volume capacity warnings'
-    comment: 'New param'
 
   - name: storwize_svc_vol_autoexpand
     type: boolean
     default: true
     help: 'Storage system autoexpand parameter for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_grainsize
     type: integer
     default: 256
     help: 'Storage system grain size parameter for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_compression
     type: boolean
     default: false
     help: 'Storage system compression option for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_easytier
     type: boolean
     default: true
     help: 'Enable Easy Tier for volumes'
-    comment: 'New param'
 
   - name: storwize_svc_vol_iogrp
     type: integer
-    default: false
+    default: 0
     help: 'The I/O group in which to allocate volumes'
-    comment: 'New param'
 
   - name: storwize_svc_flashcopy_timeout
     type: integer
     default: 120
     help: 'Maximum number of seconds to wait for FlashCopy to be prepared. Maximum value is 600 seconds'
-    comment: 'New param'
 
   - name: storwize_svc_connection_protocol
     type: string
     default: 'iSCSI'
     help: 'Connection protocol'
-    comment: 'New param'
 
   - name: storwize_svc_multipath_enabled
     type: boolean
@@ -2064,2544 +1733,169 @@
     type: boolean
     default: true
     help: 'Allows vdisk to multi host mapping'
-    comment: 'New param'
 
   - name: vmware_host_ip
-    type: string
+    type: host
     default: ~
     help: 'IP address for connecting to VMware ESX/VC server.'
-    comment: 'New param'
 
   - name: vmware_host_username
     type: string
     default: ~
     help: 'Username for authenticating with VMware ESX/VC server.'
-    comment: 'New param'
 
   - name: vmware_host_password
     type: string
     default: ~
     help: 'Password for authenticating with VMware ESX/VC server.'
-    comment: 'New param'
 
   - name: vmware_wsdl_location
     type: string
     default: ~
     help: 'Optional VIM service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds.'
-    comment: 'New param'
 
   - name: vmware_api_retry_count
     type: integer
     default: 10
     help: 'Number of times VMware ESX/VC server API must be retried upon connection related issues.'
-    comment: 'New param'
 
   - name: vmware_task_poll_interval
     type: integer
     default: 5
     help: 'The interval used for polling remote tasks invoked on VMware ESX/VC server.'
-    comment: 'New param'
 
   - name: vmware_volume_folder
     type: string
     default: 'cinder-volumes'
     help: 'Name for the folder in the VC datacenter that will contain cinder volumes.'
-    comment: 'New param'
 
   - name: vmware_image_transfer_timeout_secs
     type: integer
     default: 7200
     help: 'Timeout in seconds for VMDK volume transfer between Cinder and Glance.'
-    comment: 'New param'
 
   - name: windows_iscsi_lun_path
     type: string
     default: 'C:\\iSCSIVirtualDisks'
     help: 'Path to store VHD backed volumes'
-    comment: 'New param'
 
   - name: xenapi_nfs_server
     type: string
     default: ~
     help: 'NFS server to be used by XenAPINFSDriver'
-    comment: 'New param'
 
   - name: xenapi_nfs_serverpath
     type: string
     default: ~
     help: 'Path of exported NFS, used by XenAPINFSDriver'
-    comment: 'New param'
 
   - name: xenapi_connection_url
     type: string
     default: ~
     help: 'URL for XenAPI connection'
-    comment: 'New param'
 
   - name: xenapi_connection_username
     type: string
     default: 'root'
     help: 'Username for XenAPI connection'
-    comment: 'New param'
 
   - name: xenapi_connection_password
     type: string
     default: ~
     help: 'Password for XenAPI connection'
-    comment: 'New param'
 
   - name: xenapi_sr_base_path
-    type: string
+    type: directory
     default: '/var/run/sr-mount'
     help: 'Base path to the storage repository'
-    comment: 'New param'
 
   - name: xiv_ds8k_proxy
     type: string
     default: 'xiv_ds8k_openstack.nova_proxy.XIVDS8KNovaProxy'
     help: 'Proxy driver that connects to the IBM Storage Array'
-    comment: 'New param'
 
   - name: xiv_ds8k_connection_type
     type: string
     default: 'iscsi'
     help: 'Connection type to the IBM Storage Array'
-    comment: 'New param'
 
   - name: zadara_vpsa_ip
-    type: string
+    type: host
     default: ~
     help: 'Management IP of Zadara VPSA'
-    comment: 'New param'
 
   - name: zadara_vpsa_port
-    type: string
+    type: port
     default: ~
     help: 'Zadara VPSA port number'
-    comment: 'New param'
 
   - name: zadara_vpsa_use_ssl
     type: boolean
     default: false
     help: 'Use SSL connection'
-    comment: 'New param'
 
   - name: zadara_user
     type: string
     default: ~
     help: 'User name for the VPSA'
-    comment: 'New param'
 
   - name: zadara_password
     type: string
     default: ~
     help: 'Password for the VPSA'
-    comment: 'New param'
 
   - name: zadara_vpsa_poolname
     type: string
     default: ~
     help: 'Name of VPSA storage pool for volumes'
-    comment: 'New param'
 
   - name: zadara_vol_thin
     type: boolean
     default: true
     help: 'Default thin provisioning policy for volumes'
-    comment: 'New param'
 
   - name: zadara_vol_encrypt
     type: boolean
     default: false
     help: 'Default encryption policy for volumes'
-    comment: 'New param'
 
   - name: zadara_default_striping_mode
     type: string
     default: 'simple'
     help: 'Default striping mode for volumes'
-    comment: 'New param'
 
   - name: zadara_default_stripesize
     type: integer
     default: 64
     help: 'Default stripe size for volumes'
-    comment: 'New param'
 
   - name: zadara_vol_name_template
     type: string
     default: 'OS_%s'
     help: 'Default template for VPSA volume names'
-    comment: 'New param'
 
   - name: zadara_vpsa_auto_detach_on_delete
     type: boolean
     default: true
     help: 'Automatically detach from servers on volume delete'
-    comment: 'New param'
 
   - name: zadara_vpsa_allow_nonexistent_delete
     type: boolean
     default: true
     help: "Don't halt on deletion of non-existing volumes"
-    comment: 'New param'
 
   - name: volume_driver
     type: string
-    default: 'cinder_2013_1_3.volume.drivers.lvm.LVMISCSIDriver'
+    default: 'cinder.volume.drivers.lvm.LVMISCSIDriver'
     help: 'Driver to use for volume creation'
-    comment: 'New param'
 
   - name: migration_create_volume_timeout_secs
     type: integer
     default: 300
     help: 'Timeout for creating the volume to migrate to when performing volume migration'
-    comment: 'New param'
 
   - name: volume_dd_blocksize
     type: string
     default: '1M'
     help: 'The default block size used when copying/clearing volumes'
-    comment: 'New param'
 
-# ====================================================
-
-- version: '2013.2.0'
-  checkpoint: true
-  added:
-
-  - name: fatal_exception_format_errors
-    type: boolean
-    default: false
-    help: 'make exception message format errors fatal '
-    comment: 'Help string has changed'
-
-  - name: policy_file
-    type: string
-    default: 'policy.json'
-    help: 'JSON file representing policy '
-    comment: 'Help string has changed'
-
-  - name: policy_default_rule
-    type: string
-    default: 'default'
-    help: 'Rule checked when requested rule is not found '
-    comment: 'Help string has changed'
-
-  - name: quota_volumes
-    type: integer
-    default: 10
-    help: 'number of volumes allowed per project '
-    comment: 'Help string has changed'
-
-  - name: quota_snapshots
-    type: integer
-    default: 10
-    help: 'number of volume snapshots allowed per project '
-    comment: 'Help string has changed'
-
-  - name: quota_gigabytes
-    type: integer
-    default: 1000
-    help: 'number of volume gigabytes (snapshots are also included) allowed per project '
-    comment: 'Help string has changed'
-
-  - name: reservation_expire
-    type: integer
-    default: 86400
-    help: 'number of seconds until a reservation expires '
-    comment: 'Help string has changed'
-
-  - name: until_refresh
-    type: integer
-    default: false
-    help: 'count of reservations until usage is refreshed '
-    comment: 'Help string has changed'
-
-  - name: max_age
-    type: integer
-    default: false
-    help: 'number of seconds between subsequent usage refreshes '
-    comment: 'Help string has changed'
-
-  - name: quota_driver
-    type: string
-    default: 'cinder.quota.DbQuotaDriver'
-    help: 'default driver to use for quota checks '
-    comment: 'Default value has changed'
-
-  - name: use_default_quota_class
-    type: boolean
-    default: true
-    help: 'whether to use default quota class for default quota '
-    comment: 'Help string has changed'
-
-  - name: report_interval
-    type: integer
-    default: 10
-    help: 'seconds between nodes reporting state to datastore '
-    comment: 'Help string has changed'
-
-  - name: periodic_interval
-    type: integer
-    default: 60
-    help: 'seconds between running periodic tasks '
-    comment: 'Help string has changed'
-
-  - name: periodic_fuzzy_delay
-    type: integer
-    default: 60
-    help: 'range of seconds to randomly delay when starting the periodic task scheduler to reduce stampeding. (Disable by setting to 0) '
-    comment: 'Help string has changed'
-
-  - name: osapi_volume_listen
-    type: host
-    default: '0.0.0.0'
-    help: 'IP address for OpenStack Volume API to listen '
-    comment: 'Type has changed'
-
-  - name: osapi_volume_listen_port
-    type: port
-    default: 8776
-    help: 'port for os volume api to listen '
-    comment: 'Type has changed'
-
-  - name: sqlite_clean_db
-    type: string
-    default: 'clean.sqlite'
-    help: 'File name of clean sqlite db '
-    comment: 'Help string has changed'
-
-  - name: fake_tests
-    type: boolean
-    default: true
-    help: 'should we use everything for testing '
-    comment: 'Help string has changed'
-
-  - name: backlog
-    type: integer
-    default: 4096
-    help: 'Number of backlog requests to configure the socket with '
-    comment: 'Help string has changed'
-
-  - name: tcp_keepidle
-    type: integer
-    default: 600
-    help: 'Sets the value of TCP_KEEPIDLE in seconds for each server socket. Not supported on OS X. '
-    comment: 'Help string has changed'
-
-  - name: ssl_ca_file
-    type: string
-    default: ~
-    help: 'CA certificate file to use to verify connecting clients '
-    comment: 'Help string has changed'
-
-  - name: ssl_cert_file
-    type: string
-    default: ~
-    help: 'Certificate file to use when starting the server securely '
-    comment: 'Help string has changed'
-
-  - name: ssl_key_file
-    type: string
-    default: ~
-    help: 'Private key file to use when starting the server securely '
-    comment: 'Help string has changed'
-
-  - name: osapi_max_limit
-    type: integer
-    default: 1000
-    help: 'the maximum number of items returned in a single response from a collection resource '
-    comment: 'Help string has changed'
-
-  - name: osapi_volume_base_URL
-    type: string
-    default: ~
-    help: 'Base URL that will be presented to users in links to the OpenStack Volume API '
-    comment: 'Help string has changed'
-
-  - name: use_forwarded_for
-    type: boolean
-    default: false
-    help: 'Treat X-Forwarded-For as the canonical remote address. Only enable this if you have a sanitizing proxy. '
-    comment: 'Help string has changed'
-
-  - name: osapi_max_request_body_size
-    type: integer
-    default: 114688
-    help: 'Max size for body of a request '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_conf
-    type: string
-    default: '/etc/ceph/ceph.conf'
-    help: 'Ceph config file to use. '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_user
-    type: string
-    default: 'cinder'
-    help: 'the Ceph user to connect with '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_chunk_size
-    type: integer
-    default: 134217728
-    help: 'the chunk size in bytes that a backup will be broken into before transfer to backup store '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_pool
-    type: string
-    default: 'backups'
-    help: 'the Ceph pool to backup to '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_stripe_unit
-    type: integer
-    default: false
-    help: 'RBD stripe unit to use when creating a backup image '
-    comment: 'Help string has changed'
-
-  - name: backup_ceph_stripe_count
-    type: integer
-    default: false
-    help: 'RBD stripe count to use when creating a backup image '
-    comment: 'Help string has changed'
-
-  - name: restore_discard_excess_bytes
-    type: boolean
-    default: true
-    help: 'If True, always discard excess bytes when restoring volumes. '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_url
-    type: string
-    default: 'http://localhost:8080/v1/AUTH_'
-    help: 'The URL of the Swift endpoint '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_auth
-    type: string
-    default: 'per_user'
-    help: 'Swift authentication mechanism '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_user
-    type: string
-    default: ~
-    help: 'Swift user name '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_key
-    type: string
-    default: ~
-    help: 'Swift key for authentication '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_container
-    type: string
-    default: 'volumebackups'
-    help: 'The default Swift container to use '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_object_size
-    type: integer
-    default: 52428800
-    help: 'The size in bytes of Swift backup objects '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_retry_attempts
-    type: integer
-    default: 3
-    help: 'The number of retries to make for Swift operations '
-    comment: 'Help string has changed'
-
-  - name: backup_swift_retry_backoff
-    type: integer
-    default: 2
-    help: 'The backoff time in seconds between Swift retries '
-    comment: 'Help string has changed'
-
-  - name: backup_compression_algorithm
-    type: string
-    default: 'zlib'
-    help: 'Compression algorithm (None to disable) '
-    comment: 'Help string has changed'
-
-  - name: backup_tsm_volume_prefix
-    type: string
-    default: 'backup'
-    help: 'Volume prefix for the backup id when backing up to TSM '
-    comment: 'Help string has changed'
-
-  - name: backup_tsm_password
-    type: string
-    default: 'password'
-    help: 'TSM password for the running username '
-    comment: 'Help string has changed'
-
-  - name: backup_tsm_compression
-    type: boolean
-    default: true
-    help: 'Enable or Disable compression for backups '
-    comment: 'Help string has changed'
-
-  - name: backup_driver
-    type: string
-    default: 'cinder.backup.drivers.swift_proxy_server'
-    help: 'Driver to use for backups. '
-    comment: 'Default value has changed'
-
-  - name: num_volume_device_scan_tries
-    type: integer
-    default: 3
-    help: 'The maximum number of times to rescan targets to find volume '
-    comment: 'Help string has changed'
-
-  - name: iscsi_helper
-    type: string
-    default: 'tgtadm'
-    help: 'iscsi target user-land tool to use '
-    comment: 'Help string has changed'
-
-  - name: volumes_dir
-    type: string
-    default: '$state_path/volumes'
-    help: 'Volume configuration file storage directory '
-    comment: 'Help string has changed'
-
-  - name: iet_conf
-    type: string
-    default: '/etc/iet/ietd.conf'
-    help: 'IET configuration file '
-    comment: 'Help string has changed'
-
-  - name: lio_initiator_iqns
-    type: string
-    default: ''
-    help: 'Comma-separated list of initiator IQNs allowed to connect to the iSCSI target. (From Nova compute nodes.) '
-    comment: 'Help string has changed'
-
-  - name: iscsi_iotype
-    type: string
-    default: 'fileio'
-    help: 'Sets the behavior of the iSCSI target to either perform blockio or fileio optionally, auto can be set and Cinder will autodetect type of backing device '
-    comment: 'Help string has changed'
-
-  - name: iser_helper
-    type: string
-    default: 'tgtadm'
-    help: 'iser target user-land tool to use '
-    comment: 'Help string has changed'
-
-  - name: nfs_mount_point_base
-    type: string
-    default: '$state_path/mnt'
-    help: 'Base dir containing mount points for nfs shares. '
-    comment: 'Help string has changed'
-
-  - name: nfs_mount_options
-    type: string
-    default: ~
-    help: 'Mount options passed to the nfs client. See section of the nfs man page for details. '
-    comment: 'Help string has changed'
-
-  - name: glusterfs_mount_point_base
-    type: string
-    default: '$state_path/mnt'
-    help: 'Base dir containing mount points for gluster shares. '
-    comment: 'Help string has changed'
-
-  - name: connection_type
-    type: string
-    default: ~
-    help: 'Virtualization api connection type : libvirt, xenapi, or fake '
-    comment: 'Help string has changed'
-
-  - name: api_paste_config
-    type: string
-    default: 'api-paste.ini'
-    help: 'File name for the paste.deploy config for cinder-api '
-    comment: 'Help string has changed'
-
-  - name: pybasedir
-    type: string
-    default: '/usr/lib/python/site-packages'
-    help: 'Directory where the cinder python module is installed '
-    comment: 'Help string has changed'
-
-  - name: bindir
-    type: string
-    default: '$pybasedir/bin'
-    help: 'Directory where cinder binaries are installed '
-    comment: 'Help string has changed'
-
-  - name: state_path
-    type: string
-    default: '$pybasedir'
-    help: "Top-level directory for maintaining cinder's state "
-    comment: 'Help string has changed'
-
-  - name: my_ip
-    type: string
-    default: '10.0.0.1'
-    help: 'ip address of this host '
-    comment: 'Help string has changed'
-
-  - name: glance_host
-    type: string
-    default: '$my_ip'
-    help: 'default glance hostname or ip '
-    comment: 'Help string has changed'
-
-  - name: glance_port
-    type: port
-    default: 9292
-    help: 'default glance port '
-    comment: 'Type has changed'
-
-  - name: glance_api_servers
-    type: string_list
-    default: ['$glance_host:$glance_port']
-    help: 'A list of the glance api servers available to cinder ([hostname|ip]:port) '
-    comment: 'Type has changed'
-
-  - name: glance_api_version
-    type: integer
-    default: true
-    help: 'Version of the glance api to use '
-    comment: 'Help string has changed'
-
-  - name: glance_num_retries
-    type: integer
-    default: false
-    help: 'Number retries when downloading an image from glance '
-    comment: 'Help string has changed'
-
-  - name: glance_api_insecure
-    type: boolean
-    default: false
-    help: 'Allow to perform insecure SSL (https) requests to glance '
-    comment: 'Help string has changed'
-
-  - name: glance_api_ssl_compression
-    type: boolean
-    default: false
-    help: 'Whether to attempt to negotiate SSL layer compression when using SSL (https) requests. Set to False to disable SSL layer compression. In some cases disabling this may improve data throughput, eg when high network bandwidth is available and you are using already compressed image formats such as qcow2 . '
-    comment: 'Help string has changed'
-
-  - name: glance_request_timeout
-    type: integer
-    default: ~
-    help: 'http/https timeout value for glance operations. If no value (None) is supplied here, the glanceclient default value is used. '
-    comment: 'Help string has changed'
-
-  - name: scheduler_topic
-    type: string
-    default: 'cinder-scheduler'
-    help: 'the topic scheduler nodes listen on '
-    comment: 'Help string has changed'
-
-  - name: volume_topic
-    type: string
-    default: 'cinder-volume'
-    help: 'the topic volume nodes listen on '
-    comment: 'Help string has changed'
-
-  - name: backup_topic
-    type: string
-    default: 'cinder-backup'
-    help: 'the topic volume backup nodes listen on '
-    comment: 'Help string has changed'
-
-  - name: enable_v1_api
-    type: boolean
-    default: true
-    help: 'Deploy v1 of the Cinder API. '
-    comment: 'New param'
-
-  - name: enable_v2_api
-    type: boolean
-    default: true
-    help: 'Deploy v2 of the Cinder API. '
-    comment: 'New param'
-
-  - name: api_rate_limit
-    type: boolean
-    default: true
-    help: 'whether to rate limit the api '
-    comment: 'Help string has changed'
-
-  - name: osapi_volume_ext_list
-    type: string_list
-    default: []
-    help: 'Specify list of extensions to load when using osapi_volume_extension option with cinder.api.contrib.select_extensions '
-    comment: 'Type has changed'
-
-  - name: osapi_volume_extension
-    type: string
-    default: 'cinder.api.contrib.standard_extensions'
-    help: 'osapi volume extension to load (multi valued)'
-    comment: 'Type has changed'
-
-  - name: volume_manager
-    type: string
-    default: 'cinder.volume.manager.VolumeManager'
-    help: 'full class name for the Manager for volume '
-    comment: 'Default value has changed'
-
-  - name: backup_manager
-    type: string
-    default: 'cinder.backup.manager.BackupManager'
-    help: 'full class name for the Manager for volume backup '
-    comment: 'Default value has changed'
-
-  - name: scheduler_manager
-    type: string
-    default: 'cinder.scheduler.manager.SchedulerManager'
-    help: 'full class name for the Manager for scheduler '
-    comment: 'Default value has changed'
-
-  - name: host
-    type: string
-    default: '127.0.0.1'
-    help: 'Host to locate redis '
-    comment: 'Help string has changed'
-
-  - name: storage_availability_zone
-    type: string
-    default: 'nova'
-    help: 'availability zone of this node '
-    comment: 'Help string has changed'
-
-  - name: default_availability_zone
-    type: string
-    default: ~
-    help: 'default availability zone to use when creating a new volume. If this is not set then we use the value from the storage_availability_zone option as the default availability_zone for new volumes. '
-    comment: 'Help string has changed'
-
-  - name: memcached_servers
-    type: list
-    default: ~
-    help: 'Memcached servers or None for in process cache. '
-    comment: 'Help string has changed'
-
-  - name: default_volume_type
-    type: string
-    default: ~
-    help: 'default volume type to use '
-    comment: 'Help string has changed'
-
-  - name: volume_usage_audit_period
-    type: string
-    default: 'month'
-    help: 'time period to generate volume usages for.  Time period must be hour, day, month or year '
-    comment: 'Help string has changed'
-
-  - name: root_helper
-    type: string
-    default: 'sudo'
-    help: 'Deprecated: command to use for running commands as root '
-    comment: 'Help string has changed'
-
-  - name: rootwrap_config
-    type: string
-    default: '/etc/cinder/rootwrap.conf'
-    help: 'Path to the rootwrap configuration file to use for running commands as root '
-    comment: 'Help string has changed'
-
-  - name: monkey_patch
-    type: boolean
-    default: false
-    help: 'Enable monkey patching '
-    comment: 'Help string has changed'
-
-  - name: monkey_patch_modules
-    type: string_list
-    default: []
-    help: 'List of modules/decorators to monkey patch '
-    comment: 'Type has changed'
-
-  - name: service_down_time
-    type: integer
-    default: 60
-    help: 'maximum time since last check-in for up service '
-    comment: 'Help string has changed'
-
-  - name: volume_api_class
-    type: string
-    default: 'cinder.volume.api.API'
-    help: 'The full class name of the volume API class to use '
-    comment: 'Default value has changed'
-
-  - name: backup_api_class
-    type: string
-    default: 'cinder.backup.api.API'
-    help: 'The full class name of the volume backup API class '
-    comment: 'Default value has changed'
-
-  - name: auth_strategy
-    type: string
-    default: 'noauth'
-    help: 'The strategy to use for auth. Supports noauth, keystone, and deprecated. '
-    comment: 'Help string has changed'
-
-  - name: enabled_backends
-    type: list
-    default: ~
-    help: 'A list of backend names to use. These backend names should be backed by a unique [CONFIG] group with its options '
-    comment: 'Help string has changed'
-
-  - name: no_snapshot_gb_quota
-    type: boolean
-    default: false
-    help: 'Whether snapshots count against GigaByte quota '
-    comment: 'Help string has changed'
-
-  - name: transfer_api_class
-    type: string
-    default: 'cinder.transfer.api.API'
-    help: 'The full class name of the volume transfer API class '
-    comment: 'Default value has changed'
-
-  - name: compute_api_class
-    type: string
-    default: 'cinder.compute.nova.API'
-    help: 'The full class name of the compute API class to use '
-    comment: 'Default value has changed'
-
-  - name: nova_catalog_info
-    type: string
-    default: 'compute:nova:publicURL'
-    help: 'Info to match when looking for nova in the service catalog. Format is : separated values of the form: <service_type>:<service_name>:<endpoint_type> '
-    comment: 'Help string has changed'
-
-  - name: nova_catalog_admin_info
-    type: string
-    default: 'compute:nova:adminURL'
-    help: 'Same as nova_catalog_info, but for admin endpoint. '
-    comment: 'Help string has changed'
-
-  - name: nova_endpoint_template
-    type: string
-    default: ~
-    help: 'Override service catalog lookup with template for nova endpoint e.g. http://localhost:8774/v2/%(tenant_id)s '
-    comment: 'Help string has changed'
-
-  - name: nova_endpoint_admin_template
-    type: string
-    default: ~
-    help: 'Same as nova_endpoint_template, but for admin endpoint. '
-    comment: 'Help string has changed'
-
-  - name: os_region_name
-    type: string
-    default: ~
-    help: 'region name of this node '
-    comment: 'Help string has changed'
-
-  - name: nova_ca_certificates_file
-    type: string
-    default: ~
-    help: 'Location of ca certicates file to use for nova client requests. '
-    comment: 'Help string has changed'
-
-  - name: nova_api_insecure
-    type: boolean
-    default: false
-    help: 'Allow to perform insecure SSL requests to nova '
-    comment: 'Help string has changed'
-
-  - name: db_backend
-    type: string
-    default: 'sqlalchemy'
-    help: 'The backend to use for db '
-    comment: 'Help string has changed'
-
-  - name: enable_new_services
-    type: boolean
-    default: true
-    help: 'Services to be added to the available pool on create '
-    comment: 'Help string has changed'
-
-  - name: volume_name_template
-    type: string
-    default: 'volume-%s'
-    help: 'Template string to be used to generate volume names '
-    comment: 'Help string has changed'
-
-  - name: snapshot_name_template
-    type: string
-    default: 'snapshot-%s'
-    help: 'Template string to be used to generate snapshot names '
-    comment: 'Help string has changed'
-
-  - name: backup_name_template
-    type: string
-    default: 'backup-%s'
-    help: 'Template string to be used to generate backup names '
-    comment: 'Help string has changed'
-
-  - name: db_driver
-    type: string
-    default: 'cinder.db'
-    help: 'driver to use for database access '
-    comment: 'Default value has changed'
-
-  - name: allowed_direct_url_schemes
-    type: string_list
-    default: []
-    help: 'A list of url schemes that can be downloaded directly via the direct_url.  Currently supported schemes: [file]. '
-    comment: 'Type has changed'
-
-  - name: image_conversion_dir
-    type: string
-    default: '$state_path/conversion'
-    help: 'Directory used for temporary storage during image conversion '
-    comment: 'Help string has changed'
-
-  - name: backend
-    type: string
-    default: 'sqlalchemy'
-    help: 'The backend to use for db '
-    comment: 'Help string has changed'
-
-  - name: use_tpool
-    type: boolean
-    default: false
-    help: 'Enable the experimental use of thread pooling for all DB API calls '
-    comment: 'Help string has changed'
-
-  - name: connection
-    type: string
-    default: 'sqlite:////cinder/openstack/common/db/$sqlite_db'
-    help: 'The SQLAlchemy connection string used to connect to the database '
-    comment: 'Help string has changed'
-
-  - name: idle_timeout
-    type: integer
-    default: 3600
-    help: 'timeout before idle sql connections are reaped '
-    comment: 'Help string has changed'
-
-  - name: min_pool_size
-    type: integer
-    default: true
-    help: 'Minimum number of SQL connections to keep open in a pool '
-    comment: 'Help string has changed'
-
-  - name: max_pool_size
-    type: integer
-    default: 5
-    help: 'Maximum number of SQL connections to keep open in a pool '
-    comment: 'Help string has changed'
-
-  - name: max_retries
-    type: integer
-    default: 10
-    help: 'maximum db connection retries during startup. (setting -1 implies an infinite retry count) '
-    comment: 'Help string has changed'
-
-  - name: retry_interval
-    type: integer
-    default: 10
-    help: 'interval between retries of opening a sql connection '
-    comment: 'Help string has changed'
-
-  - name: max_overflow
-    type: integer
-    default: ~
-    help: 'If set, use this value for max_overflow with sqlalchemy '
-    comment: 'Help string has changed'
-
-  - name: connection_debug
-    type: integer
-    default: false
-    help: 'Verbosity of SQL debugging information. 0=None, 100=Everything '
-    comment: 'Help string has changed'
-
-  - name: connection_trace
-    type: boolean
-    default: false
-    help: 'Add python stack traces to SQL as comment strings '
-    comment: 'Help string has changed'
-
-  - name: sqlite_db
-    type: string
-    default: 'cinder.sqlite'
-    help: 'the filename to use with sqlite '
-    comment: 'Default value has changed'
-
-  - name: sqlite_synchronous
-    type: boolean
-    default: true
-    help: 'If true, use synchronous mode for sqlite '
-    comment: 'Help string has changed'
-
-  - name: backdoor_port
-    type: integer
-    default: ~
-    help: 'port for eventlet backdoor to listen '
-    comment: 'Help string has changed'
-
-  - name: disable_process_locking
-    type: boolean
-    default: false
-    help: 'Whether to disable inter-process locks '
-    comment: 'Help string has changed'
-
-  - name: lock_path
-    type: string
-    default: ~
-    help: 'Directory to use for lock files. Default to a temp directory '
-    comment: 'Help string has changed'
-
-  - name: debug
-    type: boolean
-    default: false
-    help: 'Print debugging output (set logging level to DEBUG instead of default WARNING level). '
-    comment: 'Help string has changed'
-
-  - name: verbose
-    type: boolean
-    default: false
-    help: 'Print more verbose output (set logging level to INFO instead of default WARNING level). '
-    comment: 'Help string has changed'
-
-  - name: use_stderr
-    type: boolean
-    default: true
-    help: 'Log output to standard error '
-    comment: 'Help string has changed'
-
-  - name: logging_context_format_string
-    type: string
-    default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(request_id)s %(user)s %(tenant)s] %(instance)s%(message)s'
-    help: 'format string to use for log messages with context '
-    comment: 'Help string has changed'
-
-  - name: logging_default_format_string
-    type: string
-    default: '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [-] %(instance)s%(message)s'
-    help: 'format string to use for log messages without context '
-    comment: 'Help string has changed'
-
-  - name: logging_debug_format_suffix
-    type: string
-    default: '%(funcName)s %(pathname)s:%(lineno)d'
-    help: 'data to append to log format when level is DEBUG '
-    comment: 'Help string has changed'
-
-  - name: logging_exception_prefix
-    type: string
-    default: '%(asctime)s.%(msecs)03d %(process)d TRACE %(name)s %(instance)s'
-    help: 'prefix each line of exception output with this format '
-    comment: 'Help string has changed'
-
-  - name: default_log_levels
-    type: string_list
-    default: ['amqplib=WARN', 'sqlalchemy=WARN', 'boto=WARN', 'suds=INFO', 'keystone=INFO', 'eventlet.wsgi.server=WARN']
-    help: 'list of logger=LEVEL pairs '
-    comment: 'Type has changed'
-
-  - name: publish_errors
-    type: boolean
-    default: false
-    help: 'publish error events '
-    comment: 'Help string has changed'
-
-  - name: fatal_deprecations
-    type: boolean
-    default: false
-    help: 'make deprecations fatal '
-    comment: 'Help string has changed'
-
-  - name: instance_format
-    type: string
-    default: '"[instance: %(uuid)s] "'
-    help: 'If an instance is passed with the log message, format it like this '
-    comment: 'Help string has changed'
-
-  - name: instance_uuid_format
-    type: string
-    default: '"[instance: %(uuid)s] "'
-    help: 'If an instance UUID is passed with the log message, format it like this '
-    comment: 'Help string has changed'
-
-  - name: log_config
-    type: string
-    default: ~
-    help: 'If this option is specified, the logging configuration file specified is used and overrides any other logging options specified. Please see the Python logging module documentation for details on logging configuration files. '
-    comment: 'Help string has changed'
-
-  - name: log_format
-    type: string
-    default: ~
-    help: 'A logging.Formatter log message format string which may use any of the available logging.LogRecord attributes. This option is deprecated.  Please use logging_context_format_string and logging_default_format_string instead. '
-    comment: 'Help string has changed'
-
-  - name: log_date_format
-    type: string
-    default: '%Y-%m-%d %H:%M:%S'
-    help: 'Format string for %%(asctime)s in log records. Default: %(default)s '
-    comment: 'Help string has changed'
-
-  - name: log_file
-    type: string
-    default: ~
-    help: '(Optional) Name of log file to output to. If no default is set, logging will go to stdout. '
-    comment: 'Help string has changed'
-
-  - name: log_dir
-    type: string
-    default: ~
-    help: '(Optional) The base directory used for relative --log-file paths '
-    comment: 'Help string has changed'
-
-  - name: use_syslog
-    type: boolean
-    default: false
-    help: 'Use syslog for logging. '
-    comment: 'Help string has changed'
-
-  - name: syslog_log_facility
-    type: string
-    default: 'LOG_USER'
-    help: 'syslog facility to receive log lines '
-    comment: 'Help string has changed'
-
-  - name: default_notification_level
-    type: string
-    default: 'INFO'
-    help: 'Default notification level for outgoing notifications '
-    comment: 'Help string has changed'
-
-  - name: default_publisher_id
-    type: string
-    default: ~
-    help: 'Default publisher_id for outgoing notifications '
-    comment: 'Help string has changed'
-
-  - name: notification_topics
-    type: string_list
-    default: ['notifications']
-    help: 'AMQP topic used for OpenStack notifications '
-    comment: 'Type has changed'
-
-  - name: topics
-    type: string_list
-    default: ['notifications']
-    help: 'AMQP topic(s) used for OpenStack notifications '
-    comment: 'Type has changed'
-
-  - name: run_external_periodic_tasks
-    type: boolean
-    default: true
-    help: 'Some periodic tasks can be run in a separate process. Should we run them here? '
-    comment: 'Help string has changed'
-
-  - name: rpc_backend
-    type: string
-    default: 'cinder.openstack.common.rpc.impl_kombu'
-    help: 'The messaging module to use, defaults to kombu. '
-    comment: 'Default value has changed'
-
-  - name: rpc_thread_pool_size
-    type: integer
-    default: 64
-    help: 'Size of RPC thread pool '
-    comment: 'Help string has changed'
-
-  - name: rpc_conn_pool_size
-    type: integer
-    default: 30
-    help: 'Size of RPC connection pool '
-    comment: 'Help string has changed'
-
-  - name: rpc_response_timeout
-    type: integer
-    default: 60
-    help: 'Seconds to wait for a response from call or multicall '
-    comment: 'Help string has changed'
-
-  - name: rpc_cast_timeout
-    type: integer
-    default: 30
-    help: 'Seconds to wait before a cast expires (TTL). Only supported by impl_zmq. '
-    comment: 'Help string has changed'
-
-  - name: allowed_rpc_exception_modules
-    type: string_list
-    default: ['nova.exception', 'cinder.exception', 'exceptions']
-    help: 'Modules of exceptions that are permitted to be recreatedupon receiving exception data from an rpc call. '
-    comment: 'Type has changed'
-
-  - name: fake_rabbit
-    type: boolean
-    default: false
-    help: 'If passed, use a fake RabbitMQ provider '
-    comment: 'Help string has changed'
-
-  - name: control_exchange
-    type: string
-    default: 'openstack'
-    help: 'AMQP exchange to connect to if using RabbitMQ or Qpid '
-    comment: 'Help string has changed'
-
-  - name: amqp_rpc_single_reply_queue
-    type: boolean
-    default: false
-    help: 'Enable a fast single reply queue if using AMQP based RPC like RabbitMQ or Qpid. '
-    comment: 'Help string has changed'
-
-  - name: amqp_durable_queues
-    type: boolean
-    default: false
-    help: 'Use durable queues in amqp. '
-    comment: 'Help string has changed'
-
-  - name: amqp_auto_delete
-    type: boolean
-    default: false
-    help: 'Auto-delete queues in amqp. '
-    comment: 'Help string has changed'
-
-  - name: kombu_ssl_version
-    type: string
-    default: ''
-    help: 'SSL version to use (valid only if SSL enabled) '
-    comment: 'Help string has changed'
-
-  - name: kombu_ssl_keyfile
-    type: string
-    default: ''
-    help: 'SSL key file (valid only if SSL enabled) '
-    comment: 'Help string has changed'
-
-  - name: kombu_ssl_certfile
-    type: string
-    default: ''
-    help: 'SSL cert file (valid only if SSL enabled) '
-    comment: 'Help string has changed'
-
-  - name: kombu_ssl_ca_certs
-    type: string
-    default: ''
-    help: 'SSL certification authority file (valid only if SSL enabled) '
-    comment: 'Help string has changed'
-
-  - name: rabbit_host
-    type: host
-    default: 'localhost'
-    help: 'The RabbitMQ broker address where a single node is used '
-    comment: 'Type has changed'
-
-  - name: rabbit_port
-    type: port
-    default: 5672
-    help: 'The RabbitMQ broker port where a single node is used '
-    comment: 'Type has changed'
-
-  - name: rabbit_hosts
-    type: string_list
-    default: ['$rabbit_host:$rabbit_port']
-    help: 'RabbitMQ HA cluster host:port pairs '
-    comment: 'Type has changed'
-
-  - name: rabbit_use_ssl
-    type: boolean
-    default: false
-    help: 'connect over SSL for RabbitMQ '
-    comment: 'Help string has changed'
-
-  - name: rabbit_userid
-    type: string
-    default: 'guest'
-    help: 'the RabbitMQ userid '
-    comment: 'Help string has changed'
-
-  - name: rabbit_password
-    type: string
-    default: 'guest'
-    help: 'the RabbitMQ password '
-    comment: 'Help string has changed'
-
-  - name: rabbit_virtual_host
-    type: string
-    default: '/'
-    help: 'the RabbitMQ virtual host '
-    comment: 'Help string has changed'
-
-  - name: rabbit_retry_interval
-    type: integer
-    default: true
-    help: 'how frequently to retry connecting with RabbitMQ '
-    comment: 'Help string has changed'
-
-  - name: rabbit_retry_backoff
-    type: integer
-    default: 2
-    help: 'how long to backoff for between retries when connecting to RabbitMQ '
-    comment: 'Help string has changed'
-
-  - name: rabbit_max_retries
-    type: integer
-    default: false
-    help: 'maximum retries with trying to connect to RabbitMQ (the default of 0 implies an infinite retry count) '
-    comment: 'Help string has changed'
-
-  - name: rabbit_ha_queues
-    type: boolean
-    default: false
-    help: 'use H/A queues in RabbitMQ (x-ha-policy: all).You need to wipe RabbitMQ database when changing this option. '
-    comment: 'Help string has changed'
-
-  - name: qpid_hostname
-    type: string
-    default: 'localhost'
-    help: 'Qpid broker hostname '
-    comment: 'Help string has changed'
-
-  - name: qpid_port
-    type: port
-    default: 5672
-    help: 'Qpid broker port '
-    comment: 'Type has changed'
-
-  - name: qpid_hosts
-    type: string_list
-    default: ['$qpid_hostname:$qpid_port']
-    help: 'Qpid HA cluster host:port pairs '
-    comment: 'Type has changed'
-
-  - name: qpid_username
-    type: string
-    default: ''
-    help: 'Username for qpid connection '
-    comment: 'Help string has changed'
-
-  - name: qpid_password
-    type: string
-    default: ''
-    help: 'Password for qpid connection '
-    comment: 'Help string has changed'
-
-  - name: qpid_sasl_mechanisms
-    type: string
-    default: ''
-    help: 'Space separated list of SASL mechanisms to use for auth '
-    comment: 'Help string has changed'
-
-  - name: qpid_heartbeat
-    type: integer
-    default: 60
-    help: 'Seconds between connection keepalive heartbeats '
-    comment: 'Help string has changed'
-
-  - name: qpid_protocol
-    type: string
-    default: 'tcp'
-    help: "Transport to use, either 'tcp' or 'ssl' "
-    comment: 'Help string has changed'
-
-  - name: qpid_tcp_nodelay
-    type: boolean
-    default: true
-    help: 'Disable Nagle algorithm '
-    comment: 'Help string has changed'
-
-  - name: qpid_topology_version
-    type: integer
-    default: true
-    help: 'The qpid topology version to use.  Version 1 is what was originally used by impl_qpid.  Version 2 includes some backwards-incompatible changes that allow broker federation to work.  Users should update to version 2 when they are able to take everything down, as it requires a clean break. '
-    comment: 'Help string has changed'
-
-  - name: rpc_zmq_bind_address
-    type: string
-    default: '*'
-    help: "ZeroMQ bind address. Should be a wildcard (*), an ethernet interface, or IP. The 'host' option should point or resolve to this address. "
-    comment: 'Help string has changed'
-
-  - name: rpc_zmq_matchmaker
-    type: string
-    default: 'cinder.openstack.common.rpc.matchmaker.MatchMakerLocalhost'
-    help: 'MatchMaker driver '
-    comment: 'Default value has changed'
-
-  - name: rpc_zmq_port
-    type: port
-    default: 9501
-    help: 'ZeroMQ receiver listening port '
-    comment: 'Type has changed'
-
-  - name: rpc_zmq_contexts
-    type: integer
-    default: true
-    help: 'Number of ZeroMQ contexts, defaults to 1 '
-    comment: 'Help string has changed'
-
-  - name: rpc_zmq_topic_backlog
-    type: integer
-    default: ~
-    help: 'Maximum number of ingress messages to locally buffer per topic. Default is unlimited. '
-    comment: 'Help string has changed'
-
-  - name: rpc_zmq_ipc_dir
-    type: string
-    default: '/var/run/openstack'
-    help: 'Directory for holding IPC sockets '
-    comment: 'Help string has changed'
-
-  - name: rpc_zmq_host
-    type: string
-    default: 'cinder'
-    help: "Name of this node. Must be a valid hostname, FQDN, or IP address. Must match 'host' option, if running Nova. "
-    comment: 'Help string has changed'
-
-  - name: matchmaker_ringfile
-    type: string
-    default: '/etc/nova/matchmaker_ring.json'
-    help: 'Matchmaker ring file (JSON) '
-    comment: 'Help string has changed'
-
-  - name: matchmaker_heartbeat_freq
-    type: integer
-    default: 300
-    help: 'Heartbeat frequency '
-    comment: 'Help string has changed'
-
-  - name: matchmaker_heartbeat_ttl
-    type: integer
-    default: 600
-    help: 'Heartbeat time-to-live. '
-    comment: 'Help string has changed'
-
-  - name: port
-    type: integer
-    default: 6379
-    help: 'Use this port to connect to redis host. '
-    comment: 'Help string has changed'
-
-  - name: password
-    type: string
-    default: ~
-    help: 'Password for Redis server. (optional) '
-    comment: 'Help string has changed'
-
-  - name: scheduler_host_manager
-    type: string
-    default: 'cinder.scheduler.host_manager.HostManager'
-    help: 'The scheduler host manager class to use '
-    comment: 'Default value has changed'
-
-  - name: scheduler_max_attempts
-    type: integer
-    default: 3
-    help: 'Maximum number of attempts to schedule an volume '
-    comment: 'Help string has changed'
-
-  - name: scheduler_default_filters
-    type: string_list
-    default: ['AvailabilityZoneFilter', 'CapacityFilter', 'CapabilitiesFilter']
-    help: 'Which filter class names to use for filtering hosts when not specified in the request. '
-    comment: 'Type has changed'
-
-  - name: scheduler_default_weighers
-    type: string_list
-    default: ['CapacityWeigher']
-    help: 'Which weigher class names to use for weighing hosts. '
-    comment: 'Type has changed'
-
-  - name: scheduler_driver
-    type: string
-    default: 'cinder.scheduler.filter_scheduler.FilterScheduler'
-    help: 'Default scheduler driver to use '
-    comment: 'Default value has changed'
-
-  - name: scheduler_json_config_location
-    type: string
-    default: ''
-    help: 'Absolute path to scheduler configuration JSON file. '
-    comment: 'Help string has changed'
-
-  - name: max_gigabytes
-    type: integer
-    default: 10000
-    help: 'maximum number of volume gigabytes to allow per host '
-    comment: 'Help string has changed'
-
-  - name: capacity_weight_multiplier
-    type: float
-    default: true
-    help: 'Multiplier used for weighing volume capacity. Negative numbers mean to stack vs spread. '
-    comment: 'Help string has changed'
-
-  - name: volume_transfer_salt_length
-    type: integer
-    default: 8
-    help: 'The number of characters in the salt. '
-    comment: 'Help string has changed'
-
-  - name: volume_transfer_key_length
-    type: integer
-    default: 16
-    help: 'The number of characters in the autogenerated auth key. '
-    comment: 'Help string has changed'
-
-  - name: snapshot_same_host
-    type: boolean
-    default: true
-    help: 'Create volume from snapshot at the host where snapshot resides '
-    comment: 'Help string has changed'
-
-  - name: cloned_volume_same_az
-    type: boolean
-    default: true
-    help: 'Ensure that the new volumes are the same AZ as snapshot or source volume '
-    comment: 'Help string has changed'
-
-  - name: num_shell_tries
-    type: integer
-    default: 3
-    help: 'number of times to attempt to run flakey shell commands '
-    comment: 'Help string has changed'
-
-  - name: reserved_percentage
-    type: integer
-    default: false
-    help: 'The percentage of backend capacity is reserved '
-    comment: 'Help string has changed'
-
-  - name: iscsi_num_targets
-    type: integer
-    default: 100
-    help: 'The maximum number of iscsi target ids per host '
-    comment: 'Help string has changed'
-
-  - name: iscsi_target_prefix
-    type: string
-    default: 'iqn.2010-10.org.openstack:'
-    help: 'prefix for iscsi volumes '
-    comment: 'Help string has changed'
-
-  - name: iscsi_ip_address
-    type: string
-    default: '$my_ip'
-    help: 'The IP address that the iSCSI daemon is listening on '
-    comment: 'Help string has changed'
-
-  - name: iscsi_port
-    type: port
-    default: 3260
-    help: 'The port that the iSCSI daemon is listening on '
-    comment: 'Type has changed'
-
-  - name: num_iser_scan_tries
-    type: integer
-    default: 3
-    help: 'The maximum number of times to rescan iSER targetto find volume '
-    comment: 'Help string has changed'
-
-  - name: iser_num_targets
-    type: integer
-    default: 100
-    help: 'The maximum number of iser target ids per host '
-    comment: 'Help string has changed'
-
-  - name: iser_target_prefix
-    type: string
-    default: 'iqn.2010-10.org.iser.openstack:'
-    help: 'prefix for iser volumes '
-    comment: 'Help string has changed'
-
-  - name: iser_ip_address
-    type: string
-    default: '$my_ip'
-    help: 'The IP address that the iSER daemon is listening on '
-    comment: 'Help string has changed'
-
-  - name: iser_port
-    type: port
-    default: 3260
-    help: 'The port that the iSER daemon is listening on '
-    comment: 'Type has changed'
-
-  - name: volume_backend_name
-    type: string
-    default: ~
-    help: 'The backend name for a given driver implementation '
-    comment: 'Help string has changed'
-
-  - name: use_multipath_for_image_xfer
-    type: boolean
-    default: false
-    help: 'Do we attach/detach volumes in cinder using multipath for volume to image and image to volume transfers? '
-    comment: 'Help string has changed'
-
-  - name: volume_clear
-    type: string
-    default: 'zero'
-    help: 'Method used to wipe old voumes (valid options are: none, zero, shred) '
-    comment: 'Help string has changed'
-
-  - name: volume_clear_size
-    type: integer
-    default: false
-    help: 'Size in MiB to wipe at start of old volumes. 0 => all '
-    comment: 'Help string has changed'
-
-  - name: available_devices
-    type: string_list
-    default: []
-    help: 'List of all available devices '
-    comment: 'Type has changed'
-
-  - name: coraid_esm_address
-    type: string
-    default: ''
-    help: 'IP address of Coraid ESM '
-    comment: 'Help string has changed'
-
-  - name: coraid_user
-    type: string
-    default: 'admin'
-    help: 'User name to connect to Coraid ESM '
-    comment: 'Help string has changed'
-
-  - name: coraid_group
-    type: string
-    default: 'admin'
-    help: 'Name of group on Coraid ESM to which coraid_user belongs (must have admin privilege) '
-    comment: 'Help string has changed'
-
-  - name: coraid_password
-    type: string
-    default: 'password'
-    help: 'Password to connect to Coraid ESM '
-    comment: 'Help string has changed'
-
-  - name: coraid_repository_key
-    type: string
-    default: 'coraid_repository'
-    help: 'Volume Type key name to store ESM Repository Name '
-    comment: 'Help string has changed'
-
-  - name: eqlx_group_name
-    type: string
-    default: 'group-0'
-    help: 'Group name to use for creating volumes '
-    comment: 'Help string has changed'
-
-  - name: eqlx_cli_timeout
-    type: integer
-    default: 30
-    help: 'Timeout for the Group Manager cli command execution '
-    comment: 'Help string has changed'
-
-  - name: eqlx_cli_max_retries
-    type: integer
-    default: 5
-    help: 'Maximum retry count for reconnection '
-    comment: 'Help string has changed'
-
-  - name: eqlx_use_chap
-    type: boolean
-    default: false
-    help: 'Use CHAP authentificaion for targets? '
-    comment: 'Help string has changed'
-
-  - name: eqlx_chap_login
-    type: string
-    default: 'admin'
-    help: 'Existing CHAP account name '
-    comment: 'Help string has changed'
-
-  - name: eqlx_chap_password
-    type: string
-    default: 'password'
-    help: 'Password for specified CHAP account name '
-    comment: 'Help string has changed'
-
-  - name: eqlx_pool
-    type: string
-    default: 'default'
-    help: 'Pool in which volumes will be created '
-    comment: 'Help string has changed'
-
-  - name: glusterfs_shares_config
-    type: string
-    default: '/etc/cinder/glusterfs_shares'
-    help: 'File with the list of available gluster shares '
-    comment: 'Help string has changed'
-
-  - name: glusterfs_disk_util
-    type: string
-    default: 'df'
-    help: 'Use du or df for free space calculation '
-    comment: 'Help string has changed'
-
-  - name: glusterfs_sparsed_volumes
-    type: boolean
-    default: true
-    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time. '
-    comment: 'Help string has changed'
-
-  - name: glusterfs_qcow2_volumes
-    type: boolean
-    default: false
-    help: 'Create volumes as QCOW2 files rather than raw files. '
-    comment: 'Help string has changed'
-
-  - name: gpfs_mount_point_base
-    type: string
-    default: ~
-    help: 'Specifies the path of the GPFS directory where Block Storage volume and snapshot files are stored. '
-    comment: 'Help string has changed'
-
-  - name: gpfs_images_dir
-    type: string
-    default: ~
-    help: 'Specifies the path of the Image service repository in GPFS. Leave undefined if not storing images in GPFS. '
-    comment: 'Help string has changed'
-
-  - name: gpfs_images_share_mode
-    type: string
-    default: ~
-    help: "Specifies the type of image copy to be used.  Set this when the Image service repository also uses GPFS so that image files can be transferred efficiently from the Image service to the Block Storage service. There are two valid values: 'copy' specifies that a full copy of the image is made; 'copy_on_write' specifies that copy-on-write optimization strategy is used and unmodified blocks of the image file are shared efficiently. "
-    comment: 'Help string has changed'
-
-  - name: gpfs_max_clone_depth
-    type: integer
-    default: false
-    help: 'Specifies an upper limit on the number of indirections required to reach a specific block due to snapshots or clones.  A lengthy chain of copy-on-write snapshots or clones can have a negative impact on performance, but improves space utilization.  0 indicates unlimited clone depth. '
-    comment: 'Help string has changed'
-
-  - name: gpfs_sparse_volumes
-    type: boolean
-    default: true
-    help: 'Specifies that volumes are created as sparse files which initially consume no space. If set to False, the volume is created as a fully allocated file, in which case, creation may take a significantly longer time. '
-    comment: 'Help string has changed'
-
-  - name: hds_cinder_config_file
-    type: string
-    default: '/opt/hds/hus/cinder_hus_conf.xml'
-    help: 'configuration file for HDS cinder plugin for HUS '
-    comment: 'Help string has changed'
-
-  - name: cinder_huawei_conf_file
-    type: string
-    default: '/etc/cinder/cinder_huawei_conf.xml'
-    help: 'config data for cinder huawei plugin '
-    comment: 'Help string has changed'
-
-  - name: volume_group
-    type: string
-    default: 'cinder-volumes'
-    help: 'Name for the VG that will contain exported volumes '
-    comment: 'Help string has changed'
-
-  - name: pool_size
-    type: string
-    default: ~
-    help: 'Size of thin provisioning pool (None uses entire cinder VG) '
-    comment: 'Help string has changed'
-
-  - name: lvm_mirrors
-    type: integer
-    default: false
-    help: 'If set, create lvms with multiple mirrors. Note that this requires lvm_mirrors + 2 pvs with available space '
-    comment: 'Help string has changed'
-
-  - name: lvm_type
-    type: string
-    default: 'default'
-    help: 'Type of LVM volumes to deploy; (default or thin) '
-    comment: 'Help string has changed'
-
-  - name: netapp_vfiler
-    type: string
-    default: ~
-    help: 'Vfiler to use for provisioning '
-    comment: 'Help string has changed'
-
-  - name: netapp_login
-    type: string
-    default: ~
-    help: 'User name for the storage controller '
-    comment: 'Help string has changed'
-
-  - name: netapp_password
-    type: string
-    default: ~
-    help: 'Password for the storage controller '
-    comment: 'Help string has changed'
-
-  - name: netapp_vserver
-    type: string
-    default: ~
-    help: 'Cluster vserver to use for provisioning '
-    comment: 'Help string has changed'
-
-  - name: netapp_server_hostname
-    type: string
-    default: ~
-    help: 'Host name for the storage controller '
-    comment: 'Help string has changed'
-
-  - name: netapp_server_port
-    type: port
-    default: 80
-    help: 'Port number for the storage controller '
-    comment: 'Type has changed'
-
-  - name: thres_avl_size_perc_start
-    type: integer
-    default: 20
-    help: 'Threshold available percent to start cache cleaning. '
-    comment: 'Help string has changed'
-
-  - name: thres_avl_size_perc_stop
-    type: integer
-    default: 60
-    help: 'Threshold available percent to stop cache cleaning. '
-    comment: 'Help string has changed'
-
-  - name: expiry_thres_minutes
-    type: integer
-    default: 720
-    help: 'Threshold minutes after which cache file can be cleaned. '
-    comment: 'Help string has changed'
-
-  - name: netapp_size_multiplier
-    type: float
-    default: 1.2
-    help: 'Volume size multiplier to ensure while creation '
-    comment: 'Help string has changed'
-
-  - name: netapp_volume_list
-    type: string
-    default: ~
-    help: 'Comma separated volumes to be used for provisioning '
-    comment: 'Help string has changed'
-
-  - name: netapp_storage_family
-    type: string
-    default: 'ontap_cluster'
-    help: 'Storage family type. '
-    comment: 'Help string has changed'
-
-  - name: netapp_storage_protocol
-    type: string
-    default: ~
-    help: 'Storage protocol type. '
-    comment: 'Help string has changed'
-
-  - name: netapp_transport_type
-    type: string
-    default: 'http'
-    help: 'Transport type protocol '
-    comment: 'Help string has changed'
-
-  - name: nexenta_host
-    type: string
-    default: ''
-    help: 'IP address of Nexenta SA '
-    comment: 'Help string has changed'
-
-  - name: nexenta_rest_port
-    type: port
-    default: 2000
-    help: 'HTTP port to connect to Nexenta REST API server '
-    comment: 'Type has changed'
-
-  - name: nexenta_rest_protocol
-    type: string
-    default: 'auto'
-    help: 'Use http or https for REST connection (default auto) '
-    comment: 'Help string has changed'
-
-  - name: nexenta_user
-    type: string
-    default: 'admin'
-    help: 'User name to connect to Nexenta SA '
-    comment: 'Help string has changed'
-
-  - name: nexenta_password
-    type: string
-    default: 'nexenta'
-    help: 'Password to connect to Nexenta SA '
-    comment: 'Help string has changed'
-
-  - name: nexenta_iscsi_target_portal_port
-    type: port
-    default: 3260
-    help: 'Nexenta target portal port '
-    comment: 'Type has changed'
-
-  - name: nexenta_volume
-    type: string
-    default: 'cinder'
-    help: 'pool on SA that will hold all volumes '
-    comment: 'Help string has changed'
-
-  - name: nexenta_target_prefix
-    type: string
-    default: 'iqn.1986-03.com.sun:02:cinder-'
-    help: 'IQN prefix for iSCSI targets '
-    comment: 'Help string has changed'
-
-  - name: nexenta_target_group_prefix
-    type: string
-    default: 'cinder/'
-    help: 'prefix for iSCSI target groups on SA '
-    comment: 'Help string has changed'
-
-  - name: nexenta_shares_config
-    type: string
-    default: '/etc/cinder/nfs_shares'
-    help: 'File with the list of available nfs shares '
-    comment: 'Help string has changed'
-
-  - name: nexenta_mount_point_base
-    type: string
-    default: '$state_path/mnt'
-    help: 'Base dir containing mount points for nfs shares '
-    comment: 'Help string has changed'
-
-  - name: nexenta_sparsed_volumes
-    type: boolean
-    default: true
-    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time. '
-    comment: 'Help string has changed'
-
-  - name: nexenta_volume_compression
-    type: string
-    default: 'on'
-    help: 'Default compression value for new ZFS folders. '
-    comment: 'Help string has changed'
-
-  - name: nexenta_mount_options
-    type: string
-    default: ~
-    help: 'Mount options passed to the nfs client. See section of the nfs man page for details '
-    comment: 'Help string has changed'
-
-  - name: nexenta_used_ratio
-    type: float
-    default: 0.95
-    help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination. '
-    comment: 'Help string has changed'
-
-  - name: nexenta_oversub_ratio
-    type: float
-    default: true
-    help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid. '
-    comment: 'Help string has changed'
-
-  - name: nexenta_blocksize
-    type: string
-    default: ''
-    help: 'block size for volumes (blank=default,8KB) '
-    comment: 'Help string has changed'
-
-  - name: nexenta_sparse
-    type: boolean
-    default: false
-    help: 'flag to create sparse volumes '
-    comment: 'Help string has changed'
-
-  - name: nfs_shares_config
-    type: string
-    default: '/etc/cinder/nfs_shares'
-    help: 'File with the list of available nfs shares '
-    comment: 'Help string has changed'
-
-  - name: nfs_sparsed_volumes
-    type: boolean
-    default: true
-    help: 'Create volumes as sparsed files which take no space.If set to False volume is created as regular file.In such case volume creation takes a lot of time. '
-    comment: 'Help string has changed'
-
-  - name: nfs_used_ratio
-    type: float
-    default: 0.95
-    help: 'Percent of ACTUAL usage of the underlying volume before no new volumes can be allocated to the volume destination. '
-    comment: 'Help string has changed'
-
-  - name: nfs_oversub_ratio
-    type: float
-    default: true
-    help: 'This will compare the allocated to available space on the volume destination.  If the ratio exceeds this number, the destination will no longer be valid. '
-    comment: 'Help string has changed'
-
-  - name: rbd_pool
-    type: string
-    default: 'rbd'
-    help: 'the RADOS pool in which rbd volumes are stored '
-    comment: 'Help string has changed'
-
-  - name: rbd_user
-    type: string
-    default: ~
-    help: 'the RADOS client name for accessing rbd volumes - only set when using cephx authentication '
-    comment: 'Help string has changed'
-
-  - name: rbd_ceph_conf
-    type: string
-    default: ''
-    help: 'path to the ceph configuration file to use '
-    comment: 'Help string has changed'
-
-  - name: rbd_flatten_volume_from_snapshot
-    type: boolean
-    default: false
-    help: 'flatten volumes created from snapshots to remove dependency '
-    comment: 'Help string has changed'
-
-  - name: rbd_secret_uuid
-    type: string
-    default: ~
-    help: 'the libvirt uuid of the secret for the rbd_uservolumes '
-    comment: 'Help string has changed'
-
-  - name: volume_tmp_dir
-    type: string
-    default: ~
-    help: 'where to store temporary image files if the volume driver does not write them directly to the volume '
-    comment: 'Help string has changed'
-
-  - name: rbd_max_clone_depth
-    type: integer
-    default: 5
-    help: 'maximum number of nested clones that can be taken of a volume before enforcing a flatten prior to next clone. A value of zero disables cloning '
-    comment: 'Help string has changed'
-
-  - name: hp3par_api_url
-    type: string
-    default: ''
-    help: '3PAR WSAPI Server Url like https://<3par ip>:8080/api/v1 '
-    comment: 'Help string has changed'
-
-  - name: hp3par_username
-    type: string
-    default: ''
-    help: '3PAR Super user username '
-    comment: 'Help string has changed'
-
-  - name: hp3par_password
-    type: string
-    default: ''
-    help: '3PAR Super user password '
-    comment: 'Help string has changed'
-
-  - name: hp3par_domain
-    type: string
-    default: ~
-    help: 'This option is DEPRECATED and no longer used. The 3par domain name to use. '
-    comment: 'Help string has changed'
-
-  - name: hp3par_cpg
-    type: string
-    default: 'OpenStack'
-    help: 'The CPG to use for volume creation '
-    comment: 'Help string has changed'
-
-  - name: hp3par_cpg_snap
-    type: string
-    default: ''
-    help: 'The CPG to use for Snapshots for volumes. If empty hp3par_cpg will be used '
-    comment: 'Help string has changed'
-
-  - name: hp3par_snapshot_retention
-    type: string
-    default: ''
-    help: "The time in hours to retain a snapshot.  You can't delete it before this expires. "
-    comment: 'Help string has changed'
-
-  - name: hp3par_snapshot_expiration
-    type: string
-    default: ''
-    help: 'The time in hours when a snapshot expires  and is deleted. This must be larger than expiration '
-    comment: 'Help string has changed'
-
-  - name: hp3par_debug
-    type: boolean
-    default: false
-    help: 'Enable HTTP debugging to 3PAR '
-    comment: 'Help string has changed'
-
-  - name: hp3par_iscsi_ips
-    type: string_list
-    default: []
-    help: 'List of target iSCSI addresses to use. '
-    comment: 'Type has changed'
-
-  - name: san_thin_provision
-    type: boolean
-    default: true
-    help: 'Use thin provisioning for SAN volumes? '
-    comment: 'Help string has changed'
-
-  - name: san_ip
-    type: string
-    default: ''
-    help: 'IP address of SAN controller '
-    comment: 'Help string has changed'
-
-  - name: san_login
-    type: string
-    default: 'admin'
-    help: 'Username for SAN controller '
-    comment: 'Help string has changed'
-
-  - name: san_password
-    type: string
-    default: ''
-    help: 'Password for SAN controller '
-    comment: 'Help string has changed'
-
-  - name: san_private_key
-    type: string
-    default: ''
-    help: 'Filename of private key to use for SSH authentication '
-    comment: 'Help string has changed'
-
-  - name: san_clustername
-    type: string
-    default: ''
-    help: 'Cluster name to use for creating volumes '
-    comment: 'Help string has changed'
-
-  - name: san_ssh_port
-    type: port
-    default: 22
-    help: 'SSH port to use with SAN '
-    comment: 'Type has changed'
-
-  - name: san_is_local
-    type: boolean
-    default: false
-    help: 'Execute commands locally instead of over SSH; use if the volume service is running on the SAN device '
-    comment: 'Help string has changed'
-
-  - name: ssh_conn_timeout
-    type: integer
-    default: 30
-    help: 'SSH connection timeout in seconds '
-    comment: 'Help string has changed'
-
-  - name: ssh_min_pool_conn
-    type: integer
-    default: true
-    help: 'Minimum ssh connections in the pool '
-    comment: 'Help string has changed'
-
-  - name: ssh_max_pool_conn
-    type: integer
-    default: 5
-    help: 'Maximum ssh connections in the pool '
-    comment: 'Help string has changed'
-
-  - name: san_zfs_volume_base
-    type: string
-    default: 'rpool/'
-    help: 'The ZFS path under which to create zvols for volumes. '
-    comment: 'Help string has changed'
-
-  - name: scality_sofs_config
-    type: string
-    default: ~
-    help: 'Path or URL to Scality SOFS configuration file '
-    comment: 'Help string has changed'
-
-  - name: scality_sofs_mount_point
-    type: string
-    default: '$state_path/scality'
-    help: 'Base dir where Scality SOFS shall be mounted '
-    comment: 'Help string has changed'
-
-  - name: scality_sofs_volume_dir
-    type: string
-    default: 'cinder/volumes'
-    help: 'Path from Scality SOFS root to volume dir '
-    comment: 'Help string has changed'
-
-  - name: sf_emulate_512
-    type: boolean
-    default: true
-    help: 'Set 512 byte emulation on volume creation;  '
-    comment: 'Help string has changed'
-
-  - name: sf_allow_tenant_qos
-    type: boolean
-    default: false
-    help: 'Allow tenants to specify QOS on create '
-    comment: 'Help string has changed'
-
-  - name: sf_account_prefix
-    type: string
-    default: 'cinder'
-    help: 'Create SolidFire accounts with this prefix '
-    comment: 'Help string has changed'
-
-  - name: sf_api_port
-    type: port
-    default: 443
-    help: 'SolidFire API port. Useful if the device api is behind a proxy on a different port. '
-    comment: 'Type has changed'
-
-  - name: storwize_svc_volpool_name
-    type: string
-    default: 'volpool'
-    help: 'Storage system storage pool for volumes '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_rsize
-    type: integer
-    default: 2
-    help: 'Storage system space-efficiency parameter for volumes (percentage) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_warning
-    type: integer
-    default: false
-    help: 'Storage system threshold for volume capacity warnings (percentage) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_autoexpand
-    type: boolean
-    default: true
-    help: 'Storage system autoexpand parameter for volumes (True/False) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_grainsize
-    type: integer
-    default: 256
-    help: 'Storage system grain size parameter for volumes (32/64/128/256) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_compression
-    type: boolean
-    default: false
-    help: 'Storage system compression option for volumes '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_easytier
-    type: boolean
-    default: true
-    help: 'Enable Easy Tier for volumes '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_vol_iogrp
-    type: integer
-    default: false
-    help: 'The I/O group in which to allocate volumes '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_flashcopy_timeout
-    type: integer
-    default: 120
-    help: 'Maximum number of seconds to wait for FlashCopy to be prepared. Maximum value is 600 seconds (10 minutes) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_connection_protocol
-    type: string
-    default: 'iSCSI'
-    help: 'Connection protocol (iSCSI/FC) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_multipath_enabled
-    type: boolean
-    default: false
-    help: 'Connect with multipath (FC only; iSCSI multipath is controlled by Nova) '
-    comment: 'Help string has changed'
-
-  - name: storwize_svc_multihostmap_enabled
-    type: boolean
-    default: true
-    help: 'Allows vdisk to multi host mapping '
-    comment: 'Help string has changed'
-
-  - name: vmware_host_ip
-    type: string
-    default: ~
-    help: 'IP address for connecting to VMware ESX/VC server. '
-    comment: 'Help string has changed'
-
-  - name: vmware_host_username
-    type: string
-    default: ~
-    help: 'Username for authenticating with VMware ESX/VC server. '
-    comment: 'Help string has changed'
-
-  - name: vmware_host_password
-    type: string
-    default: ~
-    help: 'Password for authenticating with VMware ESX/VC server. '
-    comment: 'Help string has changed'
-
-  - name: vmware_wsdl_location
-    type: string
-    default: ~
-    help: 'Optional VIM service WSDL Location e.g http://<server>/vimService.wsdl. Optional over-ride to default location for bug work-arounds. '
-    comment: 'Help string has changed'
-
-  - name: vmware_api_retry_count
-    type: integer
-    default: 10
-    help: 'Number of times VMware ESX/VC server API must be retried upon connection related issues. '
-    comment: 'Help string has changed'
-
-  - name: vmware_task_poll_interval
-    type: integer
-    default: 5
-    help: 'The interval used for polling remote tasks invoked on VMware ESX/VC server. '
-    comment: 'Help string has changed'
-
-  - name: vmware_volume_folder
-    type: string
-    default: 'cinder-volumes'
-    help: 'Name for the folder in the VC datacenter that will contain cinder volumes. '
-    comment: 'Help string has changed'
-
-  - name: vmware_image_transfer_timeout_secs
-    type: integer
-    default: 7200
-    help: 'Timeout in seconds for VMDK volume transfer between Cinder and Glance. '
-    comment: 'Help string has changed'
-
-  - name: windows_iscsi_lun_path
-    type: string
-    default: 'C:\\iSCSIVirtualDisks'
-    help: 'Path to store VHD backed volumes '
-    comment: 'Help string has changed'
-
-  - name: xenapi_nfs_server
-    type: string
-    default: ~
-    help: 'NFS server to be used by XenAPINFSDriver '
-    comment: 'Help string has changed'
-
-  - name: xenapi_nfs_serverpath
-    type: string
-    default: ~
-    help: 'Path of exported NFS, used by XenAPINFSDriver '
-    comment: 'Help string has changed'
-
-  - name: xenapi_connection_url
-    type: string
-    default: ~
-    help: 'URL for XenAPI connection '
-    comment: 'Help string has changed'
-
-  - name: xenapi_connection_username
-    type: string
-    default: 'root'
-    help: 'Username for XenAPI connection '
-    comment: 'Help string has changed'
-
-  - name: xenapi_connection_password
-    type: string
-    default: ~
-    help: 'Password for XenAPI connection '
-    comment: 'Help string has changed'
-
-  - name: xenapi_sr_base_path
-    type: string
-    default: '/var/run/sr-mount'
-    help: 'Base path to the storage repository '
-    comment: 'Help string has changed'
-
-  - name: xiv_ds8k_proxy
-    type: string
-    default: 'xiv_ds8k_openstack.nova_proxy.XIVDS8KNovaProxy'
-    help: 'Proxy driver that connects to the IBM Storage Array '
-    comment: 'Help string has changed'
-
-  - name: xiv_ds8k_connection_type
-    type: string
-    default: 'iscsi'
-    help: 'Connection type to the IBM Storage Array (fibre_channel|iscsi) '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_ip
-    type: string
-    default: ~
-    help: 'Management IP of Zadara VPSA '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_port
-    type: string
-    default: ~
-    help: 'Zadara VPSA port number '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_use_ssl
-    type: boolean
-    default: false
-    help: 'Use SSL connection '
-    comment: 'Help string has changed'
-
-  - name: zadara_user
-    type: string
-    default: ~
-    help: 'User name for the VPSA '
-    comment: 'Help string has changed'
-
-  - name: zadara_password
-    type: string
-    default: ~
-    help: 'Password for the VPSA '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_poolname
-    type: string
-    default: ~
-    help: 'Name of VPSA storage pool for volumes '
-    comment: 'Help string has changed'
-
-  - name: zadara_vol_thin
-    type: boolean
-    default: true
-    help: 'Default thin provisioning policy for volumes '
-    comment: 'Help string has changed'
-
-  - name: zadara_vol_encrypt
-    type: boolean
-    default: false
-    help: 'Default encryption policy for volumes '
-    comment: 'Help string has changed'
-
-  - name: zadara_default_striping_mode
-    type: string
-    default: 'simple'
-    help: 'Default striping mode for volumes '
-    comment: 'Help string has changed'
-
-  - name: zadara_default_stripesize
-    type: string
-    default: '64'
-    help: 'Default stripe size for volumes '
-    comment: 'Type has changed'
-
-  - name: zadara_vol_name_template
-    type: string
-    default: 'OS_%s'
-    help: 'Default template for VPSA volume names '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_auto_detach_on_delete
-    type: boolean
-    default: true
-    help: 'Automatically detach from servers on volume delete '
-    comment: 'Help string has changed'
-
-  - name: zadara_vpsa_allow_nonexistent_delete
-    type: boolean
-    default: true
-    help: "Don't halt on deletion of non-existing volumes "
-    comment: 'Help string has changed'
-
-  - name: volume_driver
-    type: string
-    default: 'cinder.volume.drivers.lvm.LVMISCSIDriver'
-    help: 'Driver to use for volume creation '
-    comment: 'Default value has changed'
-
-  - name: migration_create_volume_timeout_secs
-    type: integer
-    default: 300
-    help: 'Timeout for creating the volume to migrate to when performing volume migration (seconds) '
-    comment: 'Help string has changed'
-
-  - name: volume_dd_blocksize
-    type: string
-    default: '1M'
-    help: 'The default block size used when copying/clearing volumes '
-    comment: 'Help string has changed'
-
-  - name: api_class
-    type: string
-    default: 'cinder.keymgr.conf_key_mgr.ConfKeyManager'
-    help: 'The full class name of the key manager API class '
-    comment: 'New param'
-
-  - name: fixed_key
-    type: string
-    default: ~
-    help: 'Fixed key returned by key manager, specified in hex '
-    comment: 'New param'
-
-  - name: notification_driver
-    type: string
-    default: ''
-    help: 'Driver or drivers to handle sending notifications (multi valued)'
-    comment: 'New param'
-
-  - name: nexenta_nms_cache_volroot
-    type: boolean
-    default: true
-    help: 'If set True cache NexentaStor appliance volroot option value. '
-    comment: 'New param'
-
-  - name: storwize_svc_iscsi_chap_enabled
-    type: boolean
-    default: true
-    help: 'Configure CHAP authentication for iSCSI connections (Default: Enabled) '
-    comment: 'New param'
-
-  - name: vmware_max_objects_retrieval
-    type: integer
-    default: 100
-    help: 'Max number of objects to be retrieved per batch. Query results will be obtained in batches from the server and not in one shot. Server may still limit the count to something less than the configured value. '
-    comment: 'New param'
-
-  - name: volume_service_inithost_offload
-    type: boolean
-    default: false
-    help: 'Offload pending volume delete during volume service startup '
-    comment: 'New param'
-
-  - name: keystone_authtoken.auth_host
-    type: host
-    default: '127.0.0.1'
-    help: 'Host providing the admin Identity API endpoint'
-    comment: 'New param'
-
-  - name: keystone_authtoken.auth_port
-    type: port
-    default: 35357
-    help: 'Port of the admin Identity API endpoint'
-    comment: 'New param'
-
-  - name: keystone_authtoken.auth_protocol
-    type: string
-    default: 'http'
-    help: 'Protocol of the admin Identity API endpoint'
-    comment: 'New param'
-
-  - name: keystone_authtoken.admin_tenant_name
-    type: string
-    default: '%SERVICE_TENANT_NAME%'
-    help: 'Keystone service account tenant name to validate user tokens'
-    comment: 'New param'
-
-  - name: keystone_authtoken.admin_user
-    type: string
-    default: '%SERVICE_USER%'
-    help: 'Keystone account username'
-    comment: 'New param'
-
-  - name: keystone_authtoken.admin_password
-    type: string
-    default: '%SERVICE_PASSWORD%'
-    help: 'Keystone account password'
-    comment: 'New param'
-
-  - name: keystone_authtoken.signing_dir
-    type: string
-    default: '/var/lib/cinder/keystone-signing'
-    help: 'Directory used to cache files related to PKI tokens signing_dir is configurable, but the default behavior of the authtoken middleware should be sufficient.  It will create a temporary directory in the home directory for the user the cinder process is running as.'
-    comment: 'New param'
-
-# ====================================================

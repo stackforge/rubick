@@ -1,6 +1,9 @@
 import unittest
 
-from rubick.config_formats.ini import *
+from six import StringIO
+
+from rubick.common import Mark
+from rubick.config_formats.ini import IniConfigParser
 
 
 class IniConfigParserTests(unittest.TestCase):

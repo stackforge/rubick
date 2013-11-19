@@ -1,3 +1,4 @@
+import argparse
 from flask import json
 from itertools import groupby
 import logging
@@ -5,13 +6,9 @@ import sys
 
 from rubick.common import MarkedIssue, Inspection
 from rubick.discovery import OpenstackDiscovery
-import rubick.inspections
-# Silence PEP8 "unused import"
-assert rubick.inspections
-import rubick.schemas
-assert rubick.schemas
+import rubick.inspections     # noqa
+import rubick.schemas         # noqa
 from rubick.json import openstack_for_json
-from rubick.model import DirectoryResource
 
 
 def indent_prefix(indent=0):
@@ -52,14 +49,11 @@ def print_issues(issues, indent=0):
 
 def print_service(service):
     print('    ' + service.name)
-    print_issues(service.all_issues, indent=3)
+    print_issues(service.issues, indent=3)
 
 
 def print_path(path):
-    if isinstance(path, DirectoryResource):
-        print('    ' + path.path + '/')
-    else:
-        print('    ' + path.path)
+    print('    ' + path.path)
     print_issues(path.all_issues, indent=3)
 
 
@@ -70,7 +64,7 @@ def print_host(host):
 
     print('  Services:')
 
-    for service in host.components:
+    for service in sorted(host.components, key=lambda c: c.name):
         print_service(service)
 
     print('  Filesystem:')
@@ -86,9 +80,23 @@ def print_openstack(openstack):
         print_host(host)
 
 
-def main():
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-l', '--loglevel', default='INFO',
+                        help='Loglevel to use')
+    parser.add_argument('-j', '--json', dest='json', default=False,
+                        action='store_true',
+                        help='Output result in JSON format')
+    args = parser.parse_args(argv[1:])
+    return args
+
+
+def main(argv):
+    args = parse_args(argv)
+    params = vars(args)
+
     logging.basicConfig(level=logging.WARNING)
-    logging.getLogger('rubick').setLevel(logging.DEBUG)
+    logging.getLogger('rubick').setLevel(params['loglevel'])
 
     discovery = OpenstackDiscovery()
     try:
@@ -106,8 +114,10 @@ def main():
         x = inspection()
         x.inspect(openstack)
 
-    print_openstack(openstack)
-    # print(json.dumps(openstack_for_json(openstack)))
+    if params['json']:
+        print(json.dumps(openstack_for_json(openstack)))
+    else:
+        print_openstack(openstack)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)

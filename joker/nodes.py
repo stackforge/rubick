@@ -5,7 +5,6 @@ from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from six import StringIO
 import stat
-import sys
 
 TMP_KEY_PATH = "/tmp/joker_%s_%d"
 

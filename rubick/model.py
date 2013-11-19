@@ -15,8 +15,9 @@ class IssueReporter(object):
         self.issues = []
 
     def report_issue(self, issue):
-        issue.subject = self
-        self.issues.append(issue)
+        if issue not in self.issues:
+            issue.subject = self
+            self.issues.append(issue)
 
     @property
     def all_issues(self):

@@ -1,20 +1,22 @@
 from collections import deque
 import logging
 import os.path
+import re
+from recordtype import recordtype
+import shlex
+import spur
+import stat
+import tempfile
+
 import paramiko
 from paramiko.dsskey import DSSKey
 from paramiko.rsakey import RSAKey
 from paramiko.ssh_exception import SSHException
-import re
-from recordtype import recordtype
-from rubick.common import index, find, path_relative_to, all_subclasses
-from rubick.exceptions import ValidatorException
-from rubick.model import *
 from six import StringIO
-import shlex
-import stat
-import spur
-import tempfile
+
+from rubick.common import index, find, all_subclasses
+from rubick.exceptions import ValidatorException
+import rubick.model as model
 
 
 def parse_nodes_info(nodes, password=None, private_key=None):
@@ -103,6 +105,7 @@ class NodeClient(object):
     def __init__(self, host, port=22, username='root', password=None,
                  private_key=None, proxy_command=None):
         super(NodeClient, self).__init__()
+        self.host = host
         self.use_sudo = (username != 'root')
 
         if proxy_command and proxy_command.find('%%PATH_TO_KEY%%') != -1:
@@ -153,6 +156,9 @@ class ExtendedNodeClient(object):
 
     def open(self, path, mode='r'):
         return self._client.open(path, mode)
+
+    def __getattr__(self, name):
+        return getattr(self._client, name)
 
     def get_processes(self, reload=False):
         if not hasattr(self, '_processes') or reload:
@@ -358,7 +364,7 @@ def collect_process(client, process_info):
     result = client.run(['readlink', '/proc/%d/cwd' % process_info.pid])
     cwd = result.output.strip()
 
-    process = ProcessResource(
+    process = model.ProcessResource(
         pid=process_info.pid,
         cmdline=process_info.command,
         cwd=cwd)
@@ -367,36 +373,76 @@ def collect_process(client, process_info):
     return process
 
 
-def collect_file(client, path):
+def collect_file(driver, client, path, searchpath=[]):
+    "collect_file(driver, client, path, searchpath=[]) - collect file resource."
+    "path can be absolute path, absolute wildcard or relative path + searchpath"
+    def _collect_file(path):
+        ls = client.run(['ls', '-ld', '--time-style=full-iso', path])
+        if ls.return_code != 0:
+            return None
+
+        line = ls.output.split("\n")[0]
+        perm, links, owner, group, size, date, time, timezone, name = \
+            line.split()
+        permissions = permissions_string_to_mode(perm)
+
+        with client.open(path) as f:
+            contents = f.read()
+
+        r = model.FileResource(path, contents, owner, group, permissions)
+        r.host_id = get_host_id(client)
+        return r
+
+    if not path:
+        return None
+
+    if not os.path.isabs(path):
+        for base_path in searchpath:
+            f = _collect_file(os.path.join(base_path, path))
+            if f:
+                return f
+
+        return None
+    else:
+        ls = client.run(['ls', path])
+        if ls.return_code != 0:
+            return None
+
+        files = []
+        for path in ls.output.split("\n"):
+            f = _collect_file(path)
+            if f:
+                files.append(f)
+
+        if len(files) == 1:
+            return files[0]
+
+        return files
+
+    return None
+
+
+def collect_directory(driver, client, path):
+    if not path:
+        return None
+
+    if not path.endswith('/'):
+        path += '/'
+
     ls = client.run(['ls', '-ld', '--time-style=full-iso', path])
     if ls.return_code != 0:
         return None
 
     line = ls.output.split("\n")[0]
-    perm, links, owner, group, size, date, time, timezone, name = \
-        line.split()
+    perm, links, owner, group, size, date, time, timezone, name = line.split()
     permissions = permissions_string_to_mode(perm)
 
-    with client.open(path) as f:
-        contents = f.read()
-
-    return FileResource(path, contents, owner, group, permissions)
-
-
-def collect_directory(client, path):
-    ls = client.run(['ls', '-ld', '--time-style=full-iso', path])
-    if ls.return_code != 0:
-        return None
-
-    line = ls.output.split("\n")[0]
-    perm, links, owner, group, size, date, time, timezone, name = \
-        line.split()
-    permissions = permissions_string_to_mode(perm)
-
-    return DirectoryResource(path, owner, group, permissions)
+    r = model.DirectoryResource(path, owner, group, permissions)
+    r.host_id = get_host_id(client)
+    return r
 
 
-def collect_component_configs(client, component,
+def collect_component_configs(driver, client, component,
                               command, default_config=None):
     config_files = []
 
@@ -409,17 +455,18 @@ def collect_component_configs(client, component,
         config_path = default_config
 
     if config_path:
-        r = collect_file(client, config_path)
+        r = driver.discover('file', client.host, path=config_path)
         if r:
             config_files.append(r)
 
     p = index(args, lambda s: s == '--config-dir')
     if p != -1 and p + 1 < len(args):
-        result = client.run(['ls', '%s/*.conf' % args[p + 1]])
-        if result.return_code == 0:
-            for config_path in result.output.split("\n"):
-                config_files.extend(
-                    collect_file(client, config_path))
+        files = driver.discover('file', client.host, path='%s/*.conf' % args[p + 1])
+        if files:
+            if not isinstance(files, list):
+                files = [files]
+
+            config_files.extend(files)
 
     component.config_files = config_files
 
@@ -441,21 +488,22 @@ def collect_component_configs(client, component,
 class BaseDiscovery(object):
 
     def __init__(self):
-        self._seen_items = []
-
-    def seen(self, driver, host, **data):
-        return False
+        self.items = []
 
 
 class HostDiscovery(BaseDiscovery):
     item_type = 'host'
 
     def discover(self, driver, host, **data):
+        item = find(self.items, lambda h: host in h.network_addresses)
+        if item:
+            return item
+
         client = driver.client(host)
 
         hostname = client.run(['hostname']).output.strip()
 
-        item = HostResource(name=hostname)
+        item = model.HostResource(name=hostname)
         item.id = get_host_id(client)
         item.network_addresses = get_host_network_addresses(client)
 
@@ -494,108 +542,166 @@ class HostDiscovery(BaseDiscovery):
                 service, host=host, pid=process.pid,
                 sockets=process_sockets.get(process.pid, []))
 
-        self._seen_items.append(item)
+        self.items.append(item)
 
         return item
 
-    def seen(self, driver, host, **data):
-        item = find(self._seen_items, lambda h: host in h.network_addresses)
-        return item is not None
 
-
-class FileSystemDiscovery(BaseDiscovery):
-
-    def seen(self, driver, host, path=None, **data):
-        if not path:
-            return True
-
-        client = driver.client(host)
-        host_id = get_host_id(client)
-
-        item = find(self._seen_items,
-                    lambda f: f.path == path and f.host_id == host_id)
-
-        return item is not None
-
-
-class FileDiscovery(FileSystemDiscovery):
+class FileDiscovery(BaseDiscovery):
     item_type = 'file'
 
     def discover(self, driver, host, path=None, **data):
         client = driver.client(host)
+        host_id = get_host_id(client)
 
-        if not path:
-            return None
+        item = find(self.items,
+                    lambda f: f.path == path and f.host_id == host_id)
+        if item:
+            return item
 
-        item = collect_file(client, path)
+        item = collect_file(driver, client, path)
         if not item:
             return None
 
-        item.host_id = get_host_id(client)
+        self.items.append(item)
 
-        self._seen_items.append(item)
+        driver.discover('directory', host, path=os.path.dirname(item.path))
 
         return item
 
 
-class DirectoryDiscovery(FileSystemDiscovery):
+class DirectoryDiscovery(BaseDiscovery):
     item_type = 'directory'
 
-    def discover(self, driver, host, path=None, **data):
-        client = driver.client(host)
+    logger = logging.getLogger('rubick.discovery.directory')
 
-        if not path:
+    def discover(self, driver, host, path=None, withBaseDirs=True, **data):
+        client = driver.client(host)
+        host_id = get_host_id(client)
+
+        item = find(self.items,
+                    lambda f: f.path == path and f.host_id == host_id)
+        if item:
+            return item
+
+        self.logger.debug('Discovering directory %s' % path)
+
+        if path == '/':
             return None
 
-        item = collect_directory(client, path)
+        item = collect_directory(driver, client, path)
         if not item:
             return None
 
-        item.host_id = get_host_id(client)
+        self.items.append(item)
 
-        self._seen_items.append(item)
+        if withBaseDirs:
+            path = os.path.dirname(path)
+            while path != '/':
+                self.discover(driver, host, path, withBaseDirs=False)
+                path = os.path.dirname(path)
 
         return item
 
 
 class ServiceDiscovery(BaseDiscovery):
 
-    def seen(self, driver, host, **data):
+    def find_item(self, driver, host, **data):
         if 'sockets' in data:
-            item = find(self._seen_items,
+            item = find(self.items,
                         lambda s: data['sockets'] == s.process.listen_sockets)
         elif 'port' in data:
-            item = find(self._seen_items,
+            item = find(self.items,
                         lambda s: (host, data['port']) in s.process.listen_sockets)
         else:
             client = driver.client(host)
             host_id = client.get_host_id()
-            item = find(self._seen_items, lambda s: host_id == s.host_id)
+            item = find(self.items, lambda s: host_id == s.host_id)
 
         return item is not None
 
 
-class KeystoneDiscovery(ServiceDiscovery):
-    item_type = 'keystone'
+class OpenstackComponentDiscovery(ServiceDiscovery):
+
+    def __init__(self):
+        super(OpenstackComponentDiscovery, self).__init__()
+        assert self.item_type
+        if not hasattr(self, 'python_process_name'):
+            self.python_process_name = self.item_type
+        if not hasattr(self, 'project'):
+            self.project = self.item_type.split('-')[0]
+        if not hasattr(self, 'model_class'):
+            class_name = ''.join([p.capitalize()
+                                  for p in self.item_type.split('-')
+                                  ]) + 'Component'
+            self.model_class = getattr(model, class_name)
+        if not hasattr(self, 'default_config_path'):
+            self.default_config_path = os.path.join('/etc', self.project,
+                                                    self.project + '.conf')
 
     def discover(self, driver, host, **data):
+        item = self.find_item(driver, host, **data)
+        if item:
+            return item
+
+        client = driver.client(host)
+
+        process = find_python_process(client, self.python_process_name)
+        if not process:
+            return None
+
+        service = self.model_class()
+        service.host_id = get_host_id(client)
+
+        service.process = collect_process(client, process)
+
+        service.version = find_python_package_version(client, self.project)
+
+        collect_component_configs(
+            driver, client, service, process.command,
+            default_config=self.default_config_path)
+
+        searchpaths = [
+            service.process.cwd,
+            os.path.join('/etc', self.project)
+        ]
+
+        if service.config and service.config.schema:
+            for param in service.config.schema:
+                if param.type == 'file':
+                    path = service.config[param.name]
+                    if path and path != '':
+                        driver.enqueue('file', host=host, path=path,
+                                       searchpath=searchpaths)
+                elif param.type == 'directory':
+                    path = service.config[param.name]
+                    if path and path != '':
+                        driver.enqueue('directory', host=host, path=path)
+
+        self.items.append(service)
+
+        return service
+
+
+class KeystoneDiscovery(OpenstackComponentDiscovery):
+    item_type = 'keystone'
+
+    python_process_name = 'keystone-all'
+
+    def discover(self, driver, host, **data):
+        item = self.find_item(driver, host, **data)
+        if item:
+            return item
+
+        keystone = super(KeystoneDiscovery, self).discover(driver, host, **data)
+        if not keystone:
+            return None
+
         client = driver.client(host)
 
         process = find_python_process(client, 'keystone-all')
         if not process:
             return None
-
-        keystone = KeystoneComponent()
-        keystone.host_id = get_host_id(client)
-
-        keystone.process = collect_process(client, process)
-
-        keystone.version = find_python_package_version(client, 'keystone')
-        keystone.config_files = []
-
-        collect_component_configs(
-            client, keystone, process.command,
-            default_config='/etc/keystone/keystone.conf')
 
         token = keystone.config['admin_token']
         host = keystone.config['bind_host']
@@ -617,8 +723,6 @@ class KeystoneDiscovery(ServiceDiscovery):
         keystone.db['users'] = db('user-list')
         keystone.db['services'] = db('service-list')
         keystone.db['endpoints'] = db('endpoint-list')
-
-        self._seen_items.append(keystone)
 
         return keystone
 
@@ -656,254 +760,46 @@ class KeystoneDiscovery(ServiceDiscovery):
         return data
 
 
-class NovaApiDiscovery(ServiceDiscovery):
+class NovaApiDiscovery(OpenstackComponentDiscovery):
     item_type = 'nova-api'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'nova-api')
-        if not process:
-            return None
-
-        nova_api = NovaApiComponent()
-        nova_api.host_id = get_host_id(client)
-
-        nova_api.process = collect_process(client, process)
-
-        nova_api.version = find_python_package_version(client, 'nova')
-
-        collect_component_configs(
-            client, nova_api, process.command,
-            default_config='/etc/nova/nova.conf')
-
-        config_dir = '/etc/nova'
-        if len(nova_api.config_files) > 0:
-            config_dir = os.path.dirname(nova_api.config_files[0].path)
-
-        for param in nova_api.config.schema:
-            if param.type == 'file':
-                path = nova_api.config[param.name]
-                driver.enqueue('file', host=host, path=path)
-            elif param.type == 'directory':
-                path = nova_api.config[param.name]
-                driver.enqueue('directory', host=host, path=path)
-
-        paste_config_path = path_relative_to(
-            nova_api.config['api_paste_config'], config_dir)
-        nova_api.paste_config_file = collect_file(
-            client, paste_config_path)
-
-        self._seen_items.append(nova_api)
-
-        return nova_api
-
-
-class NovaComputeDiscovery(ServiceDiscovery):
+class NovaComputeDiscovery(OpenstackComponentDiscovery):
     item_type = 'nova-compute'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'nova-compute')
-        if not process:
-            return None
-
-        nova_compute = NovaComputeComponent()
-        nova_compute.host_id = get_host_id(client)
-
-        nova_compute.process = collect_process(client, process)
-
-        nova_compute.version = find_python_package_version(client, 'nova')
-
-        collect_component_configs(
-            client, nova_compute, process.command,
-            default_config='/etc/nova/nova.conf')
-
-        self._seen_items.append(nova_compute)
-
-        return nova_compute
-
-
-class NovaSchedulerDiscovery(ServiceDiscovery):
+class NovaSchedulerDiscovery(OpenstackComponentDiscovery):
     item_type = 'nova-scheduler'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'nova-scheduler')
-        if not process:
-            return None
-
-        nova_scheduler = NovaSchedulerComponent()
-        nova_scheduler.host_id = get_host_id(client)
-
-        nova_scheduler.process = collect_process(client, process)
-
-        nova_scheduler.version = find_python_package_version(client, 'nova')
-
-        collect_component_configs(
-            client, nova_scheduler, process.command,
-            default_config='/etc/nova/nova.conf')
-
-        self._seen_items.append(nova_scheduler)
-
-        return nova_scheduler
-
-
-class GlanceApiDiscovery(ServiceDiscovery):
+class GlanceApiDiscovery(OpenstackComponentDiscovery):
     item_type = 'glance-api'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'glance-api')
-        if not process:
-            return None
-
-        glance_api = GlanceApiComponent()
-        glance_api.host_id = get_host_id(client)
-
-        glance_api.process = collect_process(client, process)
-
-        glance_api.version = find_python_package_version(client, 'glance')
-
-        collect_component_configs(
-            client, glance_api, process.command,
-            default_config='/etc/glance/glance.conf')
-
-        self._seen_items.append(glance_api)
-
-        return glance_api
-
-
-class GlanceRegistryDiscovery(ServiceDiscovery):
+class GlanceRegistryDiscovery(OpenstackComponentDiscovery):
     item_type = 'glance-registry'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'glance-registry')
-        if not process:
-            return None
-
-        glance_registry = GlanceRegistryComponent()
-        glance_registry.host_id = get_host_id(client)
-
-        glance_registry.process = collect_process(client, process)
-
-        glance_registry.version = find_python_package_version(client, 'glance')
-
-        collect_component_configs(
-            client, glance_registry, process.command,
-            default_config='/etc/glance/glance.conf')
-
-        self._seen_items.append(glance_registry)
-
-        return glance_registry
-
-
-class CinderApiDiscovery(ServiceDiscovery):
+class CinderApiDiscovery(OpenstackComponentDiscovery):
     item_type = 'cinder-api'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'cinder-api')
-        if not process:
-            return None
-
-        cinder_api = CinderApiComponent()
-        cinder_api.host_id = get_host_id(client)
-
-        cinder_api.process = collect_process(client, process)
-
-        cinder_api.version = find_python_package_version(client, 'cinder')
-
-        collect_component_configs(
-            client, cinder_api, process.command,
-            default_config='/etc/cinder/cinder.conf')
-
-        config_dir = '/etc/cinder'
-        if len(cinder_api.config_files) > 0:
-            config_dir = os.path.dirname(cinder_api.config_files[0].path)
-
-        paste_config_path = path_relative_to(
-            cinder_api.config['api_paste_config'], config_dir)
-        cinder_api.paste_config_file = collect_file(
-            client, paste_config_path)
-
-        self._seen_items.append(cinder_api)
-
-        return cinder_api
-
-
-class CinderVolumeDiscovery(ServiceDiscovery):
+class CinderVolumeDiscovery(OpenstackComponentDiscovery):
     item_type = 'cinder-volume'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'cinder-volume')
-        if not process:
-            return None
-
-        cinder_volume = CinderVolumeComponent()
-        cinder_volume.host_id = get_host_id(client)
-
-        cinder_volume.process = collect_process(client, process)
-
-        cinder_volume.version = find_python_package_version(client, 'cinder')
-
-        collect_component_configs(
-            client, cinder_volume, process.command,
-            default_config='/etc/cinder/cinder.conf')
-
-        config_dir = '/etc/cinder'
-        if len(cinder_volume.config_files) > 0:
-            config_dir = os.path.dirname(cinder_volume.config_files[0].path)
-
-        rootwrap_config_path = path_relative_to(
-            cinder_volume.config['rootwrap_config'], config_dir)
-        cinder_volume.rootwrap_config = collect_file(
-            client, rootwrap_config_path)
-
-        self._seen_items.append(cinder_volume)
-
-        return cinder_volume
-
-
-class CinderSchedulerDiscovery(ServiceDiscovery):
+class CinderSchedulerDiscovery(OpenstackComponentDiscovery):
     item_type = 'cinder-scheduler'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'cinder-scheduler')
-        if not process:
-            return None
-
-        cinder_scheduler = CinderSchedulerComponent()
-        cinder_scheduler.host_id = get_host_id(client)
-
-        cinder_scheduler.process = collect_process(client, process)
-
-        cinder_scheduler.version = find_python_package_version(client,
-                                                               'cinder')
-
-        collect_component_configs(
-            client, cinder_scheduler, process.command,
-            default_config='/etc/cinder/cinder.conf')
-
-        self._seen_items.append(cinder_scheduler)
-
-        return cinder_scheduler
 
 
 class MysqlDiscovery(ServiceDiscovery):
     item_type = 'mysql'
 
     def discover(self, driver, host, **data):
+        item = self.find_item(driver, host, **data)
+        if item:
+            return item
+
         client = driver.client(host)
 
         process = find_process(client, name='mysqld')
@@ -912,7 +808,7 @@ class MysqlDiscovery(ServiceDiscovery):
 
         mysqld_version_re = re.compile('mysqld\s+Ver\s(\S+)\s')
 
-        mysql = MysqlComponent()
+        mysql = model.MysqlComponent()
         mysql.host_id = get_host_id(client)
 
         mysql.process = collect_process(client, process)
@@ -926,14 +822,14 @@ class MysqlDiscovery(ServiceDiscovery):
             ['bash', '-c',
              'mysqld --help --verbose '
              '| grep "Default options are read from" -A 1'])
-        config_locations = config_locations_result.output.strip().split(
-            "\n")[-1].split()
+        config_locations = config_locations_result.output\
+            .strip().split("\n")[-1].split()
         for path in config_locations:
-            f = collect_file(client, path)
+            f = driver.discover('file', host, path=path)
             if f:
                 mysql.config_files.append(f)
 
-        self._seen_items.append(mysql)
+        self.items.append(mysql)
 
         return mysql
 
@@ -942,6 +838,10 @@ class RabbitmqDiscovery(ServiceDiscovery):
     item_type = 'rabbitmq'
 
     def discover(self, driver, host, **data):
+        item = self.find_item(driver, host, **data)
+        if item:
+            return item
+
         client = driver.client(host)
 
         process = find_process(client, name='beam.smp')
@@ -953,7 +853,7 @@ class RabbitmqDiscovery(ServiceDiscovery):
         if process.command.find('rabbit') == -1:
             return None
 
-        rabbitmq = RabbitMqComponent()
+        rabbitmq = model.RabbitMqComponent()
         rabbitmq.host_id = get_host_id(client)
 
         rabbitmq.process = collect_process(client, process)
@@ -979,261 +879,65 @@ class RabbitmqDiscovery(ServiceDiscovery):
             if s == '-rabbit' and i + 2 <= len(args):
                 rabbitmq.config.set_cli(args[i + 1], args[i + 2])
 
-        self._seen_items.append(rabbitmq)
+        self.items.append(rabbitmq)
 
         return rabbitmq
 
 
-class SwiftProxyServerDiscovery(ServiceDiscovery):
+class SwiftProxyServerDiscovery(OpenstackComponentDiscovery):
     item_type = 'swift-proxy-server'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'swift-proxy-server')
-        if not process:
-            return None
-
-        swift_proxy_server = SwiftProxyServerComponent()
-        swift_proxy_server.host_id = get_host_id(client)
-
-        swift_proxy_server.process = collect_process(client, process)
-
-        swift_proxy_server.version = find_python_package_version(client,
-                                                                 'swift')
-
-        collect_component_configs(
-            client, swift_proxy_server, process.command,
-            default_config='/etc/swift/proxy-server.conf')
-
-        self._seen_items.append(swift_proxy_server)
-
-        return swift_proxy_server
-
-
-class SwiftContainerServerDiscovery(ServiceDiscovery):
+class SwiftContainerServerDiscovery(OpenstackComponentDiscovery):
     item_type = 'swift-container-server'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'swift-container-server')
-        if not process:
-            return None
-
-        swift_container_server = SwiftContainerServerComponent()
-        swift_container_server.host_id = get_host_id(client)
-
-        swift_container_server.process = collect_process(client, process)
-
-        swift_container_server.version = find_python_package_version(client,
-                                                                     'swift')
-
-        collect_component_configs(
-            client, swift_container_server, process.command,
-            default_config='/etc/swift/container-server/1.conf')
-
-        self._seen_items.append(swift_container_server)
-
-        return swift_container_server
+    default_config_path = '/etc/swift/container-server/1.conf'
 
 
-class SwiftAccountServerDiscovery(ServiceDiscovery):
+class SwiftAccountServerDiscovery(OpenstackComponentDiscovery):
     item_type = 'swift-account-server'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'swift-account-server')
-        if not process:
-            return None
-
-        swift_account_server = SwiftAccountServerComponent()
-        swift_account_server.host_id = get_host_id(client)
-
-        swift_account_server.process = collect_process(client, process)
-
-        swift_account_server.version = find_python_package_version(client,
-                                                                   'swift')
-
-        collect_component_configs(
-            client, swift_account_server, process.command,
-            default_config='/etc/swift/account-server/1.conf')
-
-        self._seen_items.append(swift_account_server)
-
-        return swift_account_server
+    default_config_path = '/etc/swift/account-server/1.conf'
 
 
-class SwiftObjectServerDiscovery(ServiceDiscovery):
+class SwiftObjectServerDiscovery(OpenstackComponentDiscovery):
     item_type = 'swift-object-server'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'swift-object-server')
-        if not process:
-            return None
-
-        swift_object_server = SwiftObjectServerComponent()
-        swift_object_server.host_id = get_host_id(client)
-
-        swift_object_server.process = collect_process(client, process)
-
-        swift_object_server.version = find_python_package_version(client,
-                                                                  'swift')
-
-        collect_component_configs(
-            client, swift_object_server, process.command,
-            default_config='/etc/swift/object-server/1.conf')
-
-        self._seen_items.append(swift_object_server)
-
-        return swift_object_server
+    default_config_path = '/etc/swift/object-server/1.conf'
 
 
-class NeutronServerDiscovery(ServiceDiscovery):
+class NeutronServerDiscovery(OpenstackComponentDiscovery):
     item_type = 'neutron-server'
 
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
 
-        process = find_python_process(client, 'neutron-server')
-        if not process:
-            return None
-
-        neutron_server = NeutronServerComponent()
-        neutron_server.host_id = get_host_id(client)
-
-        neutron_server.process = collect_process(client, process)
-
-        neutron_server.version = find_python_package_version(client, 'neutron')
-
-        collect_component_configs(
-            client, neutron_server, process.command,
-            default_config='/etc/neutron/neutron.conf')
-
-        self._seen_items.append(neutron_server)
-
-        return neutron_server
-
-
-class NeutronDhcpAgentDiscovery(ServiceDiscovery):
+class NeutronDhcpAgentDiscovery(OpenstackComponentDiscovery):
     item_type = 'neutron-dhcp-agent'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'neutron-dhcp-agent')
-        if not process:
-            return None
-
-        neutron_dhcp_agent = NeutronDhcpAgentComponent()
-        neutron_dhcp_agent.host_id = get_host_id(client)
-
-        neutron_dhcp_agent.process = collect_process(client, process)
-
-        neutron_dhcp_agent.version = find_python_package_version(client,
-                                                                 'neutron')
-
-        collect_component_configs(
-            client, neutron_dhcp_agent, process.command,
-            default_config='/etc/neutron/dhcp_agent.ini')
-
-        self._seen_items.append(neutron_dhcp_agent)
-
-        return neutron_dhcp_agent
+    default_config_path = '/etc/neutron/dhcp_agent.ini'
 
 
-class NeutronL3AgentDiscovery(ServiceDiscovery):
+class NeutronL3AgentDiscovery(OpenstackComponentDiscovery):
     item_type = 'neutron-l3-agent'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'neutron-l3-agent')
-        if not process:
-            return None
-
-        neutron_l3_agent = NeutronL3AgentComponent()
-        neutron_l3_agent.host_id = get_host_id(client)
-
-        neutron_l3_agent.process = collect_process(client, process)
-
-        neutron_l3_agent.version = find_python_package_version(client,
-                                                               'neutron')
-
-        collect_component_configs(
-            client, neutron_l3_agent, process.command,
-            default_config='/etc/neutron/l3_agent.ini')
-
-        self._seen_items.append(neutron_l3_agent)
-
-        return neutron_l3_agent
+    default_config_path = '/etc/neutron/l3_agent.ini'
 
 
-class NeutronMetadataAgentDiscovery(ServiceDiscovery):
+class NeutronMetadataAgentDiscovery(OpenstackComponentDiscovery):
     item_type = 'neutron-metadata-agent'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'neutron-metadata-agent')
-        if not process:
-            return None
-
-        neutron_metadata_agent = NeutronMetadataAgentComponent()
-        neutron_metadata_agent.host_id = get_host_id(client)
-
-        neutron_metadata_agent.process = collect_process(client, process)
-
-        neutron_metadata_agent.version = find_python_package_version(client,
-                                                                     'neutron')
-
-        collect_component_configs(
-            client, neutron_metadata_agent, process.command,
-            default_config='/etc/neutron/metadata_agent.ini')
-
-        self._seen_items.append(neutron_metadata_agent)
-
-        return neutron_metadata_agent
+    default_config_path = '/etc/neutron/metadata_agent.ini'
 
 
-class NeutronOpenvswitchAgentDiscovery(ServiceDiscovery):
+class NeutronOpenvswitchAgentDiscovery(OpenstackComponentDiscovery):
     item_type = 'neutron-openvswitch-agent'
-
-    def discover(self, driver, host, **data):
-        client = driver.client(host)
-
-        process = find_python_process(client, 'neutron-openvswitch-agent')
-        if not process:
-            return None
-
-        neutron_openvswitch_agent = NeutronOpenvswitchAgentComponent()
-        neutron_openvswitch_agent.host_id = get_host_id(client)
-
-        neutron_openvswitch_agent.process = collect_process(client, process)
-
-        neutron_openvswitch_agent.version = find_python_package_version(
-            client, 'neutron')
-
-        collect_component_configs(
-            client, neutron_openvswitch_agent, process.command,
-            default_config='/etc/neutron/plugins/ml2/ml2_conf.ini')
-
-        self._seen_items.append(neutron_openvswitch_agent)
-
-        return neutron_openvswitch_agent
-
-
-DiscoveryTask = recordtype('DiscoveryTask', ['type', 'host', 'data'])
+    default_config_path = '/etc/neutron/plugins/ml2/ml2_conf.ini'
 
 
 class DiscoveryDriver(object):
+    Task = recordtype('Task', ['type', 'host', 'data'])
+
+    logger = logging.getLogger('rubick.discovery')
 
     def __init__(self, defaultPrivateKey):
         self.queue = deque()
         self.defaultPrivateKey = defaultPrivateKey
+        self.agents = dict([(c.item_type, c())
+                            for c in all_subclasses(BaseDiscovery)
+                            if hasattr(c, 'item_type')])
         self._hosts = {}
         self._clients = {}
 
@@ -1256,8 +960,18 @@ class DiscoveryDriver(object):
 
         return self._clients[host]
 
+    def discover(self, type, host, **data):
+        if type not in self.agents:
+            self.logger.error('Request for discovery of unknown type "%s"' % type)
+            return None
+
+        self.logger.info('Processing item of type %s, host = %s, %s' %
+                         (type, host, ', '.join(['%s=%s' % (k, v) for k, v in data.items()])))
+
+        return self.agents[type].discover(self, host, **data)
+
     def enqueue(self, type, host, **data):
-        self.queue.append(DiscoveryTask(type, host, data))
+        self.queue.append(DiscoveryDriver.Task(type, host, data))
 
 
 class OpenstackDiscovery(object):
@@ -1266,10 +980,6 @@ class OpenstackDiscovery(object):
     def discover(self, initial_nodes, private_key):
         "Takes a list of node addresses "
         "and returns discovered openstack installation info"
-        agents = dict([(c.item_type, c())
-                       for c in all_subclasses(BaseDiscovery)
-                       if hasattr(c, 'item_type')])
-
         driver = DiscoveryDriver(private_key)
 
         # Set connection info and queue initial nodes
@@ -1281,45 +991,33 @@ class OpenstackDiscovery(object):
 
             driver.enqueue('host', info['host'])
 
-        items = []
         while len(driver.queue) > 0:
             task = driver.queue.popleft()
 
-            self.logger.info('Processing item of type %s, host = %s' %
-                             (task.type, task.host))
-            if task.type in agents.keys():
-                agent = agents[task.type]
+            driver.discover(task.type, task.host, **task.data)
 
-                if agent.seen(driver, task.host, **task.data):
-                    continue
-
-                item = agent.discover(driver, task.host, **task.data)
-
-                if item:
-                    items.append(item)
-            else:
-                self.logger.error('Unknown item type: %s' % task.type)
+        items = sum([agent.items for agent in driver.agents.values()], [])
 
         # Rebuild model tree
-        openstack = Openstack()
+        openstack = model.Openstack()
 
-        for host in filter(lambda i: isinstance(i, HostResource), items):
+        for host in filter(lambda i: isinstance(i, model.HostResource), items):
             openstack.add_host(host)
 
-        for service in filter(lambda i: isinstance(i, Service), items):
+        for service in filter(lambda i: isinstance(i, model.Service), items):
             host = find(openstack.hosts, lambda h: h.id == service.host_id)
             if not host:
-                logger.error('Got resource "%s" '
-                             'that belong to non-existing host' % service)
+                self.logger.error('Got resource "%s" '
+                                  'that belong to non-existing host' % service)
                 continue
 
             host.add_component(service)
 
-        for fs_resource in filter(lambda f: isinstance(f, FileSystemResource), items):
+        for fs_resource in filter(lambda f: isinstance(f, model.FileSystemResource), items):
             host = find(openstack.hosts, lambda h: h.id == fs_resource.host_id)
             if not host:
-                logger.error('Got resource "%s" '
-                             'that belong to non-existing host' % fs_resource)
+                self.logger.error('Got resource "%s" '
+                                  'that belong to non-existing host' % fs_resource)
                 continue
 
             host.add_fs_resource(fs_resource)

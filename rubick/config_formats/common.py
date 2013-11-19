@@ -1,4 +1,4 @@
-from rubick.common import Mark, Issue, MarkedIssue
+from rubick.common import Issue, MarkedIssue
 
 
 class ParseError(MarkedIssue):

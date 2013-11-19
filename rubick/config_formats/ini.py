@@ -1,8 +1,12 @@
 import re
+
 from six import StringIO
 
-from rubick.config_model import *
-from rubick.config_formats.common import *
+from rubick.common import Mark
+from rubick.config_model import ComponentConfig, ConfigSection, \
+    ConfigSectionName, ConfigParameter, ConfigParameterName, \
+    ConfigParameterValue, TextElement
+from rubick.config_formats.common import ParseError
 
 
 class IniConfigParser:

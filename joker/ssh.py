@@ -1,6 +1,6 @@
 from os import environ
-import shlex
-import subprocess
+#import shlex
+#import subprocess
 
 
 class JokerSecureShell():

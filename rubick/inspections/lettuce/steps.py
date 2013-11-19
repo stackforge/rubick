@@ -2,7 +2,11 @@ import string
 from lettuce import step, world
 
 from rubick.common import Issue, Version, find
-from rubick.model import *
+import rubick.model as model
+
+
+AUTHTOKEN_FILTER_FACTORY = ('keystoneclient.middleware.auth_token:'
+                            'filter_factory')
 
 
 def get_variable(name):
@@ -36,7 +40,7 @@ def stop():
 def use_openstack_version(step, version):
     version = Version(version)
     for component in [c for c in world.openstack.components
-                      if isinstance(c, OpenstackComponent)]:
+                      if isinstance(c, model.OpenstackComponent)]:
         if not Version(component.version) >= version:
             stop()
 
