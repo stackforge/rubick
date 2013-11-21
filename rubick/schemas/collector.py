@@ -1,6 +1,9 @@
 import argparse
 from copy import copy
-import imp
+from lib2to3.pgen2 import driver
+from lib2to3.pgen2 import token
+from lib2to3.pygram import python_grammar, python_symbols as py
+from lib2to3.pytree import Node, Leaf
 import os
 import re
 import sys
@@ -187,10 +190,198 @@ OPT_TYPE_MAPPING = {
 OPTION_REGEX = re.compile(r"(%s)" % "|".join(OPT_TYPE_MAPPING.keys()))
 
 
+def convert(gr, raw_node):
+    type, value, context, children = raw_node
+    # if has children or correspond to nonterminal
+    if children or type in gr.number2symbol:
+        return Node(type, children, context=context)
+    else:
+        return Leaf(type, value, context=context)
+
+
+def walk_tree(root):
+    while True:
+        yield root
+
+        # Optimize traversing single-child nodes
+        if len(root.children) == 1:
+            root = root.children[0]
+            continue
+
+        break
+
+    for child in copy(root.children):
+        for node in walk_tree(child):
+            yield node
+
+
+def extract_config_from_file(path):
+    with open(path) as f:
+        contents = f.read()
+
+    d = driver.Driver(python_grammar, convert=convert)
+    tree = d.parse_string(contents)
+
+    def mark_stmt(node):
+        n = node
+        while n:
+            if n.type == py.stmt:
+                n.marked = True
+                break
+            n = n.parent
+
+    fullnames = {}
+    # Process imports and renames
+    for node in walk_tree(tree):
+        if node.type == py.import_from:
+            mod = str(node.children[1]).strip()
+            for node2 in walk_tree(node.children[3]):
+                if node2.type == py.import_as_name:
+                    n = str(node2).strip()
+                    f = '.'.join([mod, n])
+                    fullnames[n] = f
+        elif node.type == py.expr_stmt:
+            if len(node.children) > 1 and node.children[1].type == token.EQUAL:
+                lhs = str(node.children[0]).strip()
+                rhs = str(node.children[2]).strip()
+                if re.match('\S+(\.\S+)*', rhs):
+                    parts = rhs.split('.')
+                    if parts[0] in fullnames:
+                        rhs = '.'.join([fullnames[parts[0]]] + parts[1:])
+                        fullnames[lhs] = rhs
+
+                        if any([rhs.startswith(s) for s in ['oslo.', 'oslo.config.', 'oslo.config.cfg.']]):
+                            mark_stmt(node)
+
+    # Process all callsites CONF.register*
+    for node in walk_tree(tree):
+        if node.type == py.power and node.children[0].children[0].type == token.NAME:
+            s = str(node.children[0]).strip()
+            if s in fullnames:
+                s = fullnames[s]
+
+            cs = node.children
+            i = 1
+            while i < len(cs) and cs[i].type == py.trailer:
+                c = cs[i]
+                if c.children[0].type != token.DOT:
+                    break
+
+                s += '.' + c.children[1].value
+                i += 1
+
+            if i < len(cs) and cs[i].type == py.trailer and cs[i].children[0].type == token.LPAR:
+                # call site
+                if s.startswith('oslo.config.cfg.CONF.'):
+                    rest = s[len('oslo.config.cfg.CONF.'):]
+                    if rest.startswith('register_'):
+                        mark_stmt(node)
+
+                if s.startswith('oslo.config.cfg.'):
+                    rest = s[len('oslo.config.cfg.'):]
+                    if rest.endswith('Opt'):
+                        mark_stmt(node)
+
+    # Traverse code and find all var references
+    seen_vars = set()
+    referenced_vars_queue = []
+
+    def find_definition(tree, name):
+        for node in walk_tree(tree):
+            if node.type == py.classdef and node.children[1].value == name:
+                return node
+            elif node.type == py.funcdef and node.children[1].value == name:
+                return node
+            elif node.type == py.import_name:
+                imported_name = str(node.children[1]).strip()
+                if imported_name == name:
+                    return node
+            elif node.type == py.import_from:
+                for n in walk_tree(node):
+                    if n.type == py.import_as_name:
+                        i = 0
+                        if len(n.children) == 3:
+                            i = 2
+
+                        if n.children[i].value == name:
+                            return node
+            elif node.type == py.expr_stmt:
+                if len(node.children) > 1 and node.children[1].type == token.EQUAL:
+                    for n in walk_tree(node):
+                        if n.type == py.power:
+                            assignment_name = str(n.children[0]).strip()
+                            if assignment_name == name:
+                                return node
+
+        return None
+
+    def collect_refs(root):
+        for n2 in walk_tree(root):
+            if n2.type == py.power and n2.children[0].children[0].type == token.NAME:
+                name = n2.children[0].children[0].value
+                x = 1
+                while (x < len(n2.children) and
+                       n2.children[x].type == py.trailer and
+                       n2.children[x].children[0].type == token.DOT):
+                    name += str(n2.children[x]).strip()
+                    x += 1
+
+                if '.' not in name:
+                    isKWArgName = False
+                    n = n2
+                    while n.parent:
+                        if n.parent.type == py.argument:
+                            arg = n.parent
+                            if len(arg.children) > 1 and arg.children[1].type == token.EQUAL and n == arg.children[0]:
+                                isKWArgName = True
+                        n = n.parent
+
+                    if isKWArgName:
+                        continue
+
+                    if name in dir(__builtins__):
+                        continue
+
+                if name not in seen_vars:
+                    seen_vars.add(name)
+                    referenced_vars_queue.append(name)
+
+    for node in tree.children:
+        if node.type == py.stmt and (hasattr(node, 'marked') and node.marked):
+            collect_refs(node)
+
+    for name in referenced_vars_queue:
+        node = find_definition(tree, name)
+        if node:
+            mark_stmt(node)
+            collect_refs(node)
+        else:
+            while '.' in name:
+                name = '.'.join(name.split('.')[:-1])
+                node = find_definition(tree, name)
+                if node:
+                    mark_stmt(node)
+                    collect_refs(node)
+
+    # Remove all unmarked top-level statements
+    for node in walk_tree(tree):
+        if node.type == py.stmt and node.parent.type == py.file_input:
+            if not (hasattr(node, 'marked') and node.marked):
+                node.remove()
+
+    code = str(tree)
+
+    try:
+        exec code in {'__file__': path}
+    except Exception:
+        sys.stderr.write("Error processing file %s\n" % path)
+        traceback.print_exc()
+        sys.stderr.write(code)
+
+
 def generate_schema_from_code(project, version, module_path, writer):
     old_sys_path = copy(sys.path)
 
-    mods_by_pkg = dict()
     filepaths = []
     module_directory = ''
 
@@ -223,119 +414,19 @@ def generate_schema_from_code(project, version, module_path, writer):
         filepaths.append(module_path)
 
     for filepath in filepaths:
-        pkg_name = filepath.split(os.sep)[1]
-        mod_path = filepath
-        if module_directory != '':
-            mod_path = filepath.replace(module_directory + '/', '', 1)
-        mod_str = '.'.join(['.'.join(mod_path.split(os.sep)[:-1]),
-                           os.path.basename(mod_path).split('.')[0]])
+        extract_config_from_file(filepath)
 
-        mods_by_pkg.setdefault(pkg_name, list()).append(mod_str)
-
-    pkg_names = filter(lambda x: x.endswith('.py'), mods_by_pkg.keys())
-    pkg_names.sort()
-    ext_names = filter(lambda x: x not in pkg_names, mods_by_pkg.keys())
-    ext_names.sort()
-    pkg_names.extend(ext_names)
-
-    # opts_by_group is a mapping of group name to an options list
-    # The options list is a list of (module, options) tuples
-    opts_by_group = {'DEFAULT': []}
-
-    for pkg_name in pkg_names:
-        mods = mods_by_pkg.get(pkg_name)
-        mods.sort()
-        for mod_str in mods:
-            if mod_str.endswith('.__init__'):
-                mod_str = mod_str[:mod_str.rfind(".")]
-
-            mod_obj = _import_module(mod_str)
-            if not mod_obj:
-                sys.stderr.write("Unable to import module %s" % mod_str)
-
-            for group, opts in _list_opts(mod_obj):
-                opts_by_group.setdefault(group, []).append((mod_str, opts))
-
-    print_group_opts(writer, 'DEFAULT', opts_by_group.pop('DEFAULT', []))
-    for group, opts in opts_by_group.items():
-        print_group_opts(writer, group, opts)
+    print_group_opts(writer, 'DEFAULT', cfg.CONF._opts.values())
+    for group_name in cfg.CONF._groups:
+        print_group_opts(writer, group_name, cfg.CONF._groups[group_name]._opts.values())
 
     sys.path = old_sys_path
 
 
-def _import_module(mod_str):
-    try:
-        if mod_str.startswith('bin.'):
-            imp.load_source(mod_str[4:], os.path.join('bin', mod_str[4:]))
-            return sys.modules[mod_str[4:]]
-        else:
-            __import__(mod_str)
-            return sys.modules[mod_str]
-    except ImportError:
-        traceback.print_exc()
-        # sys.stderr.write("%s\n" % str(ie))
-        return None
-    except Exception:
-        traceback.print_exc()
-        return None
-
-
-def _is_in_group(opt, group):
-    "Check if opt is in group."
-    for key, value in group._opts.items():
-        if value['opt'] == opt:
-            return True
-    return False
-
-
-def _guess_groups(opt, mod_obj):
-    # is it in the DEFAULT group?
-    if _is_in_group(opt, cfg.CONF):
-        return 'DEFAULT'
-
-    # what other groups is it in?
-    for key, value in cfg.CONF.items():
-        if not isinstance(value, cfg.CONF.GroupAttr):
-            continue
-
-        if _is_in_group(opt, value._group):
-            return value._group.name
-
-    # raise RuntimeError(
-    #     "Unable to find group for option %s, "
-    #     "maybe it's defined twice in the same group?"
-    #     % opt.name
-    # )
-
-    return 'DEFAULT'
-
-
-def _list_opts(obj):
-    def is_opt(o):
-        return (isinstance(o, cfg.Opt) and
-                not isinstance(o, cfg.SubCommandOpt))
-
-    opts = list()
-    for attr_str in dir(obj):
-        attr_obj = getattr(obj, attr_str)
-        if is_opt(attr_obj):
-            opts.append(attr_obj)
-        elif (isinstance(attr_obj, list) and
-              all(map(lambda x: is_opt(x), attr_obj))):
-            opts.extend(attr_obj)
-
-    ret = {}
-    for opt in opts:
-        ret.setdefault(_guess_groups(opt, obj), []).append(opt)
-    return ret.items()
-
-
-def print_group_opts(writer, group, opts_by_module):
+def print_group_opts(writer, group, opts):
     writer.section(group)
-    for mod, opts in opts_by_module:
-        writer.comment("Options defined in %s" % mod)
-        for opt in opts:
-            print_opt(writer, opt)
+    for opt in opts:
+        print_opt(writer, opt['opt'])
 
 
 def print_opt(writer, opt):
