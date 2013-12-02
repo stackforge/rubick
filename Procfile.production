@@ -1,2 +1,0 @@
-webui: PYTHONPATH=joker: gunicorn --error-logfile - --log-level info rubick.webui:app --bind 0.0.0.0:8000
-worker: PYTHONPATH=joker: celery worker --app=rubick.celery:app
