@@ -20,24 +20,24 @@ Installation
 For Ubuntu:
 
 ```shell
+$ sudo apt-get install git build-essential mongodb-server redis-server python-pip
 $ git clone https://github.com/stackforge/rubick && cd rubick
-$ sudo apt-get install build-essential mongodb-server redis-server python-pip
 $ sudo pip install -r requirements.txt
 $ honcho start
 ```
 
 For CentOS:
 
-Follow the official documentation to take enable EPEL repo in your system: http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository
+Follow the official documentation to enable EPEL repo in your system: http://fedoraproject.org/wiki/EPEL/FAQ#How_can_I_install_the_packages_from_the_EPEL_software_repository
 After that install dependencies and run an application.
 
 ```shell
+$ sudo yum install git build-essential mongodb-server redis-server python-pip
 $ git clone https://github.com/stackforge/rubick && cd rubick
-$ sudo yum install build-essential mongodb-server redis-server python-pip
 $ sudo pip install -r requirements.txt
 $ honcho start
 ```
-Note: If you use fuel-pm node as a rubicks destination node, you'll need to return CentOS base repositaries in the yum settings.
+Note: If you use fuel-pm node as a rubicks destination node, you'll need to return CentOS base repositories in the yum settings.
 
 Note2: All steps for manual deployment and running the app you can find here: /vagrant/cookbooks/openstack-validator/recipes/default.rb
 
