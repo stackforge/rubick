@@ -65,16 +65,29 @@ This section proposes data model format which allows to describe an OpenStack
 installation. The model includes data regarding physical infrastructure, logical
 topology of services and mapping between the two.
 
-Architecture data model could be serialized as JSON or YaML document of the
-following format::
+Current model of OpenStack architecture used in Rubick is defined in module
+``rubick/model.py``. This module contains following classes in hierarchy below:
 
-    openstack
-        nodes
-            node1
-                -param1: value
-                -param2: value
-        services
-            nova
-                configuration
-                    -param1: value
-                    -param2: value
+  OpenStack:
+    hosts:
+      - Host: hostname1
+        components:
+          - Service: NovaApiComponent
+            config:
+              - key: value
+              - ...
+          - Service: KeystoneComponent
+            config:
+              - key: value
+              - ...
+          - ...
+        filesystem:
+          - resource1: FileResource
+          - resource2: DirectoryResource
+          - ...
+      - Host: hostname2
+        components:
+          - ...
+        filesystem:
+          - ...
+      - ...
