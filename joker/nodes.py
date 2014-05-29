@@ -139,15 +139,15 @@ class Node():
             self.connected = True
             return True
 
-        except paramiko.BadHostKeyException, e:
+        except paramiko.BadHostKeyException as e:
             print "Host key could not be verified: ", e
             return False
-        except paramiko.AuthenticationException, e:
+        except paramiko.AuthenticationException as e:
             print "Error unable to authenticate: ", e
             return False
-        except paramiko.SSHException, e:
+        except paramiko.SSHException as e:
             return False
-        except EOFError, e:
+        except EOFError as e:
             return False
 
     def runCommand(self, command):
