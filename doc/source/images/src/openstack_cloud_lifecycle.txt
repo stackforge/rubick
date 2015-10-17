@@ -1,7 +1,0 @@
-@startuml
-
-(*) -right-> [<i>OpenStack Services</i>\nNova, Keystone, Neutron,\nGlance, Heat, Swift] "Deployment"
-"Deployment" -right-> [<i>OpenStack Deployment</i>\nFuel, TripleO, Devstack] "Operation\nMaintenance"
-"Operation\nMaintenance" -right-> [<i>DRAGONS?</i>\nTuskar, <b>Rubick</b>] (*)
-
-@enduml
